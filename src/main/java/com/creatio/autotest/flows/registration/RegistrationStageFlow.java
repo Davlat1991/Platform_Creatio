@@ -1,0 +1,67 @@
+package com.creatio.autotest.flows.registration;
+
+import com.codeborne.selenide.Selenide;
+import com.creatio.autotest.testdata.models.RegistrationData;
+import io.qameta.allure.Step;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class RegistrationStageFlow {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(RegistrationStageFlow.class);
+
+    private final RegistrationGeneralInfoFlow         generalInfoFlow;
+    private final RegistrationParticipantsFlow        participantsFlow;
+    private final RegistrationDocumentsFlow           documentsFlow;
+    private final RegistrationAddressFlow             addressFlow;
+    private final RegistrationIncomeExpensesFlow      incomeExpensesFlow;
+    private final RegistrationAdditionalInfoFlow      additionalInfoFlow;
+    private final RegistrationScoringConfirmationFlow scoringFlow;
+    private final RegistrationPrintFlow               printFlow;
+
+    public RegistrationStageFlow() {
+        this.generalInfoFlow    = new RegistrationGeneralInfoFlow();
+        this.participantsFlow   = new RegistrationParticipantsFlow();
+        this.documentsFlow      = new RegistrationDocumentsFlow();
+        this.addressFlow        = new RegistrationAddressFlow();
+        this.incomeExpensesFlow = new RegistrationIncomeExpensesFlow();
+        this.additionalInfoFlow = new RegistrationAdditionalInfoFlow();
+        this.scoringFlow        = new RegistrationScoringConfirmationFlow();
+        this.printFlow          = new RegistrationPrintFlow();
+    }
+
+    @Step("Этап регистрации заявки")
+    public void completeRegistrationStage(RegistrationData data) {
+        log.info("Complete registration stage");
+
+        // 1. Общая информация
+        generalInfoFlow.fillGeneralInfo(data);
+
+        // 2. Участники
+        participantsFlow.addBorrower();
+
+        // 3. Документы
+        documentsFlow.fillBorrowerDocuments();
+
+        // 4. Адреса
+        addressFlow.fillAddresses();
+        addressFlow.setPzlRelation(false);
+
+        // 5. Доходы и расходы
+        incomeExpensesFlow.fillIncomeAndExpenses(data.getIncomeExpenses());
+
+        // 6. Скоринговые данные
+        additionalInfoFlow.fillBaseScoringData(data.getScoringData());
+
+        // 7. Подтверждение скоринга
+        scoringFlow.confirmScoring();
+
+        // 8. Печать
+        printFlow.printApplication();
+
+        Selenide.refresh();
+
+        log.info("Registration stage completed");
+    }
+}

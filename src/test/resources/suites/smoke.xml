@@ -1,0 +1,12 @@
+<!-- src/test/resources/suites/smoke.xml -->
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Smoke" verbose="1">
+    <test name="Smoke Tests">
+        <groups>
+            <run><include name="smoke"/></run>
+        </groups>
+        <packages>
+            <package name="com.creatio.autotest.tests"/>
+        </packages>
+    </test>
+</suite>

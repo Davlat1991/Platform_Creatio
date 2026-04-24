@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Regression" verbose="1">
+
+    <listeners>
+        <listener class-name="com.creatio.autotest.base.TestListener"/>
+    </listeners>
+
+    <test name="All Tests">
+        <packages>
+            <package name="com.creatio.autotest.tests"/>
+        </packages>
+    </test>
+
+</suite>
