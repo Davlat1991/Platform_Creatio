@@ -1,0 +1,41 @@
+package com.creatio.autotest.flows.collateral;
+
+import com.creatio.autotest.components.collateral.*;
+import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.testdata.models.CollateralData;
+import io.qameta.allure.Step;
+
+public class CashDepositCollateralFlow extends BaseCollateralFlow {
+
+    private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
+    private final CollateralGridComponent      grid      = new CollateralGridComponent();
+    private final CollateralFormComponent      form      = new CollateralFormComponent();
+    private final CollateralValuationComponent valuation = new CollateralValuationComponent();
+    private final ClickService click    = new ClickService();
+
+    @Override
+    @Step("Залог: Денежный вклад")
+    public void fill(CollateralData data) {
+        log.info("Fill cash deposit collateral");
+
+        tabs.openCollateralTab();
+        grid.addCollateral();
+        grid.openPropertyLookup();
+
+        form.selectType("Денежные средства (депозитные счета)");
+        form.selectSubType("Гарави пасандоз");
+        form.setName("Денежный вклад");
+        form.selectOwnership("Третьего лица");
+        form.selectPledger("Хамидов Азизходжа Азамходжаевич");
+
+        valuation.fillCashDeposit(
+                data.getMarketValue(),
+                data.getCurrency()
+        );
+
+        form.save();
+        click.doubleClickByMarker("Залоговая стоимость");
+        form.close();
+        click.doubleClickByMarker("Обеспечение.Подтип");
+    }
+}

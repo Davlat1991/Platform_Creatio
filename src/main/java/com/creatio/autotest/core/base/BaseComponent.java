@@ -29,4 +29,6 @@ public abstract class BaseComponent {
         this.scroll = new ScrollService();
         this.config = Config.getInstance();
     }
+
+
 }

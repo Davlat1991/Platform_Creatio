@@ -166,4 +166,19 @@ public class GridComponent extends BaseComponent {
                         " and not(contains(@class,'grid-header'))]")
                 .filter(visible);
     }
+
+    // Добавить в GridComponent.java:
+
+    @Step("Click first row in grid: {gridId}")
+    public void clickFirstRowInGrid(String gridId) {
+        log.info("Click first row in grid: '{}'", gridId);
+
+        SelenideElement row = $x(
+                "//div[@id='" + gridId + "']" +
+                        "//div[contains(@class,'grid-row')" +
+                        " and not(contains(@class,'grid-header'))]"
+        ).shouldBe(Condition.visible).scrollIntoView(true);
+
+        executeJavaScript("arguments[0].click();", row);
+    }
 }

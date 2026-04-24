@@ -5,6 +5,7 @@ import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.core.services.WaitService;
 import com.creatio.autotest.pages.FieldPage;
+import com.creatio.autotest.testdata.models.ProductData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,19 +31,20 @@ public class ProductSelectionFlow {
     // SELECT PRODUCT
     // ══════════════════════════════════════
 
-    @Step("Выбор продукта: {productType} / {creditPurpose}")
-    public void selectProduct(String productType,
-                              String creditPurpose,
-                              String amount,
-                              String term,
-                              String currency) {
 
-        log.info("Select product: type='{}' purpose='{}'", productType, creditPurpose);
+    @Step("Выбор продукта")
+    public void selectProduct(ProductData product) {
+        log.info("Select product: type='{}'", product.getProductType());
 
-        fillCriteria(productType, creditPurpose, amount, term, currency);
+        fillCriteria(
+                product.getProductType(),
+                product.getCreditPurpose(),
+                product.getAmount(),
+                product.getTerm(),
+                product.getCurrency()
+        );
         findProducts();
         chooseFirstProduct();
-
         log.info("Product selected successfully");
     }
 

@@ -1,0 +1,11 @@
+package com.creatio.autotest.testdata.models;
+
+import lombok.Builder;
+import lombok.Getter;
+import java.util.List;
+
+@Getter
+@Builder
+public class ParticipantsData {
+    private List<ParticipantData> participants;
+}

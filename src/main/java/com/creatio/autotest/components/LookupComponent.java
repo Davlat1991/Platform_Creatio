@@ -177,4 +177,22 @@ public class LookupComponent extends BaseComponent {
                 .findBy(visible)
                 .shouldBe(visible, Duration.ofSeconds(10));
     }
+
+    @Step("Set field by label: {label} = {value}")
+    public LookupComponent selectByLabel(String label, String value) {
+        log.info("selectByLabel: label='{}' value='{}'", label, value);
+        $x("//label[normalize-space()='" + label + "']/../..//input")
+                .shouldBe(visible, enabled)
+                .setValue(value);
+        return this;
+    }
+
+    @Step("Set modal search field: {marker} = {value}")
+    public LookupComponent setModalSearchField(String marker, String value) {
+        log.info("setModalSearchField: marker='{}' value='{}'", marker, value);
+        $x("//div[@data-item-marker='" + marker + "']//input")
+                .shouldBe(visible)
+                .setValue(value);
+        return this;
+    }
 }

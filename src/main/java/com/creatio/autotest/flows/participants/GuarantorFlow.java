@@ -6,6 +6,7 @@ import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.core.services.ScrollService;
 import com.creatio.autotest.testdata.models.ParticipantData;
 import com.creatio.autotest.testdata.models.RegistrationIncomeExpensesData;
 import io.qameta.allure.Step;
@@ -24,6 +25,7 @@ public class GuarantorFlow {
     private final MenuComponent     menu     = new MenuComponent();
     private final BasePage          basePage = new BasePage();
     private final ClickService      click    = new ClickService();
+    private final ScrollService scroll  = new ScrollService();
 
     @Step("Заполнение анкеты поручителя")
     public void fill(ParticipantData participant,
@@ -134,7 +136,7 @@ public class GuarantorFlow {
 
     @Step("Подтверждение скоринга поручителя")
     private void confirmScoring() {
-        basePage.scrollToTop();
+        scroll.scrollToTop();
         buttons.clickTabByName("ОЦЕНКА ИНФОРМАЦИИ");
 
         lookup

@@ -19,6 +19,7 @@ public final class ScenarioFactory {
                 .ikokGo(UserPool.ikokGo())
                 .cashier(UserPool.cashier())
                 // Данные регистрации
+                .contact(ContactData.defaultContact())
                 .registration(defaultRegistration())
                 .product(defaultProduct())
                 .build();
@@ -35,6 +36,7 @@ public final class ScenarioFactory {
                 .ikok(UserPool.ikok())
                 .ikokGo(UserPool.ikokGo())
                 .cashier(UserPool.cashier())
+                .contact(ContactData.defaultContact())
                 .registration(highIncomeRegistration())
                 .product(highAmountProduct())
                 .build();
