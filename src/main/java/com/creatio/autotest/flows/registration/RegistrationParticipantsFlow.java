@@ -7,6 +7,8 @@ import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.codeborne.selenide.Selenide.$x;
+
 public class RegistrationParticipantsFlow {
 
     private static final Logger log =
@@ -21,9 +23,10 @@ public class RegistrationParticipantsFlow {
         log.info("Add borrower");
 
         buttons.clickTabByName("Участники заявки");
-        click.clickById(
-                "BnzVwFinApplicationAllParticipantDetailAddTypedRecordButtonButton-imageEl"
-        );
-        menu.clickByName("Заемщик");
+        //click.clickById("BnzVwFinApplicationAllParticipantDetailAddTypedRecordButtonButton-imageEl");
+        //menu.clickByName("Заемщик");
+        menu.doubleclickButtonByName("Заемщик"); //Метод для продолжения заявки
     }
+
+
 }

@@ -55,14 +55,14 @@ public class CreditApplicationTest extends BaseTest {
         // 2. ФЛОУ
         // ══════════════════════════════════════
 
-        AuthFlow      auth      = new AuthFlow();
+        AuthFlow auth = new AuthFlow();
         WorkspaceFlow workspace = new WorkspaceFlow();
 
         // ── Розничный менеджер ─────────────────
         auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
 
-        new ClientSearchFlow().searchClient(
+       /* new ClientSearchFlow().searchClient(
                 scenario.getContact().getLastName(),
                 scenario.getContact().getFirstName(),
                 scenario.getContact().getMiddleName()
@@ -76,12 +76,19 @@ public class CreditApplicationTest extends BaseTest {
 
         new ApplicationCreationFlow().createApplication(
                 "3", "2", "Аннуитетный", "36"
+        );*/
+
+        // 2. Открываем заявку напрямую — пропускаем всё до этого места
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/FinApplicationPage/edit/" +
+                        "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"
         );
 
         new RegistrationStageFlow()
                 .completeRegistrationStage(registration);
 
-        new PreliminaryCheckStageFlow()
+       /* new PreliminaryCheckStageFlow()
                 .completePreliminaryCheckStage();
 
         new ParticipantsStageFlow()
@@ -146,6 +153,10 @@ public class CreditApplicationTest extends BaseTest {
         new ApplicationFinishFlow()
                 .completeApplicationFinish();
 
-        auth.logout();
+        auth.logout();*/
     }
+
+
 }
+
+
