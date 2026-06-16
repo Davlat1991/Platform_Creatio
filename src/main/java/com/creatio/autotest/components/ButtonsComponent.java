@@ -59,14 +59,14 @@ public class ButtonsComponent extends BaseComponent {
     }
 
     @Step("Click tab button contains: {name}")
-    public ButtonsComponent clickTabByName(String name) {
-        log.info("Click tab: '{}'", name);
+    public ButtonsComponent clickTabByName(String value) {
+        log.info("Click tab: '{}'", value);
 
         for (int i = 0; i < 3; i++) {
             try {
-                SelenideElement btn = $x("//span[contains(text(),'" + name + "')]")
+                SelenideElement btn = $x("//span[contains(text(),'" + value + "')]")
                         .shouldBe(visible)
-                        .scrollIntoView(true);
+                        .scrollIntoView(false);
 
                 // Ждём исчезновения лоадеров
                 $$(".ts-loader,.mask,.loading-indicator")
@@ -83,6 +83,20 @@ public class ButtonsComponent extends BaseComponent {
                 log.warn("Tab click attempt {}/3 failed", i + 1);
             }
         }
-        throw new RuntimeException("Failed to click tab: " + name);
+        throw new RuntimeException("Failed to click tab: " + value);
+    }
+
+    public ButtonsComponent clickButtonByContainName(String Value) {
+        SelenideElement element = $x("//span[contains(text(), '" + Value + "')]")
+                .shouldBe(Condition.visible)
+                .shouldBe(Condition.enabled)
+                .shouldHave(Condition.text(Value));
+
+        element.hover();                    // помогает "активировать" элемент
+        element.shouldBe(Condition.interactable); // теперь interactable безопасен
+
+        element.click();
+
+        return this;
     }
 }

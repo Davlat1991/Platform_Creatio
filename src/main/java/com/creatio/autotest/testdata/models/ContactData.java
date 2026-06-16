@@ -12,9 +12,9 @@ public class ContactData {
 
     public static ContactData defaultContact() {
         return ContactData.builder()
-                .firstName("Фарида")
-                .lastName("Тестова")
-                .middleName("Тестовна")
+                .firstName("Фарангис")
+                .lastName("Ашурова")
+                .middleName("Шарифовна")
                 .build();
     }
 }

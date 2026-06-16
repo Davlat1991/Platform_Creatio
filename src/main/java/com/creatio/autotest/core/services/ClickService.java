@@ -41,7 +41,6 @@ public class ClickService {
         for (int i = 1; i <= 3; i++) {
             try {
                 element.shouldBe(visible, enabled)
-                        .scrollIntoView(true)
                         .click();
                 return;
             } catch (Throwable t) {
@@ -62,8 +61,7 @@ public class ClickService {
         log.info("Click by marker: {}", marker);
         SelenideElement el = $x("//*[@data-item-marker='" + marker + "']")
                 .shouldBe(visible)
-                .shouldBe(enabled)
-                .scrollIntoView(true);
+                .shouldBe(enabled);
         executeJavaScript("arguments[0].click();", el);
     }
 
@@ -81,8 +79,7 @@ public class ClickService {
         log.info("Click by id: {}", id);
         SelenideElement el = $x("//span[@id='" + id + "']")
                 .shouldBe(visible)
-                .shouldBe(enabled)
-                .scrollIntoView(true);
+                .shouldBe(enabled);
         try {
             el.click();
         } catch (Throwable e) {
@@ -94,8 +91,7 @@ public class ClickService {
     public void clickByTagAndMarker(String tag, String marker) {
         log.info("Click tag={} marker={}", tag, marker);
         SelenideElement el = $x("//" + tag + "[@data-item-marker='" + marker + "']")
-                .shouldBe(visible)
-                .scrollIntoView(true);
+                .shouldBe(visible);
         executeJavaScript("arguments[0].click();", el);
     }
 

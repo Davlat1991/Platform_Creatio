@@ -1,10 +1,8 @@
 package com.creatio.autotest.components;
 
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
 import io.qameta.allure.Step;
-import org.testng.Assert;
 
 import java.time.Duration;
 
@@ -18,9 +16,15 @@ public class CreditApplicationAssertions extends BaseComponent {
 
         String actual = getOrderState();
 
-        Assert.assertEquals(actual, expected,
-                "Order state mismatch"
-        );
+        if (!actual.equals(expected)) {
+            throw new AssertionError(
+                    "Order state mismatch." +
+                            " Expected: '" + expected + "'" +
+                            " Actual: '" + actual + "'"
+            );
+        }
+
+        log.info("Order state verified: '{}'", expected);
     }
 
     private String getOrderState() {

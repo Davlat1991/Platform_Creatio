@@ -67,6 +67,7 @@ public class LookupComponent extends BaseComponent {
         return this;
     }
 
+
     // ══════════════════════════════════════
     // BY MARKER — поиск по data-item-marker
     // ══════════════════════════════════════
