@@ -36,3 +36,12 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### СЕКРЕТЫ — реальные логины/пароли, НЕ коммитить ###
+**/config.properties
+**/config.test.properties
+**/config.preprod.properties
+**/config.local.properties
+
+# Шаблон без секретов — его коммитим (документирует структуру)
+!**/config.properties.example
