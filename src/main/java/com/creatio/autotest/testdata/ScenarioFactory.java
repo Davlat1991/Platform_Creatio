@@ -97,6 +97,10 @@ public final class ScenarioFactory {
                 .amount("50000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")
+                // создание заявки
+                .repaymentDay("3")
+                .scheduleNumber("2")
+                .scheduleType("Аннуитетный")
                 .build();
     }
 
@@ -107,6 +111,10 @@ public final class ScenarioFactory {
                 .amount("100000")
                 .term("48")
                 .currency("Сомони Чумхурии Точикистон")
+                // создание заявки
+                .repaymentDay("3")
+                .scheduleNumber("2")
+                .scheduleType("Аннуитетный")
                 .build();
     }
 }

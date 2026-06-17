@@ -36,7 +36,8 @@ public final class UserPool {
         return new UserCredentials(
                 role,
                 config.get(prefix + ".login"),
-                config.get(prefix + ".password")
+                config.get(prefix + ".password"),
+                config.get(prefix + ".displayName")
         );
     }
 

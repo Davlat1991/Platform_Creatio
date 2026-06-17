@@ -6,6 +6,7 @@ import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.testdata.models.ProductData;
 import io.qameta.allure.Step;
 import org.openqa.selenium.Keys;
 import org.slf4j.Logger;
@@ -31,16 +32,20 @@ public class ApplicationCreationFlow {
     // ══════════════════════════════════════
 
     @Step("Создание кредитной заявки")
-    public void createApplication(String repaymentDay,
-                                  String scheduleNumber,
-                                  String scheduleType,
-                                  String termMonths) {
+    public void createApplication(ProductData product) {
         log.info("Create application: day='{}' number='{}' type='{}' term='{}'",
-                repaymentDay, scheduleNumber, scheduleType, termMonths);
+                product.getRepaymentDay(),
+                product.getScheduleNumber(),
+                product.getScheduleType(),
+                product.getTerm());
 
-        setRepaymentDate(repaymentDay);
+        setRepaymentDate(product.getRepaymentDay());
         addScheduleRow();
-        fillScheduleDetails(scheduleNumber, scheduleType, termMonths);
+        fillScheduleDetails(
+                product.getScheduleNumber(),
+                product.getScheduleType(),
+                product.getTerm()
+        );
         calculateAndCreate();
         confirmNoDebt();
     }

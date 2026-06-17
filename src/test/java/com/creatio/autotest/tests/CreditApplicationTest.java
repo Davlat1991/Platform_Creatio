@@ -62,7 +62,7 @@ public class CreditApplicationTest extends BaseTest {
         auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
 
-       /* new ClientSearchFlow().searchClient(
+        new ClientSearchFlow().searchClient(
                 scenario.getContact().getLastName(),
                 scenario.getContact().getFirstName(),
                 scenario.getContact().getMiddleName()
@@ -74,9 +74,7 @@ public class CreditApplicationTest extends BaseTest {
 
         new ProductSelectionFlow().selectProduct(scenario.getProduct());
 
-        new ApplicationCreationFlow().createApplication(
-                "3", "2", "Аннуитетный", "36"
-        );*/
+        new ApplicationCreationFlow().createApplication(scenario.getProduct() );
 
         // 2. Открываем заявку напрямую — пропускаем всё до этого места
         new NavigationFlow().open(
@@ -88,7 +86,7 @@ public class CreditApplicationTest extends BaseTest {
         new RegistrationStageFlow()
                 .completeRegistrationStage(registration);
 
-       /* new PreliminaryCheckStageFlow()
+        new PreliminaryCheckStageFlow()
                 .completePreliminaryCheckStage();
 
         new ParticipantsStageFlow()
@@ -122,38 +120,38 @@ public class CreditApplicationTest extends BaseTest {
         workspace.select(Workspace.RETAIL_MANAGER);
 
         new ClientNotificationStageFlow()
-                .completeClientNotification("Назарова Азиза Акбаровна");
+                .completeClientNotification(scenario.getIkokGo().getDisplayName());
 
         auth.logout();
 
         // ── ИКОК-ГО ────────────────────────────
         auth.login(scenario.getIkokGo());
+
         workspace.select(Workspace.IKOK_GO);
 
         new LoanIssuanceFlow()
-                .withApplicationNumber(applicationNumber)
-                .issueLoan();
+                .withApplicationNumber(applicationNumber).issueLoan();
 
         auth.logout();
 
         // ── Кассир ─────────────────────────────
         auth.login(scenario.getCashier());
+
         workspace.select(Workspace.CASHIER);
 
         new SigningStageFlow()
-                .withContractNumber(applicationNumber)
-                .completeSigningStage();
+                .withContractNumber(applicationNumber).completeSigningStage();
 
         auth.logout();
 
         // ── ИКОК-ГО (завершение) ───────────────
         auth.login(scenario.getIkokGo());
+
         workspace.select(Workspace.IKOK_GO);
 
-        new ApplicationFinishFlow()
-                .completeApplicationFinish();
+        new ApplicationFinishFlow().completeApplicationFinish();
 
-        auth.logout();*/
+        auth.logout();
     }
 
 

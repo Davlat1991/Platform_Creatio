@@ -10,6 +10,7 @@ public class UserCredentials {
     private final UserRole role;
     private final String   login;
     private final String   password;
+    private final String   displayName;
 
     @Override
     public String toString() {
