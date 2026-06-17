@@ -38,7 +38,6 @@ build/
 .DS_Store
 
 ### СЕКРЕТЫ — реальные логины/пароли, НЕ коммитить ###
-**/config.properties
 **/config.test.properties
 **/config.preprod.properties
 **/config.local.properties

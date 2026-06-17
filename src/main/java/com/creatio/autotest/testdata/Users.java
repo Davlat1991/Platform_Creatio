@@ -37,7 +37,7 @@ public final class Users {
     // ══════════════════════════════════════
 
     private static UserCredentials build(UserRole role) {
-        String prefix = role.configPrefix;
+        String prefix = role.configPrefix + ".1";   // ← фиксированный юзер №1
         return new UserCredentials(
                 role,
                 config.get(prefix + ".login"),
