@@ -69,19 +69,17 @@ public class CreditApplicationTest extends BaseTest {
         );
 
         new ConsultationStartFlow().startConsultation(
-                "consultation-theme-7a0f11cc-756d-474a-885f-1dd64eeca5b3"
-        );
+                config.getConsultationTheme("retail"));
 
         new ProductSelectionFlow().selectProduct(scenario.getProduct());
 
         new ApplicationCreationFlow().createApplication(scenario.getProduct() );
 
         // 2. Открываем заявку напрямую — пропускаем всё до этого места
-        new NavigationFlow().open(
+       /* new NavigationFlow().open(
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/FinApplicationPage/edit/" +
-                        "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"
-        );
+                        "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"  );*/
 
         new RegistrationStageFlow()
                 .completeRegistrationStage(registration);
@@ -99,7 +97,7 @@ public class CreditApplicationTest extends BaseTest {
                 .completeCollateralStage(collaterals);
 
         // API загрузка документов
-        // new DocumentsApiFlow().uploadAllDocumentsViaApi();
+       // new DocumentsApiFlow().uploadAllDocumentsViaApi();
 
         String applicationNumber = new ReviewStageRetailFlow()
                 .completeReview();

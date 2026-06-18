@@ -23,9 +23,7 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/autotest.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- новый файл каждый день -->
             <fileNamePattern>${LOG_DIR}/autotest.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- хранить 7 дней -->
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder>

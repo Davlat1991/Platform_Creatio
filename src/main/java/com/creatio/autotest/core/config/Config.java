@@ -15,17 +15,13 @@ public final class Config {
     private static final Config INSTANCE = new Config();
 
     private final Environment environment;
-    private final Properties props = new Properties();
+    private final Properties  props = new Properties();
 
     private Config() {
-        // 1. Какая среда (по умолчанию TEST)
         this.environment = Environment.from(System.getProperty("env"));
         log.info("Активная среда: {} → {}", environment, environment.baseUrl);
 
-        // 2. Общие настройки (browser/headless/timeout) — без секретов
         load("config.properties");
-
-        // 3. Учётки текущей среды — поверх общих
         load(environment.credentialsFile());
     }
 
@@ -37,35 +33,45 @@ public final class Config {
         return environment;
     }
 
-    // ── загрузка (ВАЖНО: явный UTF-8, иначе кириллица = ??????) ──
     private void load(String fileName) {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(fileName)) {
+        try (InputStream is = getClass()
+                .getClassLoader()
+                .getResourceAsStream(fileName)) {
+
             if (is == null) {
-                throw new RuntimeException(fileName + " не найден в resources");
+                throw new RuntimeException(
+                        fileName + " не найден в resources");
             }
+
             props.load(new InputStreamReader(is, StandardCharsets.UTF_8));
             log.info("{} загружен", fileName);
+
         } catch (IOException e) {
-            throw new RuntimeException("Не удалось загрузить " + fileName, e);
+            throw new RuntimeException(
+                    "Не удалось загрузить " + fileName, e);
         }
     }
 
-    // ── core ──
-    /** URL из Environment; при необходимости переопределить -Dbase.url=... */
+    // ── core ──────────────────────────────
     public String getBaseUrl() {
         String override = System.getProperty("base.url");
-        return (override != null && !override.isBlank()) ? override : environment.baseUrl;
+        return (override != null && !override.isBlank())
+                ? override
+                : environment.baseUrl;
     }
 
     public String getBrowser()       { return get("browser"); }
     public boolean isHeadless()      { return Boolean.parseBoolean(get("headless")); }
     public long getTimeout()         { return Long.parseLong(get("timeout")); }
     public long getPageLoadTimeout() { return Long.parseLong(get("page.load.timeout")); }
+    // ── consultation themes ───────────────
+    public String getConsultationTheme(String productLine) {return get("consultation.theme." + productLine);  }
 
-    // ── generic: сначала -Dkey, потом файлы ──
+    // ── generic ───────────────────────────
     public String get(String key) {
         String systemValue = System.getProperty(key);
         if (systemValue != null && !systemValue.trim().isEmpty()) {
+            log.debug("Config override via -D: {}={}", key, systemValue);
             return systemValue;
         }
         String propValue = props.getProperty(key);
@@ -74,4 +80,6 @@ public final class Config {
         }
         return propValue;
     }
+
+
 }
