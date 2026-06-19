@@ -12,6 +12,14 @@ public class ContactData {
 
     public static ContactData defaultContact() {
         return ContactData.builder()
+                .firstName("Сафарали")
+                .lastName("Садуллоев")
+                .middleName("Нусратович")
+                .build();
+    }
+
+    public static ContactData selfemployeeContact() {
+        return ContactData.builder()
                 .firstName("Фарангис")
                 .lastName("Ашурова")
                 .middleName("Шарифовна")

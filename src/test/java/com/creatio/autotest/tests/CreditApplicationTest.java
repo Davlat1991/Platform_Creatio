@@ -79,7 +79,7 @@ public class CreditApplicationTest extends BaseTest {
        /* new NavigationFlow().open(
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/FinApplicationPage/edit/" +
-                        "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"  );*/
+                        "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"  );
 
         new RegistrationStageFlow()
                 .completeRegistrationStage(registration);
@@ -149,7 +149,7 @@ public class CreditApplicationTest extends BaseTest {
 
         new ApplicationFinishFlow().completeApplicationFinish();
 
-        auth.logout();
+        auth.logout();*/
     }
 
 
