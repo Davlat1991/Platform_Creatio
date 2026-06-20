@@ -75,7 +75,7 @@ public class LoginPage extends BasePage {
     @Step("Verify login success")
     public LoginPage verifyLoginSuccess() {
         log.info("Verifying login success");
-        header().shouldBe(visible, Duration.ofSeconds(20));
+        header().shouldBe(visible, Duration.ofSeconds(30));
         log.info("Login successful — dashboard loaded");
         return this;
     }

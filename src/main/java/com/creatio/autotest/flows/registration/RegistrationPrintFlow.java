@@ -32,5 +32,35 @@ public class RegistrationPrintFlow {
 
         detailPage.openDetailMenu("Участники заявки");
         menu.clickByName("Печать Анкеты-заявки");
+        // Ждём завершения скачивания — файл не должен иметь расширение .crdownload
+        waitForDownload();
+    }
+
+
+    private void waitForDownload() {
+        log.info("Waiting for download to complete...");
+
+        String downloadPath = System.getProperty("user.dir") + "\\downloads";
+        java.io.File downloadDir = new java.io.File(downloadPath);
+
+        // Ждём до 30 секунд пока .crdownload файл исчезнет
+        for (int i = 0; i < 30; i++) {
+            java.io.File[] files = downloadDir.listFiles(
+                    f -> f.getName().endsWith(".crdownload")
+            );
+
+            if (files == null || files.length == 0) {
+                log.info("Download completed");
+                return;
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        log.warn("Download may not have completed within 30 seconds");
     }
 }

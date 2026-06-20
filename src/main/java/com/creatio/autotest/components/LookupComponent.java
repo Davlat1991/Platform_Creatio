@@ -41,7 +41,7 @@ public class LookupComponent extends BaseComponent {
                 SelenideElement item = listView
                         .$x(".//li[@data-item-marker='" + value +
                                 "' or normalize-space(.)='" + value + "']")
-                        .shouldBe(visible, Duration.ofSeconds(5));
+                        .shouldBe(visible, Duration.ofSeconds(15));
 
                 // 4. JS клик — стабильнее для Creatio
                 executeJavaScript("arguments[0].click();", item);
@@ -50,7 +50,7 @@ public class LookupComponent extends BaseComponent {
                 listView.should(disappear, Duration.ofSeconds(5));
 
                 // 6. Проверяем значение
-                input.shouldHave(exactValue(value), Duration.ofSeconds(3));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(5));
 
                 log.info("Lookup: '{}' выбрано успешно", value);
                 return this;

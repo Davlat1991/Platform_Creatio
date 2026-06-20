@@ -44,3 +44,5 @@ build/
 
 # Шаблон без секретов — его коммитим (документирует структуру)
 !**/config.properties.example
+
+/downloads/

@@ -2,10 +2,9 @@ package com.creatio.autotest.flows;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
-import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.core.base.BasePage;
-import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.ProductData;
 import io.qameta.allure.Step;
 import org.openqa.selenium.Keys;
@@ -24,8 +23,7 @@ public class ApplicationCreationFlow {
 
     private final BasePage            basePage = new BasePage();
     private final MessageBoxComponent msgBox   = new MessageBoxComponent();
-    private final MenuComponent       menu     = new MenuComponent();
-    private final ClickService        click    = new ClickService();
+    private final LookupComponent     lookup   = new LookupComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -33,7 +31,7 @@ public class ApplicationCreationFlow {
 
     @Step("Создание кредитной заявки")
     public void createApplication(ProductData product) {
-        log.info("Create application: day='{}' number='{}' type='{}' term='{}'",
+        log.info("Create application: repaymentDay='{}' scheduleNumber='{}' scheduleType='{}' term='{}'",
                 product.getRepaymentDay(),
                 product.getScheduleNumber(),
                 product.getScheduleType(),
@@ -46,6 +44,7 @@ public class ApplicationCreationFlow {
                 product.getScheduleType(),
                 product.getTerm()
         );
+        saveScheduleRow();
         calculateAndCreate();
         confirmNoDebt();
     }
@@ -59,123 +58,121 @@ public class ApplicationCreationFlow {
         log.info("Set repayment date: {}", day);
 
         SelenideElement input = $x(
-                "//label[normalize-space()='Запрашиваемая дата погашения']" +
-                        "/../..//input"
+                "//div[@data-item-marker='RequestedPaymentDay']//input"
         ).shouldBe(Condition.visible, Duration.ofSeconds(10));
 
         input.click();
-        input.sendKeys(Keys.CONTROL + "a");
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        input.sendKeys(Keys.DELETE);
         input.sendKeys(day);
         input.sendKeys(Keys.TAB);
+
+        log.info("Repayment date set: {}", day);
     }
 
-    @Step("Добавить строку графика")
+    @Step("Добавить строку в Параметры графика")
     private void addScheduleRow() {
         log.info("Add schedule row");
 
-        click.clickById("KzParameterScheduleDetailAddRecordButtonButton-imageEl");
+        $x("//*[@id='KzParameterScheduleDetailAddRecordButtonButton-imageEl']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .click();
 
-        // Ждём появления строки для ввода
+        // Ждём появления поля ввода в новой строке
         $x("//div[@data-item-marker='KzNumber']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10));
+
+        log.info("Schedule row added");
     }
 
-    @Step("Заполнить детали графика: number={number} type={type} term={term}")
+    @Step("Заполнить строку графика: number={number} type={type} term={term}")
     private void fillScheduleDetails(String number, String type, String term) {
         log.info("Fill schedule: number='{}' type='{}' term='{}'",
                 number, type, term);
 
-        // Номер — текстовое поле
+        // Последовательность — числовое поле
         setNumericFieldByMarker("KzNumber", number);
 
-        // Тип графика — справочник
-        setHandbookFieldByMarker("KzTypeScheduler", type);
+        // Метод расчёта — справочное поле
+        // Используем LookupComponent.selectByMarker() — универсальный метод для всех lookup в проекте
+        lookup.selectByMarker("KzTypeScheduler", type);
 
-        // Срок, месяц — числовое поле.
-        // setValue НЕ триггерит onChange в Creatio → используем sendKeys + Tab
+        // Срок, месяц — совпадает со сроком подбора продукта
         setNumericFieldByMarker("KzTermMonth", term);
 
-        // Сохраняем строку грида
-        saveGridRow();
+        log.info("Schedule details filled");
+    }
+
+    @Step("Сохранить строку графика (галочка)")
+    private void saveScheduleRow() {
+        log.info("Save schedule row");
+
+        SelenideElement saveBtn = $x(
+                "//span[@data-item-marker='save' and @data-tag='save']"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+
+        executeJavaScript("arguments[0].click();", saveBtn);
+
+        // Ждём исчезновения галочки — строка сохранена
+        $x("//span[@data-item-marker='save' and @data-tag='save']")
+                .shouldBe(Condition.hidden, Duration.ofSeconds(10));
+
+        log.info("Schedule row saved");
     }
 
     @Step("Рассчитать и создать заявку")
     private void calculateAndCreate() {
-        log.info("Calculate and create application");
+        log.info("Click РАССЧИТАТЬ");
 
-        click.clickByName("Рассчитать");
+        $x("//span[normalize-space()='РАССЧИТАТЬ']" +
+                " | //span[normalize-space()='Рассчитать']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .click();
+
         basePage.waitForPage();
+        log.info("Calculation done, click СОЗДАТЬ ЗАЯВКУ");
 
-        // JS-клик обходит перекрытие другими элементами (overlay, spinner)
         SelenideElement createBtn = $x(
-                "//span[normalize-space()='Создать заявку']"
+                "//span[normalize-space()='СОЗДАТЬ ЗАЯВКУ']" +
+                        " | //span[normalize-space()='Создать заявку']"
         ).shouldBe(Condition.visible, Duration.ofSeconds(15));
 
         executeJavaScript("arguments[0].click();", createBtn);
         basePage.waitForPage();
+
+        log.info("Application creation submitted");
     }
 
     @Step("Подтвердить отсутствие задолженности")
     private void confirmNoDebt() {
-        log.info("Confirm no debt");
+        log.info("Confirm no debt dialog");
 
         msgBox.shouldSeeModal("Нет задолженности!");
-        click.clickByMarker("ОК");
+
+        $x("//*[@data-item-marker='ОК']" +
+                " | //span[normalize-space()='ОК']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .click();
+
+        basePage.waitForPage();
+        log.info("No debt confirmed");
     }
 
     // ══════════════════════════════════════
     // HELPERS
     // ══════════════════════════════════════
 
-    /**
-     * Числовое/текстовое поле по data-item-marker.
-     * sendKeys + Tab фиксирует значение в Creatio (setValue не триггерит onChange).
-     */
     private void setNumericFieldByMarker(String marker, String value) {
-        log.debug("setNumericFieldByMarker: marker='{}' value='{}'", marker, value);
+        log.debug("setNumericField: marker='{}' value='{}'", marker, value);
 
         SelenideElement input = $x(
                 "//div[@data-item-marker='" + marker + "']//input"
         ).shouldBe(Condition.visible, Duration.ofSeconds(10));
 
         input.click();
-        input.sendKeys(Keys.CONTROL + "a");
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a"));
         input.sendKeys(Keys.DELETE);
         input.sendKeys(value);
         input.sendKeys(Keys.TAB);
-    }
-
-    /**
-     * Справочное поле по data-item-marker → выбор из меню.
-     */
-    private void setHandbookFieldByMarker(String marker, String value) {
-        log.debug("setHandbookFieldByMarker: marker='{}' value='{}'", marker, value);
-
-        SelenideElement input = $x(
-                "//div[@data-item-marker='" + marker + "']//input"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
-
-        input.click();
-        input.sendKeys(Keys.CONTROL + "a");
-        input.sendKeys(Keys.DELETE);
-        input.sendKeys(value);
-
-        menu.clickByName(value);
-    }
-
-    /**
-     * Сохранение строки inline-грида.
-     * Пробуем data-item-marker='save', затем JS-клик на кнопку сохранения.
-     */
-    private void saveGridRow() {
-        log.info("Save grid row");
-
-        SelenideElement saveBtn = $x(
-                "//*[@data-item-marker='save']" +
-                        " | //span[normalize-space()='Сохранить']/ancestor::button" +
-                        " | //span[normalize-space()='Сохранить']/ancestor::a"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
-
-        executeJavaScript("arguments[0].click();", saveBtn);
     }
 }

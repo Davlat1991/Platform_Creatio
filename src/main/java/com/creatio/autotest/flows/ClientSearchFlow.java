@@ -23,19 +23,18 @@ public class ClientSearchFlow {
                              String middleName) {
         log.info("Search client: {} {} {}", lastName, firstName, middleName);
 
-        // Ждём загрузки правой панели
         waitForSearchPanel();
 
-        // Заполняем поля
         setField("Фамилия",  lastName);
         setField("Имя",      firstName);
         setField("Отчество", middleName);
 
-        // Нажимаем ПОИСК
         clickSearchButton();
 
-        basePage.waitForPage();
-        log.info("Client search submitted");
+        // Поиск в ЦФТ занимает 5-10 сек — ждём появления результата
+        waitForSearchResult();
+
+        log.info("Client search completed");
     }
 
     // ══════════════════════════════════════
@@ -44,14 +43,12 @@ public class ClientSearchFlow {
 
     private void waitForSearchPanel() {
         $x("//input[@placeholder='Фамилия']")
-                .shouldBe(Condition.exist, Duration.ofSeconds(15));
+                .shouldBe(Condition.visible, Duration.ofSeconds(15));
     }
 
     private void setField(String placeholder, String value) {
         if (value == null || value.trim().isEmpty()) return;
-
         log.debug("Set search field: '{}' = '{}'", placeholder, value);
-
         $x("//input[@placeholder='" + placeholder + "']")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10))
                 .setValue(value);
@@ -60,11 +57,20 @@ public class ClientSearchFlow {
     private void clickSearchButton() {
         log.info("Click search button");
 
-        // Из скриншота — кнопка ПОИСК зелёная
-        $x("//*[@data-item-marker='SearchButton']" +
-                " | //a[normalize-space()='ПОИСК']" +
-                " | //span[normalize-space()='ПОИСК']")
+        // Скоупим внутри SearchButtonContainer — исключаем дубликаты SearchButton на странице
+        $x("//div[@data-item-marker='SearchButtonContainer']" +
+                "//span[@data-item-marker='SearchButton']")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10))
                 .click();
+    }
+
+    private void waitForSearchResult() {
+        log.info("Waiting for search result from CFT...");
+
+        // Ждём появления кнопки "Начать консультацию" — это сигнал что клиент найден
+        $x("//*[@data-item-marker='Начать консультацию']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+
+        log.info("Search result received");
     }
 }

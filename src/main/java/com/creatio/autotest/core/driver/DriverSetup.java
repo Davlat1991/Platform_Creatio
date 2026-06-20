@@ -10,6 +10,9 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class DriverSetup {
 
     private static final Logger log = LoggerFactory.getLogger(DriverSetup.class);
@@ -74,11 +77,30 @@ public final class DriverSetup {
                 "--disable-gpu",
                 "--window-size=1920,1080",
                 "--disable-extensions",
-                "--remote-allow-origins=*"
+                "--remote-allow-origins=*",
+                "--safebrowsing-disable-download-protection",
+                "--disable-features=InsecureDownloadWarnings,SafeBrowsing",
+                "--allow-running-insecure-content",
+                "--unsafely-treat-insecure-origin-as-secure=http://10.10.202.254"
         );
+
+        String downloadPath = System.getProperty("user.dir") + "\\downloads";
+
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("download.default_directory",               downloadPath);
+        prefs.put("download.prompt_for_download",             false);
+        prefs.put("download.directory_upgrade",               true);
+        prefs.put("safebrowsing.enabled",                     false);
+        prefs.put("safebrowsing.disable_download_protection", true);
+        prefs.put("plugins.always_open_pdf_externally",       true);
+
+        options.setExperimentalOption("prefs", prefs);
+
+        log.info("Download path: {}", downloadPath);
 
         return new ChromeDriver(options);
     }
+
 
     private static WebDriver createFirefox(boolean headless) {
         FirefoxOptions options = new FirefoxOptions();

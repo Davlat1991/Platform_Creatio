@@ -23,9 +23,9 @@ public class RegistrationParticipantsFlow {
         log.info("Add borrower");
 
         buttons.clickTabByName("Участники заявки");
-        //click.clickById("BnzVwFinApplicationAllParticipantDetailAddTypedRecordButtonButton-imageEl");
-        //menu.clickByName("Заемщик");
-        menu.doubleclickButtonByName("Заемщик"); //Метод для продолжения заявки
+        click.clickById("BnzVwFinApplicationAllParticipantDetailAddTypedRecordButtonButton-imageEl");
+        menu.clickByName("Заемщик");
+        //menu.doubleclickButtonByName("Заемщик"); //Метод для продолжения заявки
     }
 
 

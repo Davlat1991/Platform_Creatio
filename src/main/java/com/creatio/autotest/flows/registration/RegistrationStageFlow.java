@@ -36,16 +36,16 @@ public class RegistrationStageFlow {
         log.info("Complete registration stage");
 
         // 1. Общая информация
-       // generalInfoFlow.fillGeneralInfo(data);
+        generalInfoFlow.fillGeneralInfo(data);
 
         // 2. Участники
         participantsFlow.addBorrower();
 
         // 3. Документы
-       // documentsFlow.fillBorrowerDocuments();
+        documentsFlow.fillBorrowerDocuments();
 
         // 4. Адреса
-       // addressFlow.fillAddresses();
+        addressFlow.fillAddresses();
         addressFlow.setPzlRelation(false);
 
         // 5. Доходы и расходы
@@ -63,5 +63,7 @@ public class RegistrationStageFlow {
         Selenide.refresh();
 
         log.info("Registration stage completed");
+
+
     }
 }

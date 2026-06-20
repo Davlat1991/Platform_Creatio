@@ -6,7 +6,6 @@ import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
-import com.creatio.autotest.core.services.ScrollService;
 import com.creatio.autotest.testdata.models.ExpenseData;
 import com.creatio.autotest.testdata.models.IncomeData;
 import com.creatio.autotest.testdata.models.RegistrationIncomeExpensesData;
@@ -25,11 +24,20 @@ public class RegistrationIncomeExpensesFlow {
     private static final Logger log =
             LoggerFactory.getLogger(RegistrationIncomeExpensesFlow.class);
 
+    // ── Уникальные контейнеры деталей ─────
+    // Оба имеют одинаковые column-name внутри (TsiKind, TsiFrequencyType, TsiAmountBC)
+    // Скоупируем через родительский контейнер чтобы не конфликтовали
+    private static final String INCOME_CONTAINER  = "BnzAppIncomesDetailDetailContainer";
+    private static final String EXPENSE_CONTAINER = "BnzAppExpensesDetailDetailContainer";
+
     private final LookupComponent  lookup   = new LookupComponent();
     private final ButtonsComponent buttons  = new ButtonsComponent();
     private final BasePage         basePage = new BasePage();
     private final ClickService     click    = new ClickService();
-    private final ScrollService scroll  = new ScrollService();
+
+    // ══════════════════════════════════════
+    // PUBLIC API
+    // ══════════════════════════════════════
 
     @Step("Заполнение доходов и расходов")
     public void fillIncomeAndExpenses(RegistrationIncomeExpensesData data) {
@@ -41,7 +49,7 @@ public class RegistrationIncomeExpensesFlow {
     }
 
     // ══════════════════════════════════════
-    // PRIVATE
+    // PRIVATE — STEPS
     // ══════════════════════════════════════
 
     @Step("Уровень риска и дополнительная информация")
@@ -58,22 +66,20 @@ public class RegistrationIncomeExpensesFlow {
 
     @Step("Добавить доход")
     private void addIncome(IncomeData income) {
-
         log.info("Add income: type='{}' frequency='{}' amount='{}'",
                 income.getType(), income.getFrequency(), income.getAmount());
 
         click.clickById("BnzAppIncomesDetailAddRecordButtonButton-imageEl");
 
-        $x("//div[@data-item-marker='TsiKind']//input")
+        // Ждём появления строки ввода
+        $x("//div[@data-item-marker='" + INCOME_CONTAINER + "']" +
+                "//div[@data-item-marker='TsiKind']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        openInlineField("TsiKind");
-        selectFromListview("TsiKind", income.getType());
-
-        openInlineField("TsiFrequencyType");
-        selectFromListview("TsiFrequencyType", income.getFrequency());
-
-        setInlineNumericField("TsiAmountBC", income.getAmount());
+        // selectInContainer сам кликает по полю и выбирает значение
+        selectInContainer(INCOME_CONTAINER, "TsiKind",          income.getType());
+        selectInContainer(INCOME_CONTAINER, "TsiFrequencyType", income.getFrequency());
+        setNumericInContainer(INCOME_CONTAINER, "TsiAmountBC",  income.getAmount());
 
         saveInlineRow();
     }
@@ -85,51 +91,64 @@ public class RegistrationIncomeExpensesFlow {
 
         click.clickById("BnzAppExpensesDetailAddRecordButtonButton-imageEl");
 
-        $x("//input[@id='BnzAppExpensesDetailTsiKindComboBoxEdit-el']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
-                .click();
+        // Ждём появления строки ввода
+        $x("//div[@data-item-marker='" + EXPENSE_CONTAINER + "']" +
+                "//div[@data-item-marker='TsiKind']//input")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        selectFromListview("TsiKind", expense.getType());
-
-        $x("//input[@id='BnzAppExpensesDetailTsiFrequencyTypeComboBoxEdit-el']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
-                .click();
-
-        selectFromListview("TsiFrequencyType", expense.getFrequency());
-
-        setInlineNumericField("TsiAmountBC", expense.getAmount());
+        selectInContainer(EXPENSE_CONTAINER, "TsiKind",          expense.getType());
+        selectInContainer(EXPENSE_CONTAINER, "TsiFrequencyType", expense.getFrequency());
+        setNumericInContainer(EXPENSE_CONTAINER, "TsiAmountBC",  expense.getAmount());
 
         saveInlineRow();
     }
 
     // ══════════════════════════════════════
-    // HELPERS
+    // PRIVATE — HELPERS
     // ══════════════════════════════════════
 
-    private void openInlineField(String marker) {
-        $x("//div[@data-item-marker='" + marker + "']//input")
+    /**
+     * Кликает поле внутри конкретного контейнера детали,
+     * затем выбирает значение из ul-дропдауна (рендерится в конце body — паттерн Creatio).
+     * Решает проблему дублирующихся data-item-marker в деталях Доходы/Расходы.
+     */
+    private void selectInContainer(String container, String fieldMarker, String value) {
+        log.debug("selectInContainer: container='{}' field='{}' value='{}'",
+                container, fieldMarker, value);
+
+        // Кликаем поле внутри нужного контейнера
+        $x("//div[@data-item-marker='" + container + "']" +
+                "//div[@data-item-marker='" + fieldMarker + "']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10))
                 .click();
-    }
 
-    private void selectFromListview(String listviewMarker, String itemMarker) {
-        log.debug("selectFromListview: listview='{}' item='{}'", listviewMarker, itemMarker);
+        // div.listview имеет data-item-marker — НЕ ul
+        $x("//div[contains(@class,'listview') and @data-item-marker='" + fieldMarker + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        $x("//div[@data-item-marker='" + listviewMarker + "']" +
-                "//li[@data-item-marker='" + itemMarker + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(7))
+        // li внутри этого div
+        $x("//div[contains(@class,'listview') and @data-item-marker='" + fieldMarker + "']" +
+                "//li[@data-item-marker='" + value + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10))
                 .click();
+
+        log.debug("Selected: '{}'", value);
     }
 
-    private void setInlineNumericField(String marker, String value) {
-        log.debug("setInlineNumericField: marker='{}' value='{}'", marker, value);
+    /**
+     * Заполняет числовое поле внутри конкретного контейнера детали.
+     */
+    private void setNumericInContainer(String container, String fieldMarker, String value) {
+        log.debug("setNumericInContainer: container='{}' field='{}' value='{}'",
+                container, fieldMarker, value);
 
         SelenideElement input = $x(
-                "//div[@data-item-marker='" + marker + "']//input"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+                "//div[@data-item-marker='" + container + "']" +
+                        "//div[@data-item-marker='" + fieldMarker + "']//input"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(15));
 
         input.click();
-        input.sendKeys(Keys.CONTROL + "a");
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a"));
         input.sendKeys(Keys.DELETE);
         input.sendKeys(value);
         input.sendKeys(Keys.TAB);

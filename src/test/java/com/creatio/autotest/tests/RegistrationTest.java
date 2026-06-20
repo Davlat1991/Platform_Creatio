@@ -1,0 +1,84 @@
+package com.creatio.autotest.tests;
+
+import com.creatio.autotest.base.BaseTest;
+import com.creatio.autotest.flows.AuthFlow;
+import com.creatio.autotest.flows.NavigationFlow;
+import com.creatio.autotest.flows.WorkspaceFlow;
+import com.creatio.autotest.flows.registration.RegistrationStageFlow;
+import com.creatio.autotest.testdata.ScenarioFactory;
+import com.creatio.autotest.testdata.models.TestScenario;
+import com.creatio.autotest.testdata.models.Workspace;
+import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
+import org.testng.annotations.Test;
+
+@Feature("Registration Stage")
+public class RegistrationTest extends BaseTest {
+
+    // ══════════════════════════════════════
+    // DEBUG — прямой переход по UUID заявки
+    // Заменить UUID на актуальный из адресной строки
+    // ══════════════════════════════════════
+
+    @Test(groups = "debug", enabled = false)
+    @Story("Debug — этап регистрации напрямую")
+    @Description("Открываем заявку по UUID и выполняем этап регистрации")
+    @Severity(SeverityLevel.NORMAL)
+    public void debugRegistrationStage() {
+        AuthFlow auth = new AuthFlow();
+        auth.login(ScenarioFactory.happyPath().getManager());
+        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
+
+        // Замени UUID на актуальный из адресной строки браузера
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
+                        "FinApplicationPage/edit/" +
+                        "29b666c2-2ee7-4ea6-957f-60f9046f5f90"
+        );
+
+        TestScenario scenario = ScenarioFactory.happyPath();
+        new RegistrationStageFlow().completeRegistrationStage(scenario.getRegistration());
+
+        auth.logout();
+    }
+
+    // ══════════════════════════════════════
+    // REGRESSION — полный путь
+    // ══════════════════════════════════════
+
+    @Test(groups = "regression")
+    @Story("Этап регистрации — полный путь")
+    @Description("Полный путь от логина до завершения этапа регистрации")
+    @Severity(SeverityLevel.BLOCKER)
+    public void registrationStageTest() {
+        TestScenario scenario = ScenarioFactory.happyPath();
+
+        AuthFlow auth = new AuthFlow();
+        auth.login(scenario.getManager());
+        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
+
+        new com.creatio.autotest.flows.ClientSearchFlow().searchClient(
+                scenario.getContact().getLastName(),
+                scenario.getContact().getFirstName(),
+                scenario.getContact().getMiddleName()
+        );
+
+        new com.creatio.autotest.flows.ConsultationStartFlow()
+                .startConsultation(config.getConsultationTheme("retail"));
+
+        new com.creatio.autotest.flows.ProductSelectionFlow()
+                .selectProduct(scenario.getProduct());
+
+        new com.creatio.autotest.flows.ApplicationCreationFlow()
+                .createApplication(scenario.getProduct());
+
+        new RegistrationStageFlow()
+                .completeRegistrationStage(scenario.getRegistration());
+
+        auth.logout();
+    }
+}

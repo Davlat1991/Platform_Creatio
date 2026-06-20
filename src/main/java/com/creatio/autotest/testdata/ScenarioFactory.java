@@ -52,12 +52,12 @@ public final class ScenarioFactory {
                 .infoSource("Интернет/Сайт")
                 .incomeExpenses(RegistrationIncomeExpensesData.builder()
                         .income(IncomeData.builder()
-                                .type("Заработная плата")
+                                .type("Зарплата по доп. месту работы")
                                 .frequency("Ежемесячно")
                                 .amount("5000")
                                 .build())
                         .expense(ExpenseData.builder()
-                                .type("Аренда")
+                                .type("Коммунальные платежи")
                                 .frequency("Ежемесячно")
                                 .amount("1000")
                                 .build())
@@ -72,12 +72,12 @@ public final class ScenarioFactory {
                 .infoSource("Рекомендация")
                 .incomeExpenses(RegistrationIncomeExpensesData.builder()
                         .income(IncomeData.builder()
-                                .type("Заработная плата")
+                                .type("Зарплата по доп. месту работы")
                                 .frequency("Ежемесячно")
                                 .amount("15000")
                                 .build())
                         .expense(ExpenseData.builder()
-                                .type("Коммунальные услуги")
+                                .type("Коммунальные платежи")
                                 .frequency("Ежемесячно")
                                 .amount("500")
                                 .build())
@@ -97,9 +97,9 @@ public final class ScenarioFactory {
                 .amount("50000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")
-                // создание заявки
+                //Создание заявки
                 .repaymentDay("3")
-                .scheduleNumber("2")
+                .scheduleNumber("1")
                 .scheduleType("Аннуитетный")
                 .build();
     }
@@ -111,9 +111,9 @@ public final class ScenarioFactory {
                 .amount("100000")
                 .term("48")
                 .currency("Сомони Чумхурии Точикистон")
-                // создание заявки
+                //Создание заявки
                 .repaymentDay("3")
-                .scheduleNumber("2")
+                .scheduleNumber("1")
                 .scheduleType("Аннуитетный")
                 .build();
     }

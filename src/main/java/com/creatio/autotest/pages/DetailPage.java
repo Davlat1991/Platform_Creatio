@@ -77,15 +77,17 @@ public class DetailPage extends BasePage {
     public DetailPage openDetailMenu(String detailName) {
         log.info("Open detail menu: '{}'", detailName);
 
-        SelenideElement detail = $x(
-                "//*[@data-item-marker='" + detailName + "']"
-        ).shouldBe(Condition.visible);
-
-        SelenideElement menuBtn = detail.$x(
-                ".//span[contains(@class,'detail-menu') or @data-item-marker='detail-menu']"
-        ).shouldBe(Condition.visible);
+        // Находим заголовок детали по тексту
+        // затем поднимаемся к контейнеру и ищем кнопку ToolsButton
+        SelenideElement menuBtn = $x(
+                "//span[normalize-space()='" + detailName + "']" +
+                        "/ancestor::div[contains(@class,'ts-controlgroup')]" +
+                        "//span[@data-item-marker='ToolsButton']"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
 
         executeJavaScript("arguments[0].click();", menuBtn);
+
+        log.info("Detail menu opened: '{}'", detailName);
         return this;
     }
 
