@@ -76,7 +76,7 @@ public class CreditApplicationTest extends BaseTest {
         new ApplicationCreationFlow().createApplication(scenario.getProduct() );
 
         // 2. Открываем заявку напрямую — пропускаем всё до этого места
-       /* new NavigationFlow().open(
+        new NavigationFlow().open(
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/FinApplicationPage/edit/" +
                         "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"  );
@@ -149,7 +149,7 @@ public class CreditApplicationTest extends BaseTest {
 
         new ApplicationFinishFlow().completeApplicationFinish();
 
-        auth.logout();*/
+        auth.logout();
     }
 
 

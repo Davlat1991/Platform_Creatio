@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.codeborne.selenide.Configuration.baseUrl;
+
 public final class DriverSetup {
 
     private static final Logger log = LoggerFactory.getLogger(DriverSetup.class);
@@ -31,7 +33,7 @@ public final class DriverSetup {
         log.info("Initializing WebDriver: browser={} headless={}", browser, headless);
 
         // Selenide configuration
-        Configuration.baseUrl      = config.getBaseUrl();
+        baseUrl      = config.getBaseUrl();
         Configuration.timeout      = config.getTimeout() * 1000;
         Configuration.pageLoadTimeout = config.getPageLoadTimeout() * 1000;
         Configuration.screenshots  = true;
@@ -81,7 +83,7 @@ public final class DriverSetup {
                 "--safebrowsing-disable-download-protection",
                 "--disable-features=InsecureDownloadWarnings,SafeBrowsing",
                 "--allow-running-insecure-content",
-                "--unsafely-treat-insecure-origin-as-secure=http://10.10.202.254"
+                "--unsafely-treat-insecure-origin-as-secure=" + baseUrl  // ← динамически
         );
 
         String downloadPath = System.getProperty("user.dir") + "\\downloads";
@@ -93,6 +95,7 @@ public final class DriverSetup {
         prefs.put("safebrowsing.enabled",                     false);
         prefs.put("safebrowsing.disable_download_protection", true);
         prefs.put("plugins.always_open_pdf_externally",       true);
+        prefs.put("profile.default_content_setting_values.notifications", 2); // блокировать уведомления
 
         options.setExperimentalOption("prefs", prefs);
 

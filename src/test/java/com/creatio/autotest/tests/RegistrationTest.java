@@ -1,8 +1,10 @@
 package com.creatio.autotest.tests;
 
+import com.codeborne.selenide.Selenide;
 import com.creatio.autotest.base.BaseTest;
 import com.creatio.autotest.flows.AuthFlow;
 import com.creatio.autotest.flows.NavigationFlow;
+import com.creatio.autotest.flows.PreliminaryCheckStageFlow;
 import com.creatio.autotest.flows.WorkspaceFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
@@ -43,6 +45,11 @@ public class RegistrationTest extends BaseTest {
         TestScenario scenario = ScenarioFactory.happyPath();
         new RegistrationStageFlow().completeRegistrationStage(scenario.getRegistration());
 
+        new PreliminaryCheckStageFlow()
+                .completePreliminaryCheckStage();
+
+
+
         auth.logout();
     }
 
@@ -78,6 +85,11 @@ public class RegistrationTest extends BaseTest {
 
         new RegistrationStageFlow()
                 .completeRegistrationStage(scenario.getRegistration());
+
+        new PreliminaryCheckStageFlow()
+                .completePreliminaryCheckStage();
+
+        Selenide.sleep(1000);
 
         auth.logout();
     }

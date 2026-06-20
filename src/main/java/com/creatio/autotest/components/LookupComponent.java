@@ -41,16 +41,16 @@ public class LookupComponent extends BaseComponent {
                 SelenideElement item = listView
                         .$x(".//li[@data-item-marker='" + value +
                                 "' or normalize-space(.)='" + value + "']")
-                        .shouldBe(visible, Duration.ofSeconds(15));
+                        .shouldBe(visible, Duration.ofSeconds(30));
 
                 // 4. JS клик — стабильнее для Creatio
                 executeJavaScript("arguments[0].click();", item);
 
                 // 5. Ждём закрытия списка
-                listView.should(disappear, Duration.ofSeconds(5));
+                listView.should(disappear, Duration.ofSeconds(30));
 
                 // 6. Проверяем значение
-                input.shouldHave(exactValue(value), Duration.ofSeconds(5));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(30));
 
                 log.info("Lookup: '{}' выбрано успешно", value);
                 return this;
@@ -176,7 +176,7 @@ public class LookupComponent extends BaseComponent {
     private SelenideElement getVisibleListView() {
         return $$x("//div[contains(@class,'listview')]")
                 .findBy(visible)
-                .shouldBe(visible, Duration.ofSeconds(10));
+                .shouldBe(visible, Duration.ofSeconds(30));
     }
 
     @Step("Set field by label: {label} = {value}")

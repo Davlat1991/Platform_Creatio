@@ -43,6 +43,22 @@ public class RegistrationAddressFlow {
 
         // Средства связи
         lookup.selectByMarker("BnzAffiliation", "Мобильный");
+
+        // Фактический
+        buttons.doubleClickByName("Фактический");
+
+        $x("//*[@data-item-marker='BnzRegistrationDate']//input")
+                .shouldBe(Condition.visible)
+                .setValue("01.01.2020");
+
+        click.clickByName("Сохранить");
+        basePage.waitForPage();
+
+        // Тип клиента
+        lookup.select("Тип клиента", "Такрори");
+
+        // Средства связи
+        lookup.selectByMarker("BnzAffiliation", "Мобильный");
     }
 
     @Step("Установка значения 'Связь с ПЗЛ': {expectedValue}")
