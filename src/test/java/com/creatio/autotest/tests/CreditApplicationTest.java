@@ -5,17 +5,14 @@ import com.creatio.autotest.flows.*;
 import com.creatio.autotest.flows.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
-import com.creatio.autotest.testdata.BaseScoringScenarios;
-import com.creatio.autotest.testdata.CollateralDataFactory;
 import com.creatio.autotest.testdata.ScenarioFactory;
-import com.creatio.autotest.testdata.models.*;
+import com.creatio.autotest.testdata.models.TestScenario;
+import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.testng.annotations.Test;
-
-import java.util.List;
 
 @Feature("Credit Application")
 public class CreditApplicationTest extends BaseTest {
@@ -25,35 +22,7 @@ public class CreditApplicationTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     public void creditApplicationHappyPath() {
 
-        // ══════════════════════════════════════
-        // 1. ДАННЫЕ СЦЕНАРИЯ
-        // ══════════════════════════════════════
-
         TestScenario scenario = ScenarioFactory.happyPath();
-
-        RegistrationData registration = scenario.getRegistration();
-
-        List<ParticipantData> participants = List.of(
-                ParticipantData.guarantor(false),
-                ParticipantData.pledger(false)
-        );
-
-        List<CollateralData> collaterals = List.of(
-                CollateralDataFactory.cashDeposit(CurrencyType.TJS),
-                CollateralDataFactory.realEstate(CurrencyType.TJS),
-                CollateralDataFactory.vehicle(CurrencyType.TJS),
-                CollateralDataFactory.equipment(CurrencyType.TJS),
-                CollateralDataFactory.futureHarvest(CurrencyType.TJS),
-                CollateralDataFactory.cotton(CurrencyType.TJS),
-                CollateralDataFactory.acquiredProperty(CurrencyType.TJS),
-                CollateralDataFactory.movableProperty(CurrencyType.TJS),
-                CollateralDataFactory.gold(CurrencyType.TJS),
-                CollateralDataFactory.goods(CurrencyType.TJS)
-        );
-
-        // ══════════════════════════════════════
-        // 2. ФЛОУ
-        // ══════════════════════════════════════
 
         AuthFlow auth = new AuthFlow();
         WorkspaceFlow workspace = new WorkspaceFlow();
@@ -68,21 +37,17 @@ public class CreditApplicationTest extends BaseTest {
                 scenario.getContact().getMiddleName()
         );
 
-        new ConsultationStartFlow().startConsultation(
-                config.getConsultationTheme("retail"));
+        new ConsultationStartFlow()
+                .startConsultation(config.getConsultationTheme("retail"));
 
-        new ProductSelectionFlow().selectProduct(scenario.getProduct());
+        new ProductSelectionFlow()
+                .selectProduct(scenario.getProduct());
 
-        new ApplicationCreationFlow().createApplication(scenario.getProduct() );
-
-        // 2. Открываем заявку напрямую — пропускаем всё до этого места
-        new NavigationFlow().open(
-                config.getBaseUrl() +
-                        "/0/Nui/ViewModule.aspx#CardModuleV2/FinApplicationPage/edit/" +
-                        "5fae52d3-a5fe-464a-87c0-aa12e9c389c7"  );
+        new ApplicationCreationFlow()
+                .createApplication(scenario.getProduct());
 
         new RegistrationStageFlow()
-                .completeRegistrationStage(registration);
+                .completeRegistrationStage(scenario.getRegistration());
 
         new PreliminaryCheckStageFlow()
                 .completePreliminaryCheckStage();
@@ -97,14 +62,14 @@ public class CreditApplicationTest extends BaseTest {
                 .completeCollateralStage(scenario.getCollaterals());
 
         // API загрузка документов
-       // new DocumentsApiFlow().uploadAllDocumentsViaApi();
+        // new DocumentsApiFlow().uploadAllDocumentsViaApi();
 
         String applicationNumber = new ReviewStageRetailFlow()
                 .completeReview();
 
         auth.logout();
 
-        // ── Андеррайтер ────────────────────────
+        // ── Верификатор ────────────────────────
         auth.login(scenario.getUnderwriter());
         workspace.select(Workspace.UNDERWRITER);
 
@@ -124,35 +89,31 @@ public class CreditApplicationTest extends BaseTest {
 
         // ── ИКОК-ГО ────────────────────────────
         auth.login(scenario.getIkokGo());
-
         workspace.select(Workspace.IKOK_GO);
 
         new LoanIssuanceFlow()
-                .withApplicationNumber(applicationNumber).issueLoan();
+                .withApplicationNumber(applicationNumber)
+                .issueLoan();
 
         auth.logout();
 
         // ── Кассир ─────────────────────────────
         auth.login(scenario.getCashier());
-
         workspace.select(Workspace.CASHIER);
 
         new SigningStageFlow()
-                .withContractNumber(applicationNumber).completeSigningStage();
+                .withContractNumber(applicationNumber)
+                .completeSigningStage();
 
         auth.logout();
 
         // ── ИКОК-ГО (завершение) ───────────────
         auth.login(scenario.getIkokGo());
-
         workspace.select(Workspace.IKOK_GO);
 
-        new ApplicationFinishFlow().completeApplicationFinish();
+        new ApplicationFinishFlow()
+                .completeApplicationFinish();
 
         auth.logout();
     }
-
-
 }
-
-
