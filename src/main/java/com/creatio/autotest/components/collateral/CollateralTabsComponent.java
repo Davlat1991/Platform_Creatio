@@ -34,7 +34,7 @@ public class CollateralTabsComponent extends BaseComponent {
                 executeJavaScript("arguments[0].click();", tab);
 
                 $x("//span[contains(text(),'Залоги')]")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(5));
+                        .shouldBe(Condition.visible, Duration.ofSeconds(15));
 
                 log.info("Collateral tab opened");
                 return;

@@ -29,20 +29,21 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави наклиёт");
         form.setName("Залог транспорта");
         form.selectCondition("Новое");
-        form.selectOwnership("Собственный");
+        form.selectOwnership("Третьего лица");//Собственный
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         grid.addCollateralValue();
         grid.waitForPageLoaded();
 
         form.setName("Залог транспорта");
-        form.selectPledger("Чаборова Дилафруз Кобилчоновна");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         vehicle.fillTechnicalData();
         address.fillPropertyAddress();
 
         valuation.fillValuation(
-                data.getMarketValue(),
                 data.getLiquidationValue(),
+                data.getMarketValue(),
                 data.getCurrency()
         );
 

@@ -27,14 +27,15 @@ public class CottonCollateralFlow extends BaseCollateralFlow {
         form.selectType("Движимое имущество");
         form.selectSubType("Гарави пахта");
         form.setName("Залог хлопка");
-        form.selectOwnership("Собственный");
+        form.selectOwnership("Третьего лица");//Собственный
+        form.selectPledger("Тестов тест тестович");
 
         cotton.fillTechnicalData();
         address.fillPropertyAddress();
 
         valuation.fillValuation(
-                data.getMarketValue(),
                 data.getLiquidationValue(),
+                data.getMarketValue(),
                 data.getCurrency()
         );
 

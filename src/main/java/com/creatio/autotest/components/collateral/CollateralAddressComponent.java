@@ -24,17 +24,17 @@ public class CollateralAddressComponent extends BaseComponent {
         );
 
         lookup
-                .select("Тип адреса",        "Регистрация")
-                .select("Страна",            "Точикистон")
-                .selectAddress("Регион",     "Вилояти Сугд")
-                .selectAddress("Район",      "Хучанд")
-                .selectAddress("Нас. пункт", "ш. Хучанд")
-                .select("Тип улицы",         "Проспект")
-                .selectByLabel("Улица",      "Исмоили Сомони")
-                .selectByLabel("Дом",        "19")
-                .selectByLabel("Корпус",     "2/7")
-                .selectByLabel("Кв/Офис",    "48")
-                .selectByLabel("Дата рег.",  "01.01.2020");
+                .select("Тип адреса",              "Регистрация")
+                .select("Страна",                  "Точикистон")
+                .selectAddress("Регион",           "Вилояти Сугд")
+                .selectAddress("Район",            "Хучанд")
+                .selectAddress("Населенный пункт", "ш. Хучанд")
+                .select("Тип улицы",               "Проспект")
+                .selectByLabel("Улица",            "Исмоили Сомони")
+                .selectByLabel("Дом",              "19")
+                .selectByLabel("Корпус",           "2/7")
+                .selectByLabel("Квартира/Офис",    "48")
+                .selectByLabel("Дата регистрации", "01.01.2020");
 
         click.clickByName("Сохранить");
     }

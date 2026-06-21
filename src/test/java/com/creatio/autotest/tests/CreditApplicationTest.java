@@ -89,12 +89,12 @@ public class CreditApplicationTest extends BaseTest {
 
         new ParticipantsStageFlow()
                 .completeParticipantsStage(
-                        participants,
-                        registration.getIncomeExpenses()
+                        scenario.getParticipants(),
+                        scenario.getRegistration().getIncomeExpenses()
                 );
 
         new CollateralStageFlow()
-                .completeCollateralStage(collaterals);
+                .completeCollateralStage(scenario.getCollaterals());
 
         // API загрузка документов
        // new DocumentsApiFlow().uploadAllDocumentsViaApi();

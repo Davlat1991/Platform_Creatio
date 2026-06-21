@@ -26,7 +26,8 @@ public class MovablePropertyCollateralFlow extends BaseCollateralFlow {
         form.selectType("Движимое имущество");
         form.selectSubType("Гарави амволи манкул");
         form.setName("Залог движимого имущества");
-        form.selectOwnership("Собственный");
+        form.selectOwnership("Третьего лица");//Собственный
+        form.selectPledger("Тестов тест тестович");
 
         valuation.fillObjects(
                 "Производственное оборудование",

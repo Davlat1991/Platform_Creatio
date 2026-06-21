@@ -31,13 +31,14 @@ public class RealEstateCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави амволи гайриманкул");
         form.setName("Залог недвижимого имущества");
         form.selectCondition("Новое");
-        form.selectOwnership("Собственный");
+        form.selectOwnership("Третьего лица");//Собственный
+        form.selectPledger("Ашурова Шукрона Махсудовна");
 
         grid.addCollateralValue();
         grid.waitForPageLoaded();
 
         form.setName("Залог недвижимого имущества");
-        form.selectPledger("Чаборова Дилафруз Кобилчоновна");
+        form.selectPledger("Ашурова Шукрона Махсудовна");
 
         chars.fillCharacteristics(
                 realEstate.getLivingArea(),
@@ -51,8 +52,8 @@ public class RealEstateCollateralFlow extends BaseCollateralFlow {
         address.fillPropertyAddress();
 
         valuation.fillValuation(
-                data.getMarketValue(),
                 data.getLiquidationValue(),
+                data.getMarketValue(),
                 data.getCurrency()
         );
 

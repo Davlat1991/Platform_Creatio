@@ -8,8 +8,8 @@ import lombok.Getter;
 public class CollateralData {
 
     private CollateralType type;
-    private String         marketValue;
     private String         liquidationValue;
+    private String         marketValue;
     private String         currency;
     private Object         specificData;
 }

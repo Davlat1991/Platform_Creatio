@@ -16,8 +16,8 @@ public final class CollateralDataFactory {
     public static CollateralData vehicle(CurrencyType currency) {
         return CollateralData.builder()
                 .type(CollateralType.VEHICLE)
-                .marketValue("300000")
                 .liquidationValue("250000")
+                .marketValue("300000")
                 .currency(currency.getUiValue())
                 .build();
     }
@@ -29,8 +29,8 @@ public final class CollateralDataFactory {
     public static CollateralData realEstate(CurrencyType currency) {
         return CollateralData.builder()
                 .type(CollateralType.REAL_ESTATE)
-                .marketValue("1100000")
                 .liquidationValue("100000")
+                .marketValue("1100000")
                 .currency(currency.getUiValue())
                 .specificData(RealEstateData.builder()
                         .livingArea("80")
@@ -50,8 +50,8 @@ public final class CollateralDataFactory {
     public static CollateralData equipment(CurrencyType currency) {
         return CollateralData.builder()
                 .type(CollateralType.EQUIPMENT)
-                .marketValue("500000")
                 .liquidationValue("450000")
+                .marketValue("500000")
                 .currency(currency.getUiValue())
                 .build();
     }
@@ -119,8 +119,8 @@ public final class CollateralDataFactory {
     public static CollateralData cotton(CurrencyType currency) {
         return CollateralData.builder()
                 .type(CollateralType.COTTON)
-                .marketValue("555000")
-                .liquidationValue("777000")
+                .liquidationValue("150000")
+                .marketValue("200000")
                 .currency(currency.getUiValue())
                 .build();
     }

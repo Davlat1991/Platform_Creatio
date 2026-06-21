@@ -99,4 +99,35 @@ public class ButtonsComponent extends BaseComponent {
 
         return this;
     }
+
+
+    @Step("Поиск участника по ФИО: {fullName}")
+    public void searchParticipantByName(String fullName) {
+        log.info("Search participant: '{}'", fullName);
+
+        // Ждём модал
+        $x("//div[contains(@class,'bnz-search-questionnaire-container')]")
+                .shouldBe(visible, Duration.ofSeconds(15));
+
+        // Берём SearchButton ТОЛЬКО внутри модала участника
+        SelenideElement searchBtn = $x(
+                "//div[@id='BnzSearchContactModalPageCardContentContainerContainer']" +
+                        "//span[@data-item-marker='SearchButton']"
+        ).shouldBe(visible, Duration.ofSeconds(15))
+                .shouldBe(enabled, Duration.ofSeconds(5));
+
+        executeJavaScript("arguments[0].click();", searchBtn);
+
+        try {
+            $x("//span[contains(@class,'grid-label') and normalize-space(.)='ФИО']")
+                    .shouldBe(visible, Duration.ofSeconds(15));
+        } catch (Throwable e) {
+            log.warn("Search result not appeared, retrying click...");
+            executeJavaScript("arguments[0].click();", searchBtn);
+            $x("//span[contains(@class,'grid-label') and normalize-space(.)='ФИО']")
+                    .shouldBe(visible, Duration.ofSeconds(15));
+        }
+
+        log.info("Search results appeared");
+    }
 }

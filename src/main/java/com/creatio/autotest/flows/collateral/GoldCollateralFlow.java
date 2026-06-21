@@ -25,7 +25,8 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
         form.selectType("Движимое имущество");
         form.selectSubType("Гарави дорои");
         form.setName("Золотые изделия");
-        form.selectOwnership("Собственный");
+        form.selectOwnership("Третьего лица");//Собственный
+        form.selectPledger("Тестов тест тестович");
 
         valuation.fillGold(
                 "Золотое украшение",

@@ -35,6 +35,7 @@ public class PreliminaryCheckStageFlow {
 
         completeParticipantsQuestionnaire();
         completeClientCheck();
+        waitForCollateralStage();
     }
 
     // ══════════════════════════════════════
@@ -176,5 +177,16 @@ public class PreliminaryCheckStageFlow {
 
         basePage.waitForPage();
         log.debug("SaveEditButton clicked");
+    }
+
+    @Step("Ожидание перехода на стадию Обеспечение")
+    private void waitForCollateralStage() {
+        log.info("Waiting for collateral stage activity...");
+
+        // Якорь — активность появляется только на стадии Обеспечение
+        $x("//*[@data-item-marker='Заполните данные обеспечения и поручительства']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        log.info("Collateral stage reached — activity visible");
     }
 }

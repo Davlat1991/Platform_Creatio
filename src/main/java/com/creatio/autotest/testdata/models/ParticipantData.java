@@ -20,9 +20,9 @@ public class ParticipantData {
     public static ParticipantData guarantor(boolean pzl) {
         return ParticipantData.builder()
                 .role(ParticipantRole.GUARANTOR)
-                .firstName("Фарида")
-                .lastName("Тест")
-                .middleName("Тестовна")
+                .firstName("Шукрона")
+                .lastName("Ашурова")
+                .middleName("Махсудовна")
                 .pzlRelation(pzl)
                 .build();
     }
@@ -30,9 +30,9 @@ public class ParticipantData {
     public static ParticipantData pledger(boolean pzl) {
         return ParticipantData.builder()
                 .role(ParticipantRole.PLEDGER)
-                .firstName("Фарида")
-                .lastName("Тест")
-                .middleName("Тестовна")
+                .firstName("Сафарали")
+                .lastName("Садуллоев")
+                .middleName("Нусратович")
                 .pzlRelation(pzl)
                 .build();
     }

@@ -21,7 +21,7 @@ public class MenuComponent extends BaseComponent {
 
         $x("//li[@data-item-marker='" + value + "']" +
                 " | //li[normalize-space(.)='" + value + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(7))
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
                 .click();
 
         return this;

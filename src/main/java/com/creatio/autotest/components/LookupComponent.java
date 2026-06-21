@@ -143,6 +143,7 @@ public class LookupComponent extends BaseComponent {
         return this;
     }
 
+
     // ══════════════════════════════════════
     // SEARCH ICON — лупа для сложных lookup
     // ══════════════════════════════════════
@@ -176,7 +177,7 @@ public class LookupComponent extends BaseComponent {
     private SelenideElement getVisibleListView() {
         return $$x("//div[contains(@class,'listview')]")
                 .findBy(visible)
-                .shouldBe(visible, Duration.ofSeconds(30));
+                .shouldBe(visible, Duration.ofSeconds(60));
     }
 
     @Step("Set field by label: {label} = {value}")
@@ -188,12 +189,29 @@ public class LookupComponent extends BaseComponent {
         return this;
     }
 
+    //Новый метод 17.06.2026
+
     @Step("Set modal search field: {marker} = {value}")
     public LookupComponent setModalSearchField(String marker, String value) {
         log.info("setModalSearchField: marker='{}' value='{}'", marker, value);
-        $x("//div[@data-item-marker='" + marker + "']//input")
-                .shouldBe(visible)
-                .setValue(value);
+
+        SelenideElement input = $x("//div[@data-item-marker='" + marker + "']//input")
+                .shouldBe(visible, enabled);
+
+        // Устанавливаем значение через JS + триггерим события которые Creatio слушает
+        executeJavaScript(
+                "var el = arguments[0];" +
+                        "var val = arguments[1];" +
+                        "var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;" +
+                        "nativeInputValueSetter.call(el, val);" +
+                        "el.dispatchEvent(new Event('input', { bubbles: true }));" +
+                        "el.dispatchEvent(new Event('change', { bubbles: true }));" +
+                        "el.dispatchEvent(new Event('blur', { bubbles: true }));",
+                input, value
+        );
+
+        input.shouldHave(value(value), Duration.ofSeconds(15));
+
         return this;
     }
 }

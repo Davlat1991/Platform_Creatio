@@ -159,12 +159,14 @@ public class CollateralValuationComponent extends BaseComponent {
     // ══════════════════════════════════════
 
     private void setCurrency(String marker, String currency) {
+        log.debug("setCurrency: marker='{}' currency='{}'", marker, currency);
         lookup.selectByMarker(marker, currency);
-        menu.clickByName(currency);
+        // menu.clickByName убран — selectByMarker уже выбирает значение
     }
 
     private void setLookupByMarker(String marker, String value) {
+        log.debug("setLookupByMarker: marker='{}' value='{}'", marker, value);
         lookup.selectByMarker(marker, value);
-        menu.clickByName(value);
+        // menu.clickByName убран — selectByMarker уже выбирает значение
     }
 }

@@ -3,6 +3,8 @@ package com.creatio.autotest.testdata.models;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 public class TestScenario {
@@ -23,6 +25,9 @@ public class TestScenario {
     // ── Регистрация ───────────────────────
     private RegistrationData registration;
 
-    // ── Участники ─────────────────────────
-    private ParticipantsData participants;
+    // ── Участники заявки ──────────────────
+    private List<ParticipantData> participants;  // пустой список = нет участников
+
+    // ── Залоговые обеспечения ─────────────
+    private List<CollateralData> collaterals;    // пустой список = нет залогов
 }

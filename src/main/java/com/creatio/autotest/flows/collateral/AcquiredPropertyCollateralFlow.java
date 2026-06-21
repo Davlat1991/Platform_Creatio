@@ -26,7 +26,8 @@ public class AcquiredPropertyCollateralFlow extends BaseCollateralFlow {
         form.selectType("Движимое имущество");
         form.selectSubType("Моли бадастомада");
         form.setName("Приобретённое имущество");
-        form.selectOwnership("Собственный");
+        form.selectOwnership("Третьего лица");//Собственный
+        form.selectPledger("Тестов тест тестович");
 
         valuation.fillObjects(
                 "Новое оборудование",
