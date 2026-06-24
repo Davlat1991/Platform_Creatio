@@ -169,6 +169,63 @@ public class LookupComponent extends BaseComponent {
     // HELPERS
     // ══════════════════════════════════════
 
+    // ══════════════════════════════════════
+    // TEXT INPUT — простое текстовое поле (без выпадающего списка)
+    // ══════════════════════════════════════
+
+    @Step("Text: ввести '{value}' в поле '{label}'")
+    public LookupComponent setText(String label, String value) {
+
+        log.info("setText: label='{}' value='{}'", label, value);
+
+        SelenideElement input = getInputByLabel(label);
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                executeJavaScript("arguments[0].focus();", input);
+                executeJavaScript("arguments[0].click();", input);
+
+                clearInput(input);
+
+                input.sendKeys(value);
+                input.sendKeys(Keys.TAB);
+
+                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
+
+                log.info("setText: '{}' введено в '{}'", value, label);
+                return this;
+
+            } catch (Throwable t) {
+                log.warn("setText попытка {}/3 неудачна: {}", attempt, t.getMessage());
+                try { clearInput(input); } catch (Throwable ignored) {}
+                if (attempt == 3) {
+                    throw new AssertionError(
+                            "Не удалось ввести '" + value +
+                                    "' в поле '" + label + "'", t);
+                }
+            }
+        }
+        return this;
+    }
+
+    // ══════════════════════════════════════
+    // CLEAR — гарантированная очистка поля
+    // ══════════════════════════════════════
+
+    private void clearInput(SelenideElement input) {
+        executeJavaScript(
+                "var el = arguments[0];" +
+                        "var setter = Object.getOwnPropertyDescriptor(" +
+                        "  window.HTMLInputElement.prototype, 'value').set;" +
+                        "setter.call(el, '');" +
+                        "el.dispatchEvent(new Event('input', { bubbles: true }));",
+                input);
+
+        for (int i = 0; i < 5 && !input.getValue().isEmpty(); i++) {
+            input.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
+        }
+    }
+
     private SelenideElement getInputByLabel(String label) {
         return $x("//label[normalize-space(.)='" + label + "']/../..//input")
                 .shouldBe(visible, enabled);
