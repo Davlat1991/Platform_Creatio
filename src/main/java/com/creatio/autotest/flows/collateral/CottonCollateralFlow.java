@@ -28,7 +28,7 @@ public class CottonCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави пахта");
         form.setName("Залог хлопка");
         form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Тестов тест тестович");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         cotton.fillTechnicalData();
         address.fillPropertyAddress();

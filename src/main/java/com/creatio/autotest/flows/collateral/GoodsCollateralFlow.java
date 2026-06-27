@@ -27,7 +27,7 @@ public class GoodsCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави амволи дар муомилотбуда");
         form.setName("Товары в обороте и переработке");
         form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Тестов тест тестович");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         valuation.fillObjects(
                 "Кухонный набор",

@@ -24,7 +24,7 @@ public class VehicleCharacteristicsComponent extends BaseComponent {
                 .selectByLabel("Год изготовления",                 "01.01.2020")
                 .selectByLabel("Номер кузова",                     "777")
                 .selectByLabel("Номер шасси",                      "555")
-                .select("Цвет",                                    "Белый")
+                .selectByLabel("Цвет",                             "Белый")
                 .select("Тип кузова",                              "Седан")
                 .select("Тип двигателя",                           "Бензин+Газ")
                 .selectByLabel("Объем двигателя, куб. см.",        "300")

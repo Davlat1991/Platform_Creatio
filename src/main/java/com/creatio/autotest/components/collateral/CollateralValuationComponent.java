@@ -124,9 +124,9 @@ public class CollateralValuationComponent extends BaseComponent {
                 "EshPropertyDataEquipmentDetailAmountFloatEdit-el", sum
         );
 
-        setCurrency("Currency", currency);
+        setCurrencyViaGrid("Currency", currency);
 
-        setLookupByMarker("Country", country);
+        lookup.selectInGridByMarkerWithSearch("Country", country);
         setLookupByMarker("Type", equipmentType);
 
         dom.setGridInputValue(
@@ -168,5 +168,11 @@ public class CollateralValuationComponent extends BaseComponent {
         log.debug("setLookupByMarker: marker='{}' value='{}'", marker, value);
         lookup.selectByMarker(marker, value);
         // menu.clickByName убран — selectByMarker уже выбирает значение
+    }
+
+
+    private void setCurrencyViaGrid(String marker, String currency) {
+        log.debug("setCurrencyViaGrid: marker='{}' currency='{}'", marker, currency);
+        lookup.selectInGridByMarker(marker, currency);
     }
 }

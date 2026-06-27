@@ -27,7 +27,7 @@ public class EquipmentCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави тачхизот");
         form.setName("Залог оборудования");
         form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Тестов тест тестович");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         valuation.fillEquipment(
                 "Прицеп",

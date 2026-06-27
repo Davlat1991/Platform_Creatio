@@ -1,6 +1,7 @@
 package com.creatio.autotest.flows.registration;
 
 import com.codeborne.selenide.Selenide;
+import com.creatio.autotest.flows.registration.client.BaseClientFlow;
 import com.creatio.autotest.testdata.models.RegistrationData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -65,5 +66,28 @@ public class RegistrationStageFlow {
         log.info("Registration stage completed");
 
 
+    }
+
+    @Step("Этап регистрации заявки (с типом клиента)")
+    public void completeRegistrationStage(RegistrationData data, BaseClientFlow clientFlow) {
+        log.info("Complete registration stage with client type");
+
+        generalInfoFlow.fillGeneralInfo(data);
+        participantsFlow.addBorrower();
+        documentsFlow.fillBorrowerDocuments();
+        addressFlow.fillAddresses();
+        addressFlow.setPzlRelation(false);
+        incomeExpensesFlow.fillIncomeAndExpenses(data.getIncomeExpenses());
+        additionalInfoFlow.fillBaseScoringData(data.getScoringData());
+
+        // специфика типа клиента
+        clientFlow.fill();
+
+        scoringFlow.confirmScoring();
+        printFlow.printApplication();
+
+        Selenide.refresh();
+
+        log.info("Registration stage with client type completed");
     }
 }

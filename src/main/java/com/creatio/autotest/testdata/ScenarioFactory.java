@@ -1,6 +1,9 @@
 package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
+import com.creatio.autotest.testdata.models.registration.ClientProfileData;
+import com.creatio.autotest.testdata.models.registration.EducationCareerData;
+import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 
 import java.util.Collections;
 import java.util.List;
@@ -113,19 +116,20 @@ public final class ScenarioFactory {
                 .product(defaultProduct())
                 .participants(List.of(
                         ParticipantData.guarantor(false),
-                        ParticipantData.pledger(false)
+                        ParticipantData.pledger(false),
+                        ParticipantData.pledger1(false)
                 ))
                 .collaterals(List.of(
-                        CollateralDataFactory.vehicle(CurrencyType.TJS),
-                        CollateralDataFactory.realEstate(CurrencyType.TJS),
-                        CollateralDataFactory.cashDeposit(CurrencyType.TJS),
+                       // CollateralDataFactory.vehicle(CurrencyType.TJS),
+                       // CollateralDataFactory.realEstate(CurrencyType.TJS),
                         CollateralDataFactory.equipment(CurrencyType.TJS),
                         CollateralDataFactory.gold(CurrencyType.TJS),
                         CollateralDataFactory.goods(CurrencyType.TJS),
                         CollateralDataFactory.movableProperty(CurrencyType.TJS),
                         CollateralDataFactory.acquiredProperty(CurrencyType.TJS),
                         CollateralDataFactory.cotton(CurrencyType.TJS),
-                        CollateralDataFactory.futureHarvest(CurrencyType.TJS)
+                        CollateralDataFactory.futureHarvest(CurrencyType.TJS),
+                        CollateralDataFactory.cashDeposit(CurrencyType.TJS)
                 ))
                 .build();
     }
@@ -167,6 +171,17 @@ public final class ScenarioFactory {
                                 .build())
                         .build())
                 .scoringData(BaseScoringScenarios.WITH_DEPENDENTS())
+                .clientProfile(otherIncomeProfile())
+                .build();
+    }
+
+    // ── Профили клиента (тип занятости) ──────────────
+    private static ClientProfileData otherIncomeProfile() {
+        return ClientProfileData.builder()
+                .employmentType(EmploymentType.OTHER_INCOME)
+                .educationCareer(EducationCareerData.builder()
+                        .reasonForNotWorking("Получатель Д/П")
+                        .build())
                 .build();
     }
 

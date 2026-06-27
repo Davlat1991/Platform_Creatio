@@ -27,7 +27,7 @@ public class FutureHarvestCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави хосили оянда");
         form.setName("Будущий урожай");
         form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Тестов тест тестович");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         valuation.fillObjects(
                 "Хосили картошка",

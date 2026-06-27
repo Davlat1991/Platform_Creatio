@@ -4,6 +4,8 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
+import com.creatio.autotest.testdata.models.registration.fields.EducationCareerField;
+import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 import io.qameta.allure.Step;
 import org.openqa.selenium.Keys;
 
@@ -271,4 +273,197 @@ public class LookupComponent extends BaseComponent {
 
         return this;
     }
+
+    // ══════════════════════════════════════
+    // GRID LOOKUP — выбор через модалку по лупе (data-item-marker LookupGrid)
+    // ══════════════════════════════════════
+
+    @Step("Grid lookup: выбрать '{value}' по marker '{marker}'")
+    public LookupComponent selectInGridByMarker(String marker, String value) {
+
+        log.info("selectInGridByMarker: marker='{}' value='{}'", marker, value);
+
+        // 1. Фокус на ячейку (лупа появляется только при hover/фокусе)
+        SelenideElement cell = $x("//*[@data-item-marker='" + marker + "']")
+                .shouldBe(visible);
+        cell.hover();
+        SelenideElement cellInput = cell.$x(".//input");
+        executeJavaScript("arguments[0].focus();", cellInput);
+
+        // Кликаем лупу через JS (она может быть скрыта до hover — JS-клик не требует visible)
+        SelenideElement icon = cell
+                .$x(".//div[contains(@class,'lookup-edit-right-icon')]");
+        executeJavaScript("arguments[0].click();", icon);
+
+        // 2. Ждём grid-модалку
+        SelenideElement grid = $x("//div[@data-item-marker='LookupGrid']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+
+        // 3. Ищем строку по точному значению
+        SelenideElement row = grid
+                .$x(".//div[@data-item-marker='" + value + "']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+        executeJavaScript("arguments[0].click();", row);
+
+        // 4. Жмём ВЫБРАТЬ
+        SelenideElement selectBtn = $x("//span[@data-tag='SelectButton']")
+                .shouldBe(visible, enabled);
+        executeJavaScript("arguments[0].click();", selectBtn);
+
+        // 5. Ждём закрытия модалки
+        grid.should(disappear, Duration.ofSeconds(30));
+
+        log.info("selectInGridByMarker: '{}' выбрано", value);
+        return this;
+    }
+
+
+    // ══════════════════════════════════════
+    // GRID LOOKUP + SEARCH — модалка с поиском (длинные справочники: Страны)
+    // ══════════════════════════════════════
+
+    @Step("Grid lookup+search: выбрать '{value}' по marker '{marker}'")
+    public LookupComponent selectInGridByMarkerWithSearch(String marker, String value) {
+
+        log.info("selectInGridByMarkerWithSearch: marker='{}' value='{}'", marker, value);
+
+        // 1. Фокус на ячейку + клик по лупе (она скрыта до hover — JS-клик)
+        SelenideElement cell = $x("//*[@data-item-marker='" + marker + "']")
+                .shouldBe(visible);
+        cell.hover();
+        SelenideElement cellInput = cell.$x(".//input");
+        executeJavaScript("arguments[0].focus();", cellInput);
+        SelenideElement icon = cell
+                .$x(".//div[contains(@class,'lookup-edit-right-icon')]");
+        executeJavaScript("arguments[0].click();", icon);
+
+        // 2. Ждём grid-модалку
+        SelenideElement grid = $x("//div[@data-item-marker='LookupGrid']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+
+        // 3. Вводим значение в поле поиска и подтверждаем через Enter
+        SelenideElement searchInput = $("#searchEdit-el")
+                .shouldBe(visible, Duration.ofSeconds(10));
+        searchInput.click();
+        searchInput.sendKeys(value);
+        searchInput.sendKeys(Keys.ENTER);   // ← запускает фильтрацию надёжнее, чем клик по кнопке
+
+
+
+        // 5. Кликаем найденную строку
+        SelenideElement row = grid
+                .$x(".//div[@data-item-marker='" + value + "']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+        executeJavaScript("arguments[0].click();", row);
+
+        // 6. Жмём ВЫБРАТЬ
+        SelenideElement selectBtn = $x("//span[@data-tag='SelectButton']")
+                .shouldBe(visible, enabled);
+        executeJavaScript("arguments[0].click();", selectBtn);
+
+        // 7. Ждём закрытия модалки
+        grid.should(disappear, Duration.ofSeconds(30));
+
+        log.info("selectInGridByMarkerWithSearch: '{}' выбрано", value);
+        return this;
+    }
+
+
+
+    // ══════════════════════════════════════
+    // LOOKUP + SOFT-VALIDATION — выбор из списка с обработкой confirm-подтверждения
+    // (поля Образование/Карьера/Адрес: после выбора Creatio показывает кнопку подтверждения)
+    // ══════════════════════════════════════
+
+    @Step("Lookup+confirm: выбрать '{value}' по marker '{marker}'")
+    public LookupComponent selectByMarkerWithSoftValidation(String marker, String value) {
+
+        log.info("selectByMarkerWithSoftValidation: marker='{}' value='{}'", marker, value);
+
+        SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
+                .shouldBe(visible, enabled);
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                executeJavaScript("arguments[0].focus();", input);
+                executeJavaScript("arguments[0].click();", input);
+
+                clearInput(input);
+                input.sendKeys(value);
+
+                // выбор пункта из выпадающего списка
+                SelenideElement listView = getVisibleListView();
+                SelenideElement item = listView
+                        .$x(".//li[normalize-space(.)='" + value + "']")
+                        .shouldBe(visible, Duration.ofSeconds(30));
+                executeJavaScript("arguments[0].click();", item);
+
+                // soft-validation: если Creatio показал кнопку подтверждения — жмём её
+                SelenideElement confirm = input.closest(".base-edit")
+                        .$x(".//div[contains(@id,'soft-validation-confirm')]");
+                if (confirm.exists() && confirm.isDisplayed()) {
+                    log.debug("soft-validation confirm найден — подтверждаем");
+                    executeJavaScript("arguments[0].click();", confirm);
+                }
+
+                input.shouldHave(exactValue(value), Duration.ofSeconds(15));
+
+                log.info("selectByMarkerWithSoftValidation: '{}' выбрано", value);
+                return this;
+
+            } catch (Throwable t) {
+                log.warn("Попытка {}/3: {}", attempt, t.getMessage());
+                try { clearInput(input); } catch (Throwable ignored) {}
+                if (attempt == 3) {
+                    throw new AssertionError(
+                            "Не удалось выбрать '" + value +
+                                    "' по marker '" + marker + "'", t);
+                }
+            }
+        }
+        return this;
+    }
+
+    // ══════════════════════════════════════
+    // CASCADE LOOKUP — каскадные зависимые поля (Деятельность физ. лица:
+    // SECTOR -> SEGMENT -> SUB_SEGMENT, следующее активируется после выбора предыдущего)
+    // ══════════════════════════════════════
+
+    @Step("Cascade lookup: выбрать '{value}' по marker '{marker}'")
+    public LookupComponent selectCascadeByMarker(String marker, String value) {
+
+        log.info("selectCascadeByMarker: marker='{}' value='{}'", marker, value);
+
+        SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
+                .shouldBe(visible);
+
+        // ждём, что поле активно (не readonly) — следующее в каскаде включается не сразу
+        input.shouldBe(not(attribute("readonly")), Duration.ofSeconds(30));
+
+        executeJavaScript("arguments[0].focus();", input);
+        executeJavaScript("arguments[0].click();", input);
+
+        clearInput(input);
+        input.sendKeys(value);
+
+        SelenideElement listView = getVisibleListView();
+        SelenideElement item = listView
+                .$x(".//li[normalize-space(.)='" + value + "']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+        executeJavaScript("arguments[0].click();", item);
+
+        // soft-validation confirm (если есть)
+        SelenideElement confirm = input.closest(".base-edit")
+                .$x(".//div[contains(@id,'soft-validation-confirm')]");
+        if (confirm.exists() && confirm.isDisplayed()) {
+            log.debug("soft-validation confirm найден — подтверждаем");
+            executeJavaScript("arguments[0].click();", confirm);
+        }
+
+        input.shouldHave(exactValue(value), Duration.ofSeconds(15));
+
+        log.info("selectCascadeByMarker: '{}' выбрано", value);
+        return this;
+    }
+
 }

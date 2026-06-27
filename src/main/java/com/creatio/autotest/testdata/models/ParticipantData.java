@@ -36,4 +36,14 @@ public class ParticipantData {
                 .pzlRelation(pzl)
                 .build();
     }
+
+    public static ParticipantData pledger1(boolean pzl) {
+        return ParticipantData.builder()
+                .role(ParticipantRole.PLEDGER)
+                .firstName("Азизходжа")
+                .lastName("Хамидов")
+                .middleName("Азамходжаевич")
+                .pzlRelation(pzl)
+                .build();
+    }
 }

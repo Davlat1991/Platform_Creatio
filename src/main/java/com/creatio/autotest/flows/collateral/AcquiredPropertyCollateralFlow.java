@@ -27,7 +27,7 @@ public class AcquiredPropertyCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Моли бадастомада");
         form.setName("Приобретённое имущество");
         form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Тестов тест тестович");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         valuation.fillObjects(
                 "Новое оборудование",

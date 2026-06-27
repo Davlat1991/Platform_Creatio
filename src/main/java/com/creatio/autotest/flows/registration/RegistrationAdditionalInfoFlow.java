@@ -2,6 +2,9 @@ package com.creatio.autotest.flows.registration;
 
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.testdata.models.BaseScoringData;
+import com.creatio.autotest.testdata.models.registration.ClientProfileData;
+import com.creatio.autotest.testdata.models.registration.fields.EducationCareerField;
+import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,5 +35,19 @@ public class RegistrationAdditionalInfoFlow {
     private void setField(String label, String value) {
         if (value == null || value.isEmpty()) return;
         lookup.selectByLabel(label, value);
+    }
+
+    @Step("Выбор типа занятости (Иной источник дохода)")
+    public void selectEmploymentTypeOtherIncome(ClientProfileData profile) {
+        log.info("selectEmploymentTypeOtherIncome: {}",
+                profile.getEmploymentType().getUiName());
+
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.EMPLOYMENT_TYPE.marker,
+                profile.getEmploymentType().getUiName());
+
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.REASON_FOR_NOT_WORKING.marker,
+                profile.getEducationCareer().getReasonForNotWorking());
     }
 }

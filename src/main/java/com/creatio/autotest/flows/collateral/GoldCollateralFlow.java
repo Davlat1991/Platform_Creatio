@@ -26,7 +26,7 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
         form.selectSubType("Гарави дорои");
         form.setName("Золотые изделия");
         form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Тестов тест тестович");
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         valuation.fillGold(
                 "Золотое украшение",
