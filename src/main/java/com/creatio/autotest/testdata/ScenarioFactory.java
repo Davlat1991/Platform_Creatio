@@ -138,7 +138,20 @@ public final class ScenarioFactory {
     }
 
     // ══════════════════════════════════════
-    // СЦЕНАРИЙ 8 — Тип клиента: Работает в организации (EMPLOYEE)
+    // СЦЕНАРИЙ 8 — Тип клиента: Работает в организации (OTHER_INCOME)
+    // Без участников, без залогов — фокус на анкете заёмщика
+    // ══════════════════════════════════════
+
+    public static TestScenario otherIncomePath() {
+        return baseBuilder()
+                .product(defaultProduct())
+                .participants(Collections.emptyList())
+                .collaterals(Collections.emptyList())
+                .build();
+    }
+
+    // ══════════════════════════════════════
+    // СЦЕНАРИЙ 9 — Тип клиента: Работает в организации (EMPLOYEE)
     // Без участников, без залогов — фокус на анкете заёмщика
     // ══════════════════════════════════════
 
@@ -150,6 +163,11 @@ public final class ScenarioFactory {
                 .collaterals(Collections.emptyList())
                 .build();
     }
+
+    // ══════════════════════════════════════
+    // СЦЕНАРИЙ 10 — Тип клиента: Работает в организации (SELF_EMPLOYED)
+    // Без участников, без залогов — фокус на анкете заёмщика
+    // ══════════════════════════════════════
 
     public static TestScenario selfEmployedPath() {
         return baseBuilder()
