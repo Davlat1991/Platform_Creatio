@@ -33,7 +33,8 @@ public final class ClientFlowFactory {
                 return new OtherIncomeClientFlow(profile);
             case EMPLOYEE:
                 return new EmployeeClientFlow(profile);
-            // SELF_EMPLOYED — Этап 9
+            case SELF_EMPLOYED:
+                return new SelfEmployedClientFlow(profile);
             default:
                 throw new UnsupportedOperationException(
                         "Тип клиента пока не реализован: "

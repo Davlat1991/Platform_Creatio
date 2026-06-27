@@ -193,4 +193,27 @@ public class RegistrationIncomeExpensesFlow {
 
         click.clickByName("Сохранить");
     }
+
+    @Step("Заполнение деятельности физ. лица (Самозанятый)")
+    public void fillIndividualActivitySelfEmployed(ActivityData activity) {
+        log.info("Fill individual activity (SelfEmployed)");
+
+        buttons.clickTabByName("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ");
+        detailPage.clickAddRecord("Деятельность физ.лица");
+
+        lookup.selectCascadeByMarker(ActivityField.SECTOR.marker,      activity.getSector());
+        lookup.selectCascadeByMarker(ActivityField.SEGMENT.marker,     activity.getSegment());
+        lookup.selectCascadeByMarker(ActivityField.SUB_SEGMENT.marker, activity.getSubSegment());
+        lookup.selectCascadeByMarker(ActivityField.SALES_TYPE.marker,  activity.getSalesType());
+
+        if (activity.getMarket() != null && !activity.getMarket().isBlank()) {
+            lookup.selectCascadeByMarker(ActivityField.MARKET.marker, activity.getMarket());
+        }
+
+        checkbox.ensureChecked("BnzIsPrimary");
+
+        click.clickByName("Сохранить");
+
+
+    }
 }

@@ -121,4 +121,30 @@ public class RegistrationAddressFlow {
         click.clickByName("Сохранить");
         basePage.waitForPage();
     }
+
+    @Step("Заполнение адреса места работы (Самозанятый)")
+    public void fillWorkAddressSelfEmployed(WorkAddressData addr) {
+        log.info("Fill work address (SelfEmployed)");
+
+        detailPage.clickAddRecord("Адрес места работы");
+
+        // диалог смены типа занятости (может появиться)
+        msgBox.confirmIfPresent("Да", "При изменении типа занятости");
+
+        lookup.selectCascadeByMarker(AddressField.COUNTRY.marker,     addr.getCountry());
+        lookup.selectCascadeByMarker(AddressField.REGION.marker,      addr.getRegion());
+        lookup.selectCascadeByMarker(AddressField.DISTRICT.marker,    addr.getDistrict());
+        lookup.selectCascadeByMarker(AddressField.CITY.marker,        addr.getCity());
+        lookup.selectByMarkerWithSoftValidation(
+                AddressField.STREET_TYPE.marker, addr.getStreetType());
+        lookup.setTextByMarker(AddressField.STREET.marker,    addr.getStreet());
+        lookup.setTextByMarker(AddressField.HOUSE.marker,     addr.getHouse());
+        lookup.setTextByMarker(AddressField.BUILDING.marker,  addr.getBuilding());
+        lookup.setTextByMarker(AddressField.APARTMENT.marker, addr.getApartment());
+        lookup.setTextByMarker(AddressField.INDEX.marker,     addr.getIndex());
+        lookup.setTextByMarker(AddressField.REG_DATE.marker,  addr.getRegDate());
+
+        click.clickByName("Сохранить");
+        basePage.waitForPage();
+    }
 }

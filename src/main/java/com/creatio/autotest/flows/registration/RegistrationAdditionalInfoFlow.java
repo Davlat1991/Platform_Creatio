@@ -81,4 +81,32 @@ public class RegistrationAdditionalInfoFlow {
         lookup.selectByMarkerWithSoftValidation(
                 EducationCareerField.BUSINESS_REPUTATION.marker, ec.getBusinessReputation());
     }
+
+    @Step("Выбор типа занятости (Самозанятый)")
+    public void selectEmploymentTypeSelfEmployed(ClientProfileData profile) {
+        log.info("selectEmploymentTypeSelfEmployed: {}",
+                profile.getEmploymentType().getUiName());
+
+        EducationCareerData ec = profile.getEducationCareer();
+
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.EMPLOYMENT_TYPE.marker,
+                profile.getEmploymentType().getUiName());
+
+        // SELF_EMPLOYED: причина отсутствия работы должна быть пустой
+        lookup.clearByMarkerIfPresent(EducationCareerField.REASON_FOR_NOT_WORKING.marker);
+
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.POSITION.marker, ec.getPosition());
+        lookup.setTextByMarker(
+                EducationCareerField.ORGANIZATION_NAME.marker, ec.getOrganizationName());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.ROLE.marker, ec.getRole());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.EDUCATION.marker, ec.getEducation());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.LEGAL_FORM.marker, ec.getLegalForm());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.BUSINESS_REPUTATION.marker, ec.getBusinessReputation());
+    }
 }

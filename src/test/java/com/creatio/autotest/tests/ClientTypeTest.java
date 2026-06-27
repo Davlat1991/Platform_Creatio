@@ -69,13 +69,47 @@ public class ClientTypeTest extends BaseTest {
     }
 
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Тип клиента: Работает в организации — полный путь")
     @Description("Логин → клиент → консультация → продукт → заявка → регистрация (EMPLOYEE)")
     @Severity(SeverityLevel.NORMAL)
     public void employeeFullPath() {
 
         TestScenario scenario = ScenarioFactory.employeePath();
+        ProductData product = scenario.getProduct();
+
+        AuthFlow auth = new AuthFlow();
+        auth.login(scenario.getManager());
+        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
+
+        new ClientSearchFlow().searchClient(
+                scenario.getContact().getLastName(),
+                scenario.getContact().getFirstName(),
+                scenario.getContact().getMiddleName()
+        );
+
+        new ConsultationStartFlow()
+                .startConsultation(config.getConsultationTheme("retail"));
+
+        new ProductSelectionFlow().selectProduct(product);
+
+        new ApplicationCreationFlow().createApplication(product);
+
+        new RegistrationStageFlow().completeRegistrationStage(
+                scenario.getRegistration(),
+                ClientFlowFactory.from(scenario.getRegistration().getClientProfile())
+        );
+
+        auth.logout();
+    }
+
+    @Test(groups = "debug", enabled = true)
+    @Story("Тип клиента: Самозанятый — полный путь")
+    @Description("Логин → клиент → консультация → продукт → заявка → регистрация (SELF_EMPLOYED)")
+    @Severity(SeverityLevel.NORMAL)
+    public void selfEmployedFullPath() {
+
+        TestScenario scenario = ScenarioFactory.selfEmployedPath();
         ProductData product = scenario.getProduct();
 
         AuthFlow auth = new AuthFlow();

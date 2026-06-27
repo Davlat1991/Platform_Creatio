@@ -151,6 +151,15 @@ public final class ScenarioFactory {
                 .build();
     }
 
+    public static TestScenario selfEmployedPath() {
+        return baseBuilder()
+                .registration(selfEmployedRegistration())
+                .product(defaultProduct())
+                .participants(Collections.emptyList())
+                .collaterals(Collections.emptyList())
+                .build();
+    }
+
     // ══════════════════════════════════════
     // INTERNAL — BASE BUILDER
     // Общая база для всех сценариев
@@ -188,6 +197,16 @@ public final class ScenarioFactory {
                 .incomeExpenses(defaultIncomeExpenses())
                 .scoringData(BaseScoringScenarios.WITH_DEPENDENTS())
                 .clientProfile(employeeProfile())
+                .build();
+    }
+
+    private static RegistrationData selfEmployedRegistration() {
+        return RegistrationData.builder()
+                .region("ш. Хучанд")
+                .infoSource("Интернет/Сайт")
+                .incomeExpenses(defaultIncomeExpenses())
+                .scoringData(BaseScoringScenarios.WITH_DEPENDENTS())
+                .clientProfile(selfEmployedProfile())
                 .build();
     }
 
@@ -279,6 +298,40 @@ public final class ScenarioFactory {
                         .segment("Работник в сфере образования")
                         .subSegment("Учитель ср. школы")
                         .salesType("Не торгует")
+                        .build())
+                .build();
+    }
+
+    private static ClientProfileData selfEmployedProfile() {
+        return ClientProfileData.builder()
+                .employmentType(EmploymentType.SELF_EMPLOYED)
+                .educationCareer(EducationCareerData.builder()
+                        .position("Агроном")
+                        .organizationName("Агропром")
+                        .role("Руководитель")
+                        .education("2 и более высших")
+                        .legalForm("Дехканские (фермерские) хозяйства")
+                        .businessReputation("Управленческая должность")
+                        .build())
+                .workAddress(WorkAddressData.builder()
+                        .country("Точикистон")
+                        .region("Вилояти Сугд")
+                        .district("Хучанд")
+                        .city("ш. Хучанд")
+                        .streetType("Проспект")
+                        .street("Исмоили Сомони")
+                        .house("19")
+                        .building("2/7")
+                        .apartment("48")
+                        .index("735700")
+                        .regDate("01.01.2020")
+                        .build())
+                .activity(ActivityData.builder()
+                        .sector("Самозанятость")
+                        .segment("Агро")
+                        .subSegment("Животновод")
+                        .salesType("Оптовая")
+                        .market("Авангард")
                         .build())
                 .build();
     }
