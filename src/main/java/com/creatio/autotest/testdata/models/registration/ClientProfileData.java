@@ -11,9 +11,12 @@ import lombok.Getter;
  * Используется стратегиями BaseClientFlow для data-driven заполнения —
  * никаких захардкоженных значений в логике флоу.
  *
- * Вложенные блоки добавляются по мере реализации типов клиента:
- *  - educationCareer — блок "Образование и карьера" (нужен всем типам)
- *  - workAddress / career / activity — добавятся для EMPLOYEE и SELF_EMPLOYED
+ * Какие блоки заполняются для каждого типа:
+ *  - OTHER_INCOME  → educationCareer (только reasonForNotWorking)
+ *  - EMPLOYEE      → educationCareer + workAddress + career + activity
+ *  - SELF_EMPLOYED → educationCareer + workAddress + career + activity
+ *
+ * Неиспользуемые типом блоки остаются null.
  */
 @Getter
 @Builder
@@ -22,6 +25,15 @@ public class ClientProfileData {
     /** Тип занятости — определяет стратегию заполнения анкеты. */
     private EmploymentType employmentType;
 
-    /** Блок "Образование и карьера". */
+    /** Блок "Образование и карьера" (нужен всем типам). */
     private EducationCareerData educationCareer;
+
+    /** Блок "Адрес места работы" (EMPLOYEE / SELF_EMPLOYED). */
+    private WorkAddressData workAddress;
+
+    /** Блок "Карьера" (EMPLOYEE / SELF_EMPLOYED). */
+    private CareerData career;
+
+    /** Блок "Деятельность физ. лица" (EMPLOYEE / SELF_EMPLOYED). */
+    private ActivityData activity;
 }

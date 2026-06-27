@@ -466,4 +466,80 @@ public class LookupComponent extends BaseComponent {
         return this;
     }
 
+
+    @Step("Text: ввести '{value}' по marker '{marker}'")
+    public LookupComponent setTextByMarker(String marker, String value) {
+
+        log.info("setTextByMarker: marker='{}' value='{}'", marker, value);
+
+        SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
+                .shouldBe(visible, enabled);
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                executeJavaScript("arguments[0].focus();", input);
+                executeJavaScript("arguments[0].click();", input);
+
+                clearInput(input);
+                input.sendKeys(value);
+                input.sendKeys(Keys.TAB);
+
+                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
+
+                log.info("setTextByMarker: '{}' введено", value);
+                return this;
+
+            } catch (Throwable t) {
+                log.warn("setTextByMarker попытка {}/3: {}", attempt, t.getMessage());
+                try { clearInput(input); } catch (Throwable ignored) {}
+                if (attempt == 3) {
+                    throw new AssertionError(
+                            "Не удалось ввести '" + value +
+                                    "' по marker '" + marker + "'", t);
+                }
+            }
+        }
+        return this;
+    }
+
+
+    // ══════════════════════════════════════
+    // CLEAR LOOKUP — очистить lookup-поле, если в нём есть значение
+    // (крестик base-edit-clear-icon появляется только при непустом значении)
+    // ══════════════════════════════════════
+
+    @Step("Lookup: очистить поле по marker '{marker}' (если заполнено)")
+    public LookupComponent clearByMarkerIfPresent(String marker) {
+        log.info("clearByMarkerIfPresent: marker='{}'", marker);
+
+        SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input");
+        if (!input.exists()) {
+            log.debug("Поле '{}' не найдено — пропуск", marker);
+            return this;
+        }
+
+        String current = input.getValue();
+        if (current == null || current.isBlank()) {
+            log.debug("Поле '{}' уже пустое — пропуск", marker);
+            return this;
+        }
+
+        // крестик очистки внутри того же base-edit
+        SelenideElement clearIcon = input.closest(".base-edit")
+                .$x(".//div[contains(@id,'clear-icon') " +
+                        "and contains(@class,'base-edit-clear-icon')]");
+
+        if (clearIcon.exists()) {
+            executeJavaScript("arguments[0].click();", clearIcon);
+            input.shouldHave(exactValue(""), Duration.ofSeconds(5));
+            log.info("Поле '{}' очищено", marker);
+        } else {
+            // запасной путь — очистка через клавиатуру
+            clearInput(input);
+            log.info("Поле '{}' очищено (fallback)", marker);
+        }
+        return this;
+    }
+
+
 }

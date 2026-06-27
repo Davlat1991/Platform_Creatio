@@ -2,6 +2,7 @@ package com.creatio.autotest.flows.registration;
 
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.MenuComponent;
+import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.DetailPage;
@@ -19,6 +20,7 @@ public class RegistrationPrintFlow {
     private final BasePage         basePage   = new BasePage();
     private final DetailPage       detailPage = new DetailPage();
     private final ClickService click = new ClickService();
+    private final MessageBoxComponent msgBox = new MessageBoxComponent();
 
     @Step("Сохранение и печать анкеты-заявки")
     public void printApplication() {
@@ -27,6 +29,8 @@ public class RegistrationPrintFlow {
         click.clickByName("Сохранить");
         click.clickByName("Закрыть");
 
+        // диалог смены типа занятости (может появиться)
+        msgBox.confirmIfPresent("Да","При изменении типа занятости");
         buttons.clickTabByName("Участники заявки");
         click.clickByName("Заемщик");
 

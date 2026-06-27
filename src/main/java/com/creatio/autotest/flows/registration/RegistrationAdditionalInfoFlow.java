@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.registration;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.testdata.models.BaseScoringData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
+import com.creatio.autotest.testdata.models.registration.EducationCareerData;
 import com.creatio.autotest.testdata.models.registration.fields.EducationCareerField;
 import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 import io.qameta.allure.Step;
@@ -49,5 +50,35 @@ public class RegistrationAdditionalInfoFlow {
         lookup.selectByMarkerWithSoftValidation(
                 EducationCareerField.REASON_FOR_NOT_WORKING.marker,
                 profile.getEducationCareer().getReasonForNotWorking());
+    }
+
+    @Step("Выбор типа занятости (Работает в организации)")
+    public void selectEmploymentTypeEmployee(ClientProfileData profile) {
+        log.info("selectEmploymentTypeEmployee: {}",
+                profile.getEmploymentType().getUiName());
+
+        EducationCareerData ec = profile.getEducationCareer();
+
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.EMPLOYMENT_TYPE.marker,
+                profile.getEmploymentType().getUiName());
+
+        // EMPLOYEE/SELF_EMPLOYED: причина отсутствия работы должна быть пустой
+        lookup.clearByMarkerIfPresent(EducationCareerField.REASON_FOR_NOT_WORKING.marker);
+
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.POSITION.marker, ec.getPosition());
+        lookup.setTextByMarker(
+                EducationCareerField.ORGANIZATION_NAME.marker, ec.getOrganizationName());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.ROLE.marker, ec.getRole());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.SOCIAL_STATUS.marker, ec.getSocialStatus());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.EDUCATION.marker, ec.getEducation());
+        lookup.setTextByMarker(
+                EducationCareerField.POSITION_FULL_NAME.marker, ec.getPositionFullName());
+        lookup.selectByMarkerWithSoftValidation(
+                EducationCareerField.BUSINESS_REPUTATION.marker, ec.getBusinessReputation());
     }
 }

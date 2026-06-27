@@ -4,8 +4,12 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
+import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.pages.DetailPage;
+import com.creatio.autotest.testdata.models.registration.WorkAddressData;
+import com.creatio.autotest.testdata.models.registration.fields.AddressField;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,8 @@ public class RegistrationAddressFlow {
     private final LookupComponent  lookup   = new LookupComponent();
     private final BasePage         basePage = new BasePage();
     private final ClickService click = new ClickService();
+    private final DetailPage detailPage = new DetailPage();
+    private final MessageBoxComponent msgBox = new MessageBoxComponent();
 
     @Step("Заполнение адресов")
     public void fillAddresses() {
@@ -37,9 +43,6 @@ public class RegistrationAddressFlow {
 
         click.clickByName("Сохранить");
         basePage.waitForPage();
-
-        // Тип клиента
-        lookup.select("Тип клиента", "Такрори");
 
         // Средства связи
         lookup.selectByMarker("BnzAffiliation", "Мобильный");
@@ -57,8 +60,6 @@ public class RegistrationAddressFlow {
         // Тип клиента
         lookup.select("Тип клиента", "Такрори");
 
-        // Средства связи
-        lookup.selectByMarker("BnzAffiliation", "Мобильный");
     }
 
     @Step("Установка значения 'Связь с ПЗЛ': {expectedValue}")
@@ -89,5 +90,35 @@ public class RegistrationAddressFlow {
         }
 
         log.info("PZL relation set to: {}", expectedValue ? "Да" : "Нет");
+    }
+
+
+    @Step("Заполнение адреса места работы (Работает в организации)")
+    public void fillWorkAddressEmployee(WorkAddressData addr) {
+        log.info("Fill work address (Employee)");
+
+        // Подтверждение при смене типа занятости (если всплывёт)
+        // обрабатывается отдельно при необходимости
+
+        detailPage.clickAddRecord("Адрес места работы");
+
+        // диалог смены типа занятости (может появиться)
+        msgBox.confirmIfPresent("Да", "При изменении типа занятости");
+
+        lookup.selectCascadeByMarker(AddressField.COUNTRY.marker,     addr.getCountry());
+        lookup.selectCascadeByMarker(AddressField.REGION.marker,      addr.getRegion());
+        lookup.selectCascadeByMarker(AddressField.DISTRICT.marker,    addr.getDistrict());
+        lookup.selectCascadeByMarker(AddressField.CITY.marker,        addr.getCity());
+        lookup.selectByMarkerWithSoftValidation(
+                AddressField.STREET_TYPE.marker, addr.getStreetType());
+        lookup.setTextByMarker(AddressField.STREET.marker,    addr.getStreet());
+        lookup.setTextByMarker(AddressField.HOUSE.marker,     addr.getHouse());
+        lookup.setTextByMarker(AddressField.BUILDING.marker,  addr.getBuilding());
+        lookup.setTextByMarker(AddressField.APARTMENT.marker, addr.getApartment());
+        lookup.setTextByMarker(AddressField.INDEX.marker,     addr.getIndex());
+        lookup.setTextByMarker(AddressField.REG_DATE.marker,  addr.getRegDate());
+
+        click.clickByName("Сохранить");
+        basePage.waitForPage();
     }
 }

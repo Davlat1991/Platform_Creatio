@@ -31,7 +31,9 @@ public final class ClientFlowFactory {
         switch (profile.getEmploymentType()) {
             case OTHER_INCOME:
                 return new OtherIncomeClientFlow(profile);
-            // EMPLOYEE и SELF_EMPLOYED — добавятся на Этапах 8-9
+            case EMPLOYEE:
+                return new EmployeeClientFlow(profile);
+            // SELF_EMPLOYED — Этап 9
             default:
                 throw new UnsupportedOperationException(
                         "Тип клиента пока не реализован: "

@@ -3,12 +3,16 @@ package com.creatio.autotest.flows.registration;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.ButtonsComponent;
+import com.creatio.autotest.components.CheckboxComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.ExpenseData;
 import com.creatio.autotest.testdata.models.IncomeData;
 import com.creatio.autotest.testdata.models.RegistrationIncomeExpensesData;
+import com.creatio.autotest.testdata.models.registration.ActivityData;
+import com.creatio.autotest.testdata.models.registration.fields.ActivityField;
 import io.qameta.allure.Step;
 import org.openqa.selenium.Keys;
 import org.slf4j.Logger;
@@ -23,6 +27,9 @@ public class RegistrationIncomeExpensesFlow {
 
     private static final Logger log =
             LoggerFactory.getLogger(RegistrationIncomeExpensesFlow.class);
+
+    private final DetailPage        detailPage = new DetailPage();
+    private final CheckboxComponent checkbox   = new CheckboxComponent();
 
     // ── Уникальные контейнеры деталей ─────
     // Оба имеют одинаковые column-name внутри (TsiKind, TsiFrequencyType, TsiAmountBC)
@@ -162,5 +169,28 @@ public class RegistrationIncomeExpensesFlow {
 
         executeJavaScript("arguments[0].click();", saveBtn);
         basePage.waitForPage();
+    }
+
+
+    @Step("Заполнение деятельности физ. лица (Работает в организации)")
+    public void fillIndividualActivityEmployed(ActivityData activity) {
+        log.info("Fill individual activity (Employee)");
+
+        buttons.clickTabByName("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ");
+        detailPage.clickAddRecord("Деятельность физ.лица");
+
+        lookup.selectCascadeByMarker(ActivityField.SECTOR.marker,      activity.getSector());
+        lookup.selectCascadeByMarker(ActivityField.SEGMENT.marker,     activity.getSegment());
+        lookup.selectCascadeByMarker(ActivityField.SUB_SEGMENT.marker, activity.getSubSegment());
+        lookup.selectCascadeByMarker(ActivityField.SALES_TYPE.marker,  activity.getSalesType());
+
+        // market опционален — для Employee ("Не торгует") его нет
+        if (activity.getMarket() != null && !activity.getMarket().isBlank()) {
+            lookup.selectCascadeByMarker(ActivityField.MARKET.marker, activity.getMarket());
+        }
+
+        checkbox.ensureChecked("BnzIsPrimary");
+
+        click.clickByName("Сохранить");
     }
 }

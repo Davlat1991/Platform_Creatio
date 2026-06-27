@@ -1,8 +1,11 @@
 package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
+import com.creatio.autotest.testdata.models.registration.ActivityData;
+import com.creatio.autotest.testdata.models.registration.CareerData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import com.creatio.autotest.testdata.models.registration.EducationCareerData;
+import com.creatio.autotest.testdata.models.registration.WorkAddressData;
 import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 
 import java.util.Collections;
@@ -120,8 +123,8 @@ public final class ScenarioFactory {
                         ParticipantData.pledger1(false)
                 ))
                 .collaterals(List.of(
-                       // CollateralDataFactory.vehicle(CurrencyType.TJS),
-                       // CollateralDataFactory.realEstate(CurrencyType.TJS),
+                        // CollateralDataFactory.vehicle(CurrencyType.TJS),
+                        // CollateralDataFactory.realEstate(CurrencyType.TJS),
                         CollateralDataFactory.equipment(CurrencyType.TJS),
                         CollateralDataFactory.gold(CurrencyType.TJS),
                         CollateralDataFactory.goods(CurrencyType.TJS),
@@ -131,6 +134,20 @@ public final class ScenarioFactory {
                         CollateralDataFactory.futureHarvest(CurrencyType.TJS),
                         CollateralDataFactory.cashDeposit(CurrencyType.TJS)
                 ))
+                .build();
+    }
+
+    // ══════════════════════════════════════
+    // СЦЕНАРИЙ 8 — Тип клиента: Работает в организации (EMPLOYEE)
+    // Без участников, без залогов — фокус на анкете заёмщика
+    // ══════════════════════════════════════
+
+    public static TestScenario employeePath() {
+        return baseBuilder()
+                .registration(employeeRegistration())
+                .product(defaultProduct())
+                .participants(Collections.emptyList())
+                .collaterals(Collections.emptyList())
                 .build();
     }
 
@@ -158,30 +175,19 @@ public final class ScenarioFactory {
         return RegistrationData.builder()
                 .region("ш. Хучанд")
                 .infoSource("Интернет/Сайт")
-                .incomeExpenses(RegistrationIncomeExpensesData.builder()
-                        .income(IncomeData.builder()
-                                .type("Зарплата по доп. месту работы")
-                                .frequency("Ежемесячно")
-                                .amount("5000")
-                                .build())
-                        .expense(ExpenseData.builder()
-                                .type("Коммунальные платежи")
-                                .frequency("Ежемесячно")
-                                .amount("1000")
-                                .build())
-                        .build())
+                .incomeExpenses(defaultIncomeExpenses())
                 .scoringData(BaseScoringScenarios.WITH_DEPENDENTS())
                 .clientProfile(otherIncomeProfile())
                 .build();
     }
 
-    // ── Профили клиента (тип занятости) ──────────────
-    private static ClientProfileData otherIncomeProfile() {
-        return ClientProfileData.builder()
-                .employmentType(EmploymentType.OTHER_INCOME)
-                .educationCareer(EducationCareerData.builder()
-                        .reasonForNotWorking("Получатель Д/П")
-                        .build())
+    private static RegistrationData employeeRegistration() {
+        return RegistrationData.builder()
+                .region("ш. Хучанд")
+                .infoSource("Интернет/Сайт")
+                .incomeExpenses(defaultIncomeExpenses())
+                .scoringData(BaseScoringScenarios.WITH_DEPENDENTS())
+                .clientProfile(employeeProfile())
                 .build();
     }
 
@@ -202,6 +208,78 @@ public final class ScenarioFactory {
                                 .build())
                         .build())
                 .scoringData(BaseScoringScenarios.STANDARD_EMPLOYED())
+                .build();
+    }
+
+    // Общий блок доходов/расходов (переиспользуется default и employee)
+    private static RegistrationIncomeExpensesData defaultIncomeExpenses() {
+        return RegistrationIncomeExpensesData.builder()
+                .income(IncomeData.builder()
+                        .type("Зарплата по доп. месту работы")
+                        .frequency("Ежемесячно")
+                        .amount("5000")
+                        .build())
+                .expense(ExpenseData.builder()
+                        .type("Коммунальные платежи")
+                        .frequency("Ежемесячно")
+                        .amount("1000")
+                        .build())
+                .build();
+    }
+
+    // ══════════════════════════════════════
+    // ПРОФИЛИ КЛИЕНТА (тип занятости)
+    // ══════════════════════════════════════
+
+    private static ClientProfileData otherIncomeProfile() {
+        return ClientProfileData.builder()
+                .employmentType(EmploymentType.OTHER_INCOME)
+                .educationCareer(EducationCareerData.builder()
+                        .reasonForNotWorking("Получатель Д/П")
+                        .build())
+                .build();
+    }
+
+    private static ClientProfileData employeeProfile() {
+        return ClientProfileData.builder()
+                .employmentType(EmploymentType.EMPLOYEE)
+                .educationCareer(EducationCareerData.builder()
+                        .position("Ведущий специалист")
+                        .organizationName("МТГ \"Мактаби П.Пулотов\"")
+                        .role("Исполнитель")
+                        .socialStatus("Гослужитель с доп.доходом")
+                        .education("Высшее")
+                        .positionFullName("Омузгори забони англиси")
+                        .businessReputation("Простой рабочий")
+                        .build())
+                .workAddress(WorkAddressData.builder()
+                        .country("Точикистон")
+                        .region("Вилояти Сугд")
+                        .district("нохияи Б.Гафуров")
+                        .city("Б.Гафуров")
+                        .streetType("Улица")
+                        .street("МТМУ №18")
+                        .house("19")
+                        .building("2/7")
+                        .apartment("48")
+                        .index("735700")
+                        .regDate("01.01.2020")
+                        .build())
+                .career(CareerData.builder()
+                        .employmentType("Другой учитель")
+                        .organizationName("МТГ \"Мактаби П.Пулотов\"")
+                        .position("Ведущий специалист")
+                        .startDate("15.01.2024")
+                        //.employer("МТГ \"Мактаби П.Пулотов\"")
+                        .positionFullName("Омузгори забони англиси")
+                        .dueDate("15.01.2034")
+                        .build())
+                .activity(ActivityData.builder()
+                        .sector("Работник организации")
+                        .segment("Работник в сфере образования")
+                        .subSegment("Учитель ср. школы")
+                        .salesType("Не торгует")
+                        .build())
                 .build();
     }
 

@@ -9,6 +9,7 @@ import java.time.Duration;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.executeJavaScript;
 
 public class MessageBoxComponent extends BaseComponent {
 
@@ -101,6 +102,39 @@ public class MessageBoxComponent extends BaseComponent {
         validateText(text);
         clickOk();
         waitClose();
+        return this;
+    }
+
+    // ══════════════════════════════════════
+    // OPTIONAL CONFIRM — нажать кнопку, ЕСЛИ диалог появился.
+    // Если диалога нет — тихо продолжаем (без ожидания/падения).
+    // Используется для диалога смены типа занятости, который может и не появиться.
+    // ══════════════════════════════════════
+
+    @Step("Подтвердить диалог '{expectedTextPart}' кнопкой '{buttonMarker}', если он появился")
+    public MessageBoxComponent confirmIfPresent(String buttonMarker, String expectedTextPart) {
+        log.info("confirmIfPresent: button='{}' expectedText~'{}'", buttonMarker, expectedTextPart);
+
+        SelenideElement box = $x("//div[contains(@class,'ts-messagebox-box')]");
+
+        if (box.is(visible, Duration.ofSeconds(3))) {
+            String actualText = box.getText();
+
+            // мягкая проверка: подтверждаем только ожидаемый диалог
+            if (expectedTextPart != null && !actualText.contains(expectedTextPart)) {
+                log.warn("Появился НЕ ожидаемый диалог. Текст: '{}'. Пропуск подтверждения.",
+                        actualText);
+                return this;
+            }
+
+            SelenideElement btn = $x("//*[@data-item-marker='" + buttonMarker + "']")
+                    .shouldBe(visible, Duration.ofSeconds(5));
+            executeJavaScript("arguments[0].click();", btn);
+            box.should(disappear, Duration.ofSeconds(10));
+            log.info("Диалог подтверждён кнопкой '{}'", buttonMarker);
+        } else {
+            log.debug("Диалог не появился — пропуск");
+        }
         return this;
     }
 }
