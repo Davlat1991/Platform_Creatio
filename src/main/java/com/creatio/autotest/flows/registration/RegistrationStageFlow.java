@@ -1,6 +1,7 @@
 package com.creatio.autotest.flows.registration;
 
 import com.codeborne.selenide.Selenide;
+import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.flows.registration.client.BaseClientFlow;
 import com.creatio.autotest.testdata.models.RegistrationData;
 import io.qameta.allure.Step;
@@ -20,6 +21,7 @@ public class RegistrationStageFlow {
     private final RegistrationAdditionalInfoFlow      additionalInfoFlow;
     private final RegistrationScoringConfirmationFlow scoringFlow;
     private final RegistrationPrintFlow               printFlow;
+    private final BasePage basePage = new BasePage();
 
     public RegistrationStageFlow() {
         this.generalInfoFlow    = new RegistrationGeneralInfoFlow();
@@ -61,7 +63,8 @@ public class RegistrationStageFlow {
         // 8. Печать
         printFlow.printApplication();
 
-        Selenide.refresh();
+       // Selenide.refresh();
+        basePage.waitForPage();
 
         log.info("Registration stage completed");
 
@@ -86,7 +89,8 @@ public class RegistrationStageFlow {
         scoringFlow.confirmScoring();
         printFlow.printApplication();
 
-        Selenide.refresh();
+     //   Selenide.refresh();
+        basePage.waitForPage();
 
         log.info("Registration stage with client type completed");
     }

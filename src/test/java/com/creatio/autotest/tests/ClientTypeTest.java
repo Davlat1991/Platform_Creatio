@@ -18,27 +18,15 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 @Feature("Client Type")
 public class ClientTypeTest extends BaseTest {
 
-    @DataProvider(name = "clientTypes")
-    public Object[][] clientTypes() {
-        return new Object[][] {
-                { "OTHER_INCOME",  ScenarioFactory.otherIncomePath()  },
-                { "EMPLOYEE",      ScenarioFactory.employeePath()     },
-                { "SELF_EMPLOYED", ScenarioFactory.selfEmployedPath() },
-        };
-    }
-
-    @Test(dataProvider = "clientTypes", groups = "regression")
-    @Story("Регистрация заявки по типу клиента")
-    @Description("Логин → клиент → консультация → продукт → заявка → регистрация (параметризовано по типу занятости)")
-    @Severity(SeverityLevel.NORMAL)
-    public void clientTypeRegistration(String typeName, TestScenario scenario) {
-
+    // ══════════════════════════════════════
+    // Общий прогон одного типа клиента
+    // ══════════════════════════════════════
+    private void runClientType(TestScenario scenario) {
         ProductData product = scenario.getProduct();
 
         AuthFlow auth = new AuthFlow();
@@ -55,7 +43,6 @@ public class ClientTypeTest extends BaseTest {
                 .startConsultation(config.getConsultationTheme("retail"));
 
         new ProductSelectionFlow().selectProduct(product);
-
         new ApplicationCreationFlow().createApplication(product);
 
         new RegistrationStageFlow().completeRegistrationStage(
@@ -65,4 +52,56 @@ public class ClientTypeTest extends BaseTest {
 
         auth.logout();
     }
+
+    // ══════════════════════════════════════
+    // DEBUG — по одному типу за раз
+    // (один менеджер + одно физ.лицо: гонять отдельно,
+    //  между прогонами — новая заявка/контакт)
+    // ══════════════════════════════════════
+
+    @Test(groups = "debug", enabled = false)
+    @Story("Тип клиента: Иной источник дохода")
+    @Severity(SeverityLevel.NORMAL)
+    public void otherIncomeFullPath() {
+        runClientType(ScenarioFactory.otherIncomePath());
+    }
+
+    @Test(groups = "debug", enabled = false)
+    @Story("Тип клиента: Работает в организации")
+    @Severity(SeverityLevel.NORMAL)
+    public void employeeFullPath() {
+        runClientType(ScenarioFactory.employeePath());
+    }
+
+    @Test(groups = "debug", enabled = true)
+    @Story("Тип клиента: Самозанятый")
+    @Severity(SeverityLevel.NORMAL)
+    public void selfEmployedFullPath() {
+        runClientType(ScenarioFactory.selfEmployedPath());
+    }
+
+    // ══════════════════════════════════════
+    // РЕГРЕССИЯ (Путь B) — закомментировано до этапа регрессии.
+    // Требует 3 разных менеджера + 3 разных физ.лица, иначе
+    // 2-й и 3-й прогон упадут на активной заявке первого.
+    // Вернуть, когда будет реализован полный флоу + multi-contact.
+    // ══════════════════════════════════════
+
+    /*
+    @DataProvider(name = "clientTypes")
+    public Object[][] clientTypes() {
+        return new Object[][] {
+                { "OTHER_INCOME",  ScenarioFactory.otherIncomePath()  },
+                { "EMPLOYEE",      ScenarioFactory.employeePath()     },
+                { "SELF_EMPLOYED", ScenarioFactory.selfEmployedPath() },
+        };
+    }
+
+    @Test(dataProvider = "clientTypes", groups = "regression")
+    @Story("Регистрация заявки по типу клиента")
+    @Description("Параметризовано по типу занятости")
+    public void clientTypeRegistration(String typeName, TestScenario scenario) {
+        runClientType(scenario);
+    }
+    */
 }

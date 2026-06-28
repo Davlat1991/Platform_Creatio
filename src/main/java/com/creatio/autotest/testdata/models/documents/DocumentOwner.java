@@ -6,13 +6,15 @@ package com.creatio.autotest.testdata.models.documents;
  */
 public enum DocumentOwner {
 
-    BORROWER ("Документы заемщика"),
-    GUARANTOR("Документы поручителя"),
-    PLEDGER  ("Документы залогодателя");
+    BORROWER ("Документы заемщика",      "DocBorrowerTab"),
+    GUARANTOR("Документы поручителя",    "DocGuarantorTab"),
+    PLEDGER  ("Документы залогодателя",  "DocPledgerTab");
 
     public final String uiTab;
+    public final String containerId;
 
-    DocumentOwner(String uiTab) {
+    DocumentOwner(String uiTab, String containerId) {
         this.uiTab = uiTab;
+        this.containerId = containerId;
     }
 }

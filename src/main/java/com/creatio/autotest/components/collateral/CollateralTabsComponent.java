@@ -23,7 +23,9 @@ public class CollateralTabsComponent extends BaseComponent {
         $x("//div[@id='FinApplicationPageTabsContainerContainer']")
                 .shouldBe(Condition.visible);
 
-        refresh();
+        // Ждём стабильности контейнера вместо рефреша
+        $x("//div[@id='FinApplicationPageTabsContainerContainer']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         for (int i = 0; i < 3; i++) {
             try {
@@ -34,7 +36,7 @@ public class CollateralTabsComponent extends BaseComponent {
                 executeJavaScript("arguments[0].click();", tab);
 
                 $x("//span[contains(text(),'Залоги')]")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(15));
+                        .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
                 log.info("Collateral tab opened");
                 return;

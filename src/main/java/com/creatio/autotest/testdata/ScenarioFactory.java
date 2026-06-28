@@ -1,6 +1,9 @@
 package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
+import com.creatio.autotest.testdata.models.documents.DocumentData;
+import com.creatio.autotest.testdata.models.documents.DocumentOwner;
+import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import com.creatio.autotest.testdata.models.registration.ActivityData;
 import com.creatio.autotest.testdata.models.registration.CareerData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
@@ -395,5 +398,32 @@ public final class ScenarioFactory {
                 .scheduleNumber("1")
                 .scheduleType("Аннуитетный")
                 .build();
+    }
+
+
+    // ══════════════════════════════════════
+    // DOCUMENTS
+    // ══════════════════════════════════════
+
+    // В ScenarioFactory — новый статический метод
+    public static List<DocumentOwnerData> documentOwners() {
+        return List.of(
+                // Поручитель: те же 3 документа, что у заёмщика
+                DocumentOwnerData.builder()
+                        .owner(DocumentOwner.GUARANTOR)
+                        .documents(List.of(
+                                DocumentData.builder().type("Income").fileName("Income.pdf").build(),
+                                DocumentData.builder().type("INN").fileName("INN.pdf").build(),
+                                DocumentData.builder().type("Passport").fileName("Passport.pdf").build()
+                        ))
+                        .build(),
+                // Залогодатель: только FATCA
+                DocumentOwnerData.builder()
+                        .owner(DocumentOwner.PLEDGER)
+                        .documents(List.of(
+                                DocumentData.builder().type("FATCA").fileName("FATCA.pdf").build()
+                        ))
+                        .build()
+        );
     }
 }

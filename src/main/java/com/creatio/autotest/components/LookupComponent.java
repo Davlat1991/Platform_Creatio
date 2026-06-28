@@ -84,10 +84,18 @@ public class LookupComponent extends BaseComponent {
 
         for (int attempt = 1; attempt <= 3; attempt++) {
             try {
+                // На повторных попытках закрываем «висящий» список перед переоткрытием.
+                // Первая попытка идентична проверенному поведению.
+                if (attempt > 1) {
+                    try { input.sendKeys(Keys.ESCAPE); } catch (Throwable ignored) {}
+                }
+
                 executeJavaScript("arguments[0].focus();", input);
                 executeJavaScript("arguments[0].click();", input);
 
-                SelenideElement listView = getVisibleListView();
+                // Короткое ожидание: если список не открылся за 5 сек — быстро падаем
+                // и кликаем заново на след. попытке, а не ждём общий 60-сек таймаут.
+                SelenideElement listView = getVisibleListView(Duration.ofSeconds(5));
 
                 SelenideElement option = listView
                         .$x(".//li[normalize-space(.)='" + value + "'" +
@@ -104,7 +112,7 @@ public class LookupComponent extends BaseComponent {
                 return this;
 
             } catch (Throwable t) {
-                log.warn("Попытка {}/3: {}", attempt, t.getMessage());
+                log.warn("selectByMarker попытка {}/3: {}", attempt, t.getMessage());
                 if (attempt == 3) {
                     throw new AssertionError(
                             "Не удалось выбрать '" + value +
@@ -234,9 +242,13 @@ public class LookupComponent extends BaseComponent {
     }
 
     private SelenideElement getVisibleListView() {
+        return getVisibleListView(Duration.ofSeconds(60));
+    }
+
+    private SelenideElement getVisibleListView(Duration timeout) {
         return $$x("//div[contains(@class,'listview')]")
                 .findBy(visible)
-                .shouldBe(visible, Duration.ofSeconds(60));
+                .shouldBe(visible, timeout);
     }
 
     @Step("Set field by label: {label} = {value}")
