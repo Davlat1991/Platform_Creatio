@@ -426,4 +426,34 @@ public final class ScenarioFactory {
                         .build()
         );
     }
+
+    // Только поручитель
+    public static List<DocumentOwnerData> guarantorDocuments() {
+        return List.of(
+                DocumentOwnerData.builder()
+                        .owner(DocumentOwner.GUARANTOR)
+                        .documents(List.of(
+                                DocumentData.builder().type("Income").fileName("Income.pdf").build(),
+                                DocumentData.builder().type("INN").fileName("INN.pdf").build(),
+                                DocumentData.builder().type("Passport").fileName("Passport.pdf").build()
+                        ))
+                        .build()
+        );
+    }
+
+    // Только залогодатель
+    public static List<DocumentOwnerData> pledgerDocuments() {
+        return List.of(
+                DocumentOwnerData.builder()
+                        .owner(DocumentOwner.PLEDGER)
+                        .documents(List.of(
+                                DocumentData.builder().type("FATCA").fileName("FATCA.pdf").build()
+                        ))
+                        .build()
+        );
+    }
+
+
+
+
 }
