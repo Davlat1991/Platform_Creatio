@@ -1,23 +1,26 @@
 package com.creatio.autotest.tests;
 
-import com.codeborne.selenide.Selenide;
 import com.creatio.autotest.base.BaseTest;
 import com.creatio.autotest.flows.AuthFlow;
 import com.creatio.autotest.flows.NavigationFlow;
-import com.creatio.autotest.flows.PreliminaryCheckStageFlow;
 import com.creatio.autotest.flows.WorkspaceFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
+import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
-@Feature("Registration Stage")
+@Epic(AllureTags.Epics.RETAIL)
+@Feature(AllureTags.Features.REGISTRATION)
+@Owner("Davlat")
 public class RegistrationTest extends BaseTest {
 
     // ══════════════════════════════════════
@@ -44,11 +47,6 @@ public class RegistrationTest extends BaseTest {
 
         TestScenario scenario = ScenarioFactory.happyPath();
         new RegistrationStageFlow().completeRegistrationStage(scenario.getRegistration());
-
-        new PreliminaryCheckStageFlow()
-                .completePreliminaryCheckStage();
-
-
 
         auth.logout();
     }
@@ -85,11 +83,6 @@ public class RegistrationTest extends BaseTest {
 
         new RegistrationStageFlow()
                 .completeRegistrationStage(scenario.getRegistration());
-
-        new PreliminaryCheckStageFlow()
-                .completePreliminaryCheckStage();
-
-        Selenide.sleep(1000);
 
         auth.logout();
     }

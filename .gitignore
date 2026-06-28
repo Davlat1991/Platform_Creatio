@@ -46,3 +46,10 @@ build/
 !**/config.properties.example
 
 /downloads/
+
+### ALLURE ###
+# CLI, который скачивает allure-maven — это мусор, не коммитим
+.allure/
+# allure-results / allure-report лежат под target/ и уже покрыты выше.
+# ВАЖНО: если на шаге 4 заведёшь постоянную историю трендов вне target/
+# (например, allure-history/), НЕ добавляй её сюда — её как раз нужно коммитить.

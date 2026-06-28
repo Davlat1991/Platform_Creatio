@@ -141,6 +141,34 @@
             </plugin>
 
             <!-- ══════════════════════════════════════
+                 COPY ALLURE METADATA → allure-results
+                 (categories.json и т.п. из src/test/allure)
+            ══════════════════════════════════════ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-allure-meta</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/allure-results</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>src/test/allure</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- ══════════════════════════════════════
                  SUREFIRE (запуск тестов)
             ══════════════════════════════════════ -->
             <plugin>

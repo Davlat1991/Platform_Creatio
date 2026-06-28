@@ -1,0 +1,11 @@
+[
+  { "name": "Локатор не найден", "matchedStatuses": ["broken"],
+    "messageRegex": ".*(NoSuchElement|ElementNotFound|did not find).*" },
+  { "name": "Таймаут ожидания", "matchedStatuses": ["broken"],
+    "messageRegex": ".*(Timeout|element should|condition).*" },
+  { "name": "StaleElement", "matchedStatuses": ["broken"],
+    "messageRegex": ".*StaleElement.*" },
+  { "name": "Нет сети банка / стенд недоступен", "matchedStatuses": ["broken"],
+    "messageRegex": ".*(ConnectException|UnreachableBrowser|ERR_CONNECTION|net::ERR).*" },
+  { "name": "Проваленные проверки", "matchedStatuses": ["failed"] }
+]

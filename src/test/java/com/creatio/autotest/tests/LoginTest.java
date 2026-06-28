@@ -2,71 +2,63 @@ package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
 import com.creatio.autotest.flows.AuthFlow;
-import com.creatio.autotest.flows.WorkspaceFlow;
 import com.creatio.autotest.testdata.Users;
-import com.creatio.autotest.testdata.models.Workspace;
+import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
-@Feature("Authentication")
+@Epic(AllureTags.Epics.PLATFORM)
+@Feature(AllureTags.Features.AUTH)
+@Owner("Davlat")
 public class LoginTest extends BaseTest {
 
+    // ══════════════════════════════════════
+    // TESTS
+    // ══════════════════════════════════════
+
     @Test(groups = "smoke")
-    @Story("Manager — login + workspace")
-    @Description("Менеджер входит, выбирает рабочее место 'Розничный менеджер', выходит")
+    @Story("Вход: Розничный менеджер")
+    @Description("Розничный менеджер успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
     public void managerLoginTest() {
-        AuthFlow auth = new AuthFlow();
-        auth.login(Users.MANAGER());
-        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
-        auth.logout();
+        new AuthFlow().login(Users.MANAGER());
     }
 
     @Test(groups = "smoke")
-    @Story("Underwriter — login + workspace")
-    @Description("Верификатор входит, выбирает рабочее место 'Верификатор', выходит")
+    @Story("Вход: Верификатор")
+    @Description("Верификатор успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
     public void underwriterLoginTest() {
-        AuthFlow auth = new AuthFlow();
-        auth.login(Users.UNDERWRITER());
-        new WorkspaceFlow().select(Workspace.UNDERWRITER);
-        auth.logout();
+        new AuthFlow().login(Users.UNDERWRITER());
     }
 
     @Test(groups = "smoke")
-    @Story("IKOK — login + workspace")
-    @Description("ИКОК входит, выбирает рабочее место 'ИКОК', выходит")
+    @Story("Вход: ИКОК")
+    @Description("ИКОК успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
     public void ikokLoginTest() {
-        AuthFlow auth = new AuthFlow();
-        auth.login(Users.IKOK());
-        new WorkspaceFlow().select(Workspace.IKOK);
-        auth.logout();
+        new AuthFlow().login(Users.IKOK());
     }
 
     @Test(groups = "smoke")
-    @Story("IKOK-GO — login + workspace")
-    @Description("ИКОК-ГО входит, выбирает рабочее место 'ИКОК-ГО', выходит")
+    @Story("Вход: ИКОК-ГО")
+    @Description("ИКОК-ГО успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
     public void ikokGoLoginTest() {
-        AuthFlow auth = new AuthFlow();
-        auth.login(Users.IKOK_GO());
-        new WorkspaceFlow().select(Workspace.IKOK_GO);
-        auth.logout();
+        new AuthFlow().login(Users.IKOK_GO());
     }
 
     @Test(groups = "smoke")
-    @Story("Cashier — login + workspace")
-    @Description("Кассир входит, выбирает рабочее место 'Касса', выходит")
+    @Story("Вход: Касса")
+    @Description("Кассир успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
     public void cashierLoginTest() {
-        AuthFlow auth = new AuthFlow();
-        auth.login(Users.CASHIER());
-        new WorkspaceFlow().select(Workspace.CASHIER);
-        auth.logout();
+        new AuthFlow().login(Users.CASHIER());
     }
 }

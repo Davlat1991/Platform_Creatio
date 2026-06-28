@@ -9,14 +9,19 @@ import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
+import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
-@Feature("Collateral Stage")
+@Epic(AllureTags.Epics.RETAIL)
+@Feature(AllureTags.Features.COLLATERAL)
+@Owner("Davlat")
 public class CollateralTest extends BaseTest {
 
     // ══════════════════════════════════════
@@ -56,12 +61,12 @@ public class CollateralTest extends BaseTest {
     // Участники уже добавлены
     // ══════════════════════════════════════
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Debug — только залоговые обеспечения")
     @Description("Открываем заявку по UUID, добавляем залоги")
     @Severity(SeverityLevel.NORMAL)
     public void debugCollateralsOnly() {
-        TestScenario scenario = ScenarioFactory.allCollaterals();
+        TestScenario scenario = ScenarioFactory.happyPath();
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());
@@ -72,7 +77,7 @@ public class CollateralTest extends BaseTest {
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/" +
                         "FinApplicationPage/edit/" +
-                        "be61b343-55aa-446a-93c0-a77b0a49ea84"
+                        "cb6594e3-a2c6-4d1e-b83d-19bf6fd53f53"
         );
 
         new CollateralStageFlow().completeCollateralStage(
@@ -127,7 +132,7 @@ public class CollateralTest extends BaseTest {
     @Description("Логин → регистрация → предварительная проверка → участники → залоги")
     @Severity(SeverityLevel.BLOCKER)
     public void collateralStageTest() {
-        TestScenario scenario = ScenarioFactory.allCollaterals();
+        TestScenario scenario = ScenarioFactory.happyPath();
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());

@@ -8,18 +8,26 @@ import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
+import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
-@Feature("Credit Application")
+@Epic(AllureTags.Epics.RETAIL)
+@Feature(AllureTags.Features.E2E)
+@Owner("Davlat")
 public class CreditApplicationTest extends BaseTest {
 
     @Test(groups = "regression")
-    @Description("Happy Path — полный сценарий кредитной заявки")
+    @Story("Happy Path: от логина до выдачи кредита")
+    @Description("Полный сквозной сценарий розничной кредитной заявки по всем ролям")
     @Severity(SeverityLevel.BLOCKER)
+    // @TmsLink("CREATIO-123")   // раскомментируй после заполнения домена Jira в allure.properties
     public void creditApplicationHappyPath() {
 
         TestScenario scenario = ScenarioFactory.happyPath();

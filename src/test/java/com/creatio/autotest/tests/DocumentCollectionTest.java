@@ -9,13 +9,20 @@ import com.creatio.autotest.flows.WorkspaceFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
+import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.annotations.Test;
 
-@Feature("Document Collection Stage")
+@Epic(AllureTags.Epics.RETAIL)
+@Feature(AllureTags.Features.DOCUMENTS)
+@Owner("Davlat")
 public class DocumentCollectionTest extends BaseTest {
 
     // ══════════════════════════════════════
@@ -26,6 +33,7 @@ public class DocumentCollectionTest extends BaseTest {
     @Test(groups = "debug", enabled = false)
     @Story("Debug D4.4+D4.5 — загрузка документов поручителя и залогодателя")
     @Description("Открыть заявку на стадии документов → загрузить заёмщика, поручителя, залогодателя → закрыть активность")
+    @Severity(SeverityLevel.NORMAL)
     public void debugAllParticipantsDocuments() {
         TestScenario scenario = ScenarioFactory.happyPath();
 
@@ -60,6 +68,7 @@ public class DocumentCollectionTest extends BaseTest {
     @Test(groups = "debug", enabled = true)
     @Description("Полный путь до стадии Сбор документов (с поручителем и залогодателем)")
     @Story("Debug — довести заявку с участниками до стадии документов")
+    @Severity(SeverityLevel.NORMAL)
     public void debugReachDocumentsStageWithParticipants() {
         TestScenario scenario = ScenarioFactory.happyPath();
 
