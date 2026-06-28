@@ -7,6 +7,7 @@ import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.CollateralType;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -33,12 +34,7 @@ public class LoanIssuanceFlow {
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
 
-    private String applicationNumber;
 
-    public LoanIssuanceFlow withApplicationNumber(String number) {
-        this.applicationNumber = number;
-        return this;
-    }
 
     // ══════════════════════════════════════
     // MAIN
@@ -46,6 +42,8 @@ public class LoanIssuanceFlow {
 
     @Step("Loan Issuance: полный сценарий выдачи кредита")
     public void issueLoan() {
+        String applicationNumber =
+                ScenarioContextProvider.get().getApplicationNumber();
         log.info("Issue loan: number='{}'", applicationNumber);
 
         consultation.closeIfOpened();

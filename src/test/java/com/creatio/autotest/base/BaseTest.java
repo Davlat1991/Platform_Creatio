@@ -3,6 +3,7 @@ package com.creatio.autotest.base;
 import com.creatio.autotest.core.config.Config;
 import com.creatio.autotest.core.driver.DriverProvider;
 import com.creatio.autotest.core.driver.DriverSetup;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
@@ -26,6 +27,7 @@ public abstract class BaseTest {
         log.info("Setting up WebDriver...");
 
         DriverSetup.init();
+        ScenarioContextProvider.init();
 
         log.info("WebDriver ready");
         log.info("════════════════════════════════════");
@@ -34,6 +36,7 @@ public abstract class BaseTest {
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
         log.info("Tearing down WebDriver...");
+        ScenarioContextProvider.remove();
         DriverProvider.remove();
         log.info("WebDriver removed");
     }

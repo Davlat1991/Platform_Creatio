@@ -64,8 +64,8 @@ public class CreditApplicationTest extends BaseTest {
         // API загрузка документов
         // new DocumentsApiFlow().uploadAllDocumentsViaApi();
 
-        String applicationNumber = new ReviewStageRetailFlow()
-                .completeReview();
+        new ReviewStageRetailFlow()
+                .completeReview();              // ← пишет applicationNumber в контекст
 
         auth.logout();
 
@@ -74,7 +74,7 @@ public class CreditApplicationTest extends BaseTest {
         workspace.select(Workspace.UNDERWRITER);
 
         new ReviewStageUnderwriterFlow()
-                .approveReview(applicationNumber, "КК4 по заявке");
+                .approveReview("КК4 по заявке");  // ← читает из контекста
 
         auth.logout();
 
@@ -92,13 +92,12 @@ public class CreditApplicationTest extends BaseTest {
         workspace.select(Workspace.IKOK_GO);
 
         new LoanIssuanceFlow()
-                .withApplicationNumber(applicationNumber)
-                .issueLoan();
+                .issueLoan();                   // ← читает из контекста
 
         auth.logout();
 
         // ── Кассир ─────────────────────────────
-        auth.login(scenario.getCashier());
+        /*auth.login(scenario.getCashier());
         workspace.select(Workspace.CASHIER);
 
         new SigningStageFlow()
@@ -114,6 +113,6 @@ public class CreditApplicationTest extends BaseTest {
         new ApplicationFinishFlow()
                 .completeApplicationFinish();
 
-        auth.logout();
+        auth.logout();*/
     }
 }

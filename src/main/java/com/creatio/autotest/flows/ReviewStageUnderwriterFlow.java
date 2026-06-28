@@ -6,6 +6,7 @@ import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.core.services.WaitService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +29,15 @@ public class ReviewStageUnderwriterFlow {
     // ══════════════════════════════════════
 
     @Step("Review: Underwriter утверждает решение")
-    public void approveReview(String applicationNumber,
-                              String decisionProjectName) {
+    public void approveReview(String decisionProjectName) {
+        String applicationNumber =
+                ScenarioContextProvider.get().getApplicationNumber();
         log.info("Underwriter approve review: number='{}'",
                 applicationNumber);
 
         consultation.closeIfOpened();
 
-        // Открываем заявку по номеру
+        // Открываем заявку по номеру из контекста
         searchFlow
                 .withApplicationNumber(applicationNumber)
                 .openByNumber();

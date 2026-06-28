@@ -4,6 +4,8 @@ import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.GridAssertions;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +23,12 @@ public class ReviewStageRetailFlow {
     private final BasePage         basePage       = new BasePage();
     private final ClickService     click          = new ClickService();
 
-    // Номер заявки — возвращается после выполнения
-    private String applicationNumber;
-
     // ══════════════════════════════════════
     // MAIN
     // ══════════════════════════════════════
 
     @Step("Review: Retail Manager завершает документы и ожидает решение")
-    public String completeReview() {
+    public void completeReview() {
         log.info("Complete retail manager review");
 
         openChecksTab();
@@ -37,12 +36,10 @@ public class ReviewStageRetailFlow {
         refresh();
         openDecisionTab();
         verifyCommittee();
-        applicationNumber = saveApplicationNumber();
+        saveApplicationNumber();
 
         log.info("Review completed. Application number: {}",
-                applicationNumber);
-
-        return applicationNumber;
+                ScenarioContextProvider.get().getApplicationNumber());
     }
 
     // ══════════════════════════════════════
@@ -70,12 +67,11 @@ public class ReviewStageRetailFlow {
         gridAssertions.waitForValueInGridColumn("Комитет", "КК4");
     }
 
-    @Step("Сохранить номер заявки")
-    private String saveApplicationNumber() {
-        String number = $x("//*[@data-item-marker='Number']")
-                .getValue();
-        log.info("Application number: {}", number);
-        return number;
+    @Step("Сохранить номер заявки в контекст")
+    private void saveApplicationNumber() {
+        String number = FieldUtils.getValueByMarker("Number");
+        ScenarioContextProvider.get().setApplicationNumber(number);
+        log.info("Application number saved to context: {}", number);
     }
 
     private void scrollTabsRight() {
