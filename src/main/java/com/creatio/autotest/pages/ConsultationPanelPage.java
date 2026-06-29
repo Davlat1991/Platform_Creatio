@@ -3,6 +3,7 @@ package com.creatio.autotest.pages;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BasePage;
+import com.creatio.autotest.core.services.WaitService;
 import io.qameta.allure.Step;
 
 import java.time.Duration;
@@ -86,5 +87,17 @@ public class ConsultationPanelPage extends BasePage {
                 .shouldBe(Condition.visible, Duration.ofSeconds(15));
 
         return this;
+    }
+
+    @Step("Close consultation panel after page reload")
+    public ConsultationPanelPage closeAfterReload() {
+        new WaitService().waitForLoader();
+        try {
+            $x(RIGHT_PANEL).shouldBe(Condition.visible, Duration.ofSeconds(10));
+        } catch (Exception e) {
+            log.info("Panel did not reappear after reload — nothing to close");
+            return this;
+        }
+        return closeIfOpened();
     }
 }

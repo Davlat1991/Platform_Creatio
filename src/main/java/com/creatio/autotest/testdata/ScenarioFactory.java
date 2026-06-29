@@ -27,6 +27,8 @@ public final class ScenarioFactory {
     public static TestScenario simplePath() {
         return baseBuilder()
                 .product(simpleProduct())
+                .route(CreditRoute.SIMPLIFIED)
+                .expectedScoringDecision(ScoringDecision.APPROVE)
                 .participants(Collections.emptyList())
                 .collaterals(Collections.emptyList())
                 .build();
@@ -41,6 +43,8 @@ public final class ScenarioFactory {
     public static TestScenario happyPath() {
         return baseBuilder()
                 .product(defaultProduct())
+                .route(CreditRoute.STANDARD)
+                .expectedScoringDecision(ScoringDecision.APPROVE)
                 .participants(List.of(
                         ParticipantData.guarantor(false),
                         ParticipantData.pledger(false)

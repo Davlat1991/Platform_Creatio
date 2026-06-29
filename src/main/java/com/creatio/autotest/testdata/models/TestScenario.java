@@ -22,6 +22,10 @@ public class TestScenario {
     // ── Продукт ───────────────────────────
     private ProductData product;
 
+    // ── Маршрут и ожидаемое решение скоринга ──
+    private CreditRoute route;
+    private ScoringDecision expectedScoringDecision;
+
     // ── Регистрация ───────────────────────
     private RegistrationData registration;
 

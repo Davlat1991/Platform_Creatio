@@ -22,8 +22,34 @@ import org.testng.annotations.Test;
 @Feature(AllureTags.Features.E2E)
 @Owner("Davlat")
 public class CreditApplicationTest extends BaseTest {
+// ══════════════════════════════════════
+    // DEBUG — сохранение номера заявки в контекст
+    // Заявка уже на стадии "Рассмотрение"
+    // ══════════════════════════════════════
 
-    @Test(groups = "regression")
+    @Test(groups = "debug", enabled = true)
+    @Description("Debug — открыть заявку на стадии Рассмотрение и сохранить номер в контекст")
+    public void debugSaveApplicationNumber() {
+        TestScenario scenario = ScenarioFactory.happyPath();
+
+        AuthFlow auth = new AuthFlow();
+        auth.login(scenario.getManager());
+        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
+
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
+                        "FinApplicationPage/edit/" +
+                        "7fbf7e9a-2483-49d3-a3b5-cf21d13a83a3"
+        );
+
+        new ReviewStageRetailFlow().completeReview(scenario.getRoute());
+
+        auth.logout();
+    }
+
+
+   /* @Test(groups = "regression")
     @Story("Happy Path: от логина до выдачи кредита")
     @Description("Полный сквозной сценарий розничной кредитной заявки по всем ролям")
     @Severity(SeverityLevel.BLOCKER)
@@ -73,7 +99,7 @@ public class CreditApplicationTest extends BaseTest {
         // new DocumentsApiFlow().uploadAllDocumentsViaApi();
 
         new ReviewStageRetailFlow()
-                .completeReview();              // ← пишет applicationNumber в контекст
+                .completeReview(scenario.getRoute());            // ← пишет applicationNumber в контекст
 
         auth.logout();
 
@@ -121,6 +147,6 @@ public class CreditApplicationTest extends BaseTest {
         new ApplicationFinishFlow()
                 .completeApplicationFinish();
 
-        auth.logout();*/
-    }
+        auth.logout();
+    }*/
 }

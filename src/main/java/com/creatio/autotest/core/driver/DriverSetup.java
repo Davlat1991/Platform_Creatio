@@ -36,8 +36,9 @@ public final class DriverSetup {
         baseUrl      = config.getBaseUrl();
         Configuration.timeout      = config.getTimeout() * 1000;
         Configuration.pageLoadTimeout = config.getPageLoadTimeout() * 1000;
-        Configuration.screenshots  = true;
+        Configuration.screenshots  = true; //после прогона сделать false
         Configuration.savePageSource = false;
+        Configuration.reportsFolder   = "target/selenide"; // ← скриншоты Selenide теперь под target/
         Configuration.browser      = browser;
         Configuration.headless     = headless;
 
