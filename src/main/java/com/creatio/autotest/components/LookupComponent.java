@@ -29,11 +29,16 @@ public class LookupComponent extends BaseComponent {
 
         for (int attempt = 1; attempt <= 3; attempt++) {
             try {
-                // 1. Фокус + очистка + ввод
+                // На повторных попытках гасим «висящий» список перед переоткрытием.
+                if (attempt > 1) {
+                    try { input.sendKeys(Keys.ESCAPE); } catch (Throwable ignored) {}
+                }
+
+                // 1. Фокус + НАДЁЖНАЯ очистка + проверка пустоты + ввод
                 executeJavaScript("arguments[0].focus();", input);
                 executeJavaScript("arguments[0].click();", input);
-                input.sendKeys(Keys.chord(Keys.CONTROL, "a"));
-                input.sendKeys(Keys.BACK_SPACE);
+                clearInput(input);
+                input.shouldHave(exactValue(""), Duration.ofSeconds(5));
                 input.sendKeys(value);
 
                 // 2. Ждём видимый listview
@@ -59,6 +64,7 @@ public class LookupComponent extends BaseComponent {
 
             } catch (Throwable t) {
                 log.warn("Lookup попытка {}/3 неудачна: {}", attempt, t.getMessage());
+                try { clearInput(input); } catch (Throwable ignored) {}
                 if (attempt == 3) {
                     throw new AssertionError(
                             "Не удалось выбрать '" + value +
@@ -68,7 +74,6 @@ public class LookupComponent extends BaseComponent {
         }
         return this;
     }
-
 
     // ══════════════════════════════════════
     // BY MARKER — поиск по data-item-marker

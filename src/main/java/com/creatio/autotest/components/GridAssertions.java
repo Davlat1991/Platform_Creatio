@@ -5,6 +5,7 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
+import com.creatio.autotest.testdata.models.ScoringDecision;
 import io.qameta.allure.Step;
 
 import java.time.Duration;
@@ -145,5 +146,43 @@ public class GridAssertions extends BaseComponent {
             }
         }
         return -1;
+    }
+
+
+
+    @Step("Прочитать решение скоринга")
+    public String readScoringDecision() {
+        log.info("Read scoring decision");
+
+        long endTime = System.currentTimeMillis() +
+                Duration.ofSeconds(90).toMillis();
+
+        while (System.currentTimeMillis() < endTime) {
+            try {
+                openChecksTab();
+
+                SelenideElement container = $x(
+                        "//*[@data-item-marker='BnzScoringDetailDetailContainer']"
+                ).shouldBe(Condition.visible, Duration.ofSeconds(5));
+
+                SelenideElement decision = container.$x(
+                        ".//span[@grid-data-type='text' and (" +
+                                "normalize-space()='Одобрить'" +
+                                " or normalize-space()='Отказать'" +
+                                " or normalize-space()='Предложить сумму'" +
+                                " or normalize-space()='Одобрить с обеспечением')]"
+                ).shouldBe(Condition.visible, Duration.ofSeconds(5));
+
+                String text = decision.getText().trim();
+                log.info("Scoring decision read: '{}'", text);
+                return text;
+
+            } catch (Throwable t) {
+                log.debug("Decision not ready yet, retrying...");
+            }
+        }
+        throw new AssertionError(
+                "Scoring decision did not appear within 90 seconds"
+        );
     }
 }

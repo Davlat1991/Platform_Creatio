@@ -27,6 +27,8 @@ public class RegistrationPrintFlow {
         log.info("Print application");
 
         click.clickByName("Сохранить");
+        // диалог смены типа занятости (может появиться)
+        msgBox.confirmIfPresent("Да", "При изменении типа занятости");
         click.clickByName("Закрыть");
 
         // диалог смены типа занятости (может появиться)

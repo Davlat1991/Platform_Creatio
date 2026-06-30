@@ -1,10 +1,12 @@
 package com.creatio.autotest.flows;
 
 import com.creatio.autotest.components.ButtonsComponent;
+import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.GridAssertions;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.CreditRoute;
+import com.creatio.autotest.testdata.models.ScoringDecision;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -19,30 +21,65 @@ public class ReviewStageRetailFlow {
 
     private final ButtonsComponent      buttons        = new ButtonsComponent();
     private final GridAssertions        gridAssertions = new GridAssertions();
+    private final DashboardComponent    dashboard      = new DashboardComponent();
     private final ConsultationPanelPage consultation   = new ConsultationPanelPage();
 
     // ══════════════════════════════════════
     // MAIN
     // ══════════════════════════════════════
 
-    @Step("Review: Retail Manager завершает документы и ожидает решение")
-    public void completeReview(CreditRoute route) {
-        log.info("Complete retail manager review. Route: {}", route);
+    @Step("Review: Retail Manager — стадия рассмотрения")
+    public void completeReview(CreditRoute route, ScoringDecision expectedDecision) {
+        log.info("Complete retail manager review. Route: {}, expected decision: {}",
+                route, expectedDecision);
 
         consultation.closeIfOpened();
 
         verifyRoute(route);
 
-        openChecksTab();
-        waitForCreditDecision();
-        refresh();
-        consultation.closeAfterReload();
-        openDecisionTab();
-        verifyCommittee();
+        switch (route) {
+            case STANDARD   -> completeStandardRoute();
+            case SIMPLIFIED -> completeSimplifiedRoute(expectedDecision);
+        }
+
         saveApplicationNumber();
 
         log.info("Review completed. Application number: {}",
                 ScenarioContextProvider.get().getApplicationNumber());
+    }
+
+    // ══════════════════════════════════════
+    // ROUTES
+    // ══════════════════════════════════════
+
+    @Step("Стандартный маршрут: ожидание решения комитета (КК4)")
+    private void completeStandardRoute() {
+        // Финал скоринга на стандартном = появление КК4 в "Проекты решений".
+        // Конкретное решение скоринга не проверяем (может быть любым из 4).
+        refresh();
+        consultation.closeAfterReload();
+        openDecisionTab();
+        verifyCommittee();
+    }
+
+    @Step("Упрощённый маршрут: переход на 'Информирование клиента' + проверка решения")
+    private void completeSimplifiedRoute(ScoringDecision expectedDecision) {
+        // Финал скоринга на упрощённом = стадия ушла на "Информирование клиента".
+        // Это надёжный якорь: промежуточное "Отказать" ещё не финал.
+        dashboard.waitProcessBlock("Информирование клиента");
+
+        // После финализации вкладка "Проверки" доступна — читаем итоговое решение.
+        String actual = gridAssertions.readScoringDecision();
+        log.info("Scoring decision — expected: '{}', actual UI: '{}'",
+                expectedDecision.getUiText(), actual);
+
+        if (!actual.equalsIgnoreCase(expectedDecision.getUiText())) {
+            throw new AssertionError(
+                    "Решение скоринга не совпало. Ожидалось '" +
+                            expectedDecision.getUiText() +
+                            "', фактически '" + actual + "'"
+            );
+        }
     }
 
     // ══════════════════════════════════════
@@ -64,16 +101,6 @@ public class ReviewStageRetailFlow {
                             "', фактически '" + actual + "'"
             );
         }
-    }
-
-    @Step("Открыть вкладку 'Проверки'")
-    private void openChecksTab() {
-        buttons.clickTabByName("Проверки");
-    }
-
-    @Step("Ожидать решение по кредиту")
-    private void waitForCreditDecision() {
-        gridAssertions.waitForAnyCreditDecision();
     }
 
     @Step("Открыть вкладку 'Решение по заявке'")

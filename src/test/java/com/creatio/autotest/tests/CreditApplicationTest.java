@@ -43,7 +43,10 @@ public class CreditApplicationTest extends BaseTest {
                         "7fbf7e9a-2483-49d3-a3b5-cf21d13a83a3"
         );
 
-        new ReviewStageRetailFlow().completeReview(scenario.getRoute());
+        new ReviewStageRetailFlow().completeReview(
+                scenario.getRoute(),
+                scenario.getExpectedScoringDecision()
+        );
 
         auth.logout();
     }
@@ -98,8 +101,9 @@ public class CreditApplicationTest extends BaseTest {
         // API загрузка документов
         // new DocumentsApiFlow().uploadAllDocumentsViaApi();
 
-        new ReviewStageRetailFlow()
-                .completeReview(scenario.getRoute());            // ← пишет applicationNumber в контекст
+       new ReviewStageRetailFlow().completeReview(
+                scenario.getRoute(),
+                scenario.getExpectedScoringDecision() );            // ← пишет applicationNumber в контекст
 
         auth.logout();
 

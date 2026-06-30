@@ -25,19 +25,41 @@ public class CollateralStageFlow {
     private final ClickService       click     = new ClickService();
 
     // ══════════════════════════════════════
-    // MAIN
+    // MAIN — заполнение + завершение стадии
     // ══════════════════════════════════════
 
-    @Step("Этап залога: заполнение залогов")
+    @Step("Этап залога: заполнение залогов + завершение стадии")
     public void completeCollateralStage(List<CollateralData> collaterals) {
         log.info("Complete collateral stage: count={}", collaterals.size());
+        fillCollaterals(collaterals);
+        // Двойной клик по подтипу нужен только при наличии залога
+        // (открывает строку добавленного обеспечения перед закрытием активности).
+        completeCollateralTask(!collaterals.isEmpty());
+    }
 
+    // ══════════════════════════════════════
+    // OVERLOAD — только завершение стадии (без данных)
+    // Для маршрутов без обеспечения: стадию "Обеспечение" всё равно
+    // нужно завершить, иначе процесс не идёт к "Сбор документов".
+    // ══════════════════════════════════════
+
+    @Step("Этап залога: завершение стадии без обеспечения")
+    public void completeCollateralStage() {
+        log.info("Complete collateral stage without collaterals");
+        completeCollateralTask(false);
+    }
+
+    // ══════════════════════════════════════
+    // FILL — только заполнение залогов (без завершения стадии)
+    // ══════════════════════════════════════
+
+    @Step("Заполнить залоги (без завершения стадии)")
+    public void fillCollaterals(List<CollateralData> collaterals) {
+        log.info("Fill collaterals: count={}", collaterals.size());
         for (CollateralData data : collaterals) {
             BaseCollateralFlow flow = resolveFlow(data.getType());
             flow.fill(data);
         }
-
-        completeCollateralTask();
     }
 
     // ══════════════════════════════════════
@@ -68,10 +90,13 @@ public class CollateralStageFlow {
     // ══════════════════════════════════════
 
     @Step("Завершение задачи по залогу и поручительству")
-    private void completeCollateralTask() {
-        log.info("Complete collateral task");
+    private void completeCollateralTask(boolean hasCollateral) {
+        log.info("Complete collateral task (hasCollateral={})", hasCollateral);
 
-        click.doubleClickByMarker("Обеспечение.Подтип");
+        // Двойной клик по подтипу — только при наличии хотя бы одного залога.
+        if (hasCollateral) {
+            click.doubleClickByMarker("Обеспечение.Подтип");
+        }
 
         dashboard.clickAndWaitMiniPage(
                 "Заполните данные обеспечения и поручительства",
