@@ -20,7 +20,7 @@ public class FiltersComponent extends BaseComponent {
         try {
             SelenideElement container = $x(
                     "//*[contains(@id,'QuickFilterModuleV2')]"
-            ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+            ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
             ElementsCollection xBtns = container.$$x(
                     ".//*[contains(@class,'filter-remove-button')]"

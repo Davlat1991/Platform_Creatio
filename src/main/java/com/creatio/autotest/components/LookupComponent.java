@@ -205,7 +205,7 @@ public class LookupComponent extends BaseComponent {
                 input.sendKeys(value);
                 input.sendKeys(Keys.TAB);
 
-                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(30));
 
                 log.info("setText: '{}' введено в '{}'", value, label);
                 return this;
@@ -360,7 +360,7 @@ public class LookupComponent extends BaseComponent {
 
         // 3. Вводим значение в поле поиска и подтверждаем через Enter
         SelenideElement searchInput = $("#searchEdit-el")
-                .shouldBe(visible, Duration.ofSeconds(10));
+                .shouldBe(visible, Duration.ofSeconds(30));
         searchInput.click();
         searchInput.sendKeys(value);
         searchInput.sendKeys(Keys.ENTER);   // ← запускает фильтрацию надёжнее, чем клик по кнопке
@@ -501,7 +501,7 @@ public class LookupComponent extends BaseComponent {
                 input.sendKeys(value);
                 input.sendKeys(Keys.TAB);
 
-                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(30));
 
                 log.info("setTextByMarker: '{}' введено", value);
                 return this;

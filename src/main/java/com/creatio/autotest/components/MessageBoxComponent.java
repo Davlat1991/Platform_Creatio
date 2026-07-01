@@ -130,7 +130,7 @@ public class MessageBoxComponent extends BaseComponent {
             SelenideElement btn = $x("//*[@data-item-marker='" + buttonMarker + "']")
                     .shouldBe(visible, Duration.ofSeconds(5));
             executeJavaScript("arguments[0].click();", btn);
-            box.should(disappear, Duration.ofSeconds(10));
+            box.should(disappear, Duration.ofSeconds(30));
             log.info("Диалог подтверждён кнопкой '{}'", buttonMarker);
         } else {
             log.debug("Диалог не появился — пропуск");

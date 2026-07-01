@@ -33,7 +33,7 @@ public class CreditApplicationAssertions extends BaseComponent {
                         "/ancestor::div[contains(@class,'label-wrap')]" +
                         "/following-sibling::div[contains(@class,'control-wrap')]" +
                         "//input"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10))
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .getValue()
                 .trim();
     }

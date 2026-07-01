@@ -3,6 +3,7 @@ package com.creatio.autotest.components;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
+import com.creatio.autotest.core.services.WaitService;
 import io.qameta.allure.Step;
 
 import java.time.Duration;
@@ -18,8 +19,11 @@ public class DashboardComponent extends BaseComponent {
     // ══════════════════════════════════════
 
     private SelenideElement getDashboard() {
+        // Дашборд появляется после догрузки страницы (серый оверлей "Загрузка").
+        // Сначала ждём исчезновения маски Creatio, затем сам дашборд.
+        new WaitService().waitForLoader();
         return $x("//*[@data-item-marker='Dashboard']")
-                .shouldBe(visible);
+                .shouldBe(visible, Duration.ofSeconds(60));
     }
 
     // ══════════════════════════════════════

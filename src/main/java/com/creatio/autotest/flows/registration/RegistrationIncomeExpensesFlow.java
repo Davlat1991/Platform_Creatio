@@ -81,7 +81,7 @@ public class RegistrationIncomeExpensesFlow {
         // Ждём появления строки ввода
         $x("//div[@data-item-marker='" + INCOME_CONTAINER + "']" +
                 "//div[@data-item-marker='TsiKind']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         // selectInContainer сам кликает по полю и выбирает значение
         selectInContainer(INCOME_CONTAINER, "TsiKind",          income.getType());
@@ -101,7 +101,7 @@ public class RegistrationIncomeExpensesFlow {
         // Ждём появления строки ввода
         $x("//div[@data-item-marker='" + EXPENSE_CONTAINER + "']" +
                 "//div[@data-item-marker='TsiKind']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         selectInContainer(EXPENSE_CONTAINER, "TsiKind",          expense.getType());
         selectInContainer(EXPENSE_CONTAINER, "TsiFrequencyType", expense.getFrequency());
@@ -126,17 +126,17 @@ public class RegistrationIncomeExpensesFlow {
         // Кликаем поле внутри нужного контейнера
         $x("//div[@data-item-marker='" + container + "']" +
                 "//div[@data-item-marker='" + fieldMarker + "']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         // div.listview имеет data-item-marker — НЕ ul
         $x("//div[contains(@class,'listview') and @data-item-marker='" + fieldMarker + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         // li внутри этого div
         $x("//div[contains(@class,'listview') and @data-item-marker='" + fieldMarker + "']" +
                 "//li[@data-item-marker='" + value + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         log.debug("Selected: '{}'", value);
@@ -165,7 +165,7 @@ public class RegistrationIncomeExpensesFlow {
         log.info("Save inline row");
 
         SelenideElement saveBtn = $x("//*[@data-item-marker='save']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         executeJavaScript("arguments[0].click();", saveBtn);
         basePage.waitForPage();

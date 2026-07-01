@@ -94,13 +94,13 @@ public class SimplifiedRouteTest extends BaseTest {
 
         // ── Розничный менеджер (уведомление) ───
         new ClientNotificationStageFlow()
-                .completeClientNotification(scenario.getIkokGo().getDisplayName());
+                .completeClientNotification(scenario.getIkok().getDisplayName());
 
         auth.logout();
 
-        // ── ИКОК-ГО ────────────────────────────
-        auth.login(scenario.getIkokGo());
-        workspace.select(Workspace.IKOK_GO);
+        // ── ИКОК ────────────────────────────
+        auth.login(scenario.getIkok());
+        workspace.select(Workspace.IKOK);
 
         new LoanIssuanceFlow()
                 .issueLoan();
@@ -114,9 +114,9 @@ public class SimplifiedRouteTest extends BaseTest {
         // new SigningStageFlow().completeSigningStage();
         // auth.logout();
 
-        // ── ИКОК-ГО (завершение) ───────────────
-        auth.login(scenario.getIkokGo());
-        workspace.select(Workspace.IKOK_GO);
+        // ── ИКОК (завершение) ───────────────
+        auth.login(scenario.getIkok());
+        workspace.select(Workspace.IKOK);
 
         new ApplicationFinishFlow()
                 .completeApplicationFinish();

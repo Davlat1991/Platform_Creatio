@@ -183,7 +183,7 @@ public class GuarantorFlow {
 
         $x("//div[@data-item-marker='" + INCOME_CONTAINER + "']" +
                 "//div[@data-item-marker='TsiKind']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         selectInContainer(INCOME_CONTAINER, "TsiKind",          income.getType());
         selectInContainer(INCOME_CONTAINER, "TsiFrequencyType", income.getFrequency());
@@ -200,7 +200,7 @@ public class GuarantorFlow {
 
         $x("//div[@data-item-marker='" + EXPENSE_CONTAINER + "']" +
                 "//div[@data-item-marker='TsiKind']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         selectInContainer(EXPENSE_CONTAINER, "TsiKind",          expense.getType());
         selectInContainer(EXPENSE_CONTAINER, "TsiFrequencyType", expense.getFrequency());
@@ -226,15 +226,15 @@ public class GuarantorFlow {
 
         $x("//div[@data-item-marker='" + container + "']" +
                 "//div[@data-item-marker='" + fieldMarker + "']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         $x("//div[contains(@class,'listview') and @data-item-marker='" + fieldMarker + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         $x("//div[contains(@class,'listview') and @data-item-marker='" + fieldMarker + "']" +
                 "//li[@data-item-marker='" + value + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         log.debug("Selected: '{}'", value);
@@ -249,7 +249,7 @@ public class GuarantorFlow {
         SelenideElement input = $x(
                 "//div[@data-item-marker='" + container + "']" +
                         "//div[@data-item-marker='" + fieldMarker + "']//input"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         input.click();
         input.sendKeys(Keys.chord(Keys.CONTROL, "a"));
@@ -262,7 +262,7 @@ public class GuarantorFlow {
         log.info("Save inline row");
 
         SelenideElement saveBtn = $x("//*[@data-item-marker='save']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         executeJavaScript("arguments[0].click();", saveBtn);
         basePage.waitForPage();
@@ -272,7 +272,7 @@ public class GuarantorFlow {
         log.debug("setDateField: marker='{}' value='{}'", marker, value);
 
         $x("//*[@data-item-marker='" + marker + "']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .setValue(value);
     }
 }

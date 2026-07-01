@@ -1,11 +1,14 @@
 package com.creatio.autotest.flows;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.GridComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import io.qameta.allure.Step;
+import org.openqa.selenium.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +53,9 @@ public class ApplicationSearchFlow {
 
         applyNumberFilter();
 
-        grid.clickFirstRowInGrid(
-                "grid-FinApplicationSectionDataGridGrid-wrap"
+        grid.clickFirstRowContaining(
+                "grid-FinApplicationSectionDataGridGrid-wrap",
+                savedApplicationNumber
         );
 
         click.clickByMarker("Открыть");
@@ -73,8 +77,9 @@ public class ApplicationSearchFlow {
 
         applyNumberFilter();
 
-        grid.clickFirstRowInGrid(
-                "grid-ContractSectionV2DataGridGrid-wrap"
+        grid.clickFirstRowContaining(
+                "grid-ContractSectionV2DataGridGrid-wrap",
+                savedApplicationNumber
         );
 
         click.clickByMarker("Открыть");
@@ -85,17 +90,42 @@ public class ApplicationSearchFlow {
     // ══════════════════════════════════════
 
     private void removeFilterIfExists() {
-        try {
-            $x("//*[contains(@class,'filter-remove')]")
-                    .click();
-        } catch (Exception e) {
-            log.debug("No filter to remove");
+        // Ждём загрузки раздела: кнопка "Фильтры/группы" (filterButton) есть всегда.
+        $x("//*[@data-item-marker='filterButton']")
+                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
+
+        // Проверяем активный фильтр БЕЗ выброса исключения.
+        // ВАЖНО: Selenide ElementNotFound наследует AssertionError (Error),
+        // поэтому старый catch(Exception) его НЕ ловил — отсюда падение.
+        SelenideElement removeBtn = $x("//*[contains(@class,'filter-remove')]");
+        if (removeBtn.is(Condition.exist)) {
+            log.info("Активный фильтр найден — удаляем");
+            removeBtn.click();
+        } else {
+            log.debug("Активного фильтра нет — пропускаем");
         }
     }
 
-    private void applyNumberFilter() {
+    /*private void applyNumberFilter() {
         $x("//*[@data-item-marker='searchEdit']//input")
                 .setValue(savedApplicationNumber);
         click.clickByMarker("applyButton");
+    }*/
+
+    private void applyNumberFilter() {
+        SelenideElement searchInput = $x(
+                "//*[@data-item-marker='searchEdit']//input"
+        ).shouldBe(Condition.visible, java.time.Duration.ofSeconds(15));
+
+        // Creatio НЕ слышит setValue — вводим через sendKeys + TAB,
+        // чтобы сработали onChange/onBlur и фильтр "увидел" значение.
+        searchInput.click();
+        searchInput.sendKeys(savedApplicationNumber);
+        searchInput.sendKeys(Keys.TAB);
+
+        // Кнопка "Поиск" (applyButton) — ждём кликабельности и жмём.
+        SelenideElement applyBtn = $x("//*[@data-item-marker='applyButton']")
+                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(15));
+        applyBtn.click();
     }
 }

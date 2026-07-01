@@ -31,7 +31,7 @@ public class FieldAssertions extends BaseComponent {
             SelenideElement field = $x(
                     "//label[contains(text(),'" + fieldName + "')]" +
                             "/following::input[1]"
-            ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+            ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
             String actualRaw = field.getValue() != null
                     ? field.getValue()

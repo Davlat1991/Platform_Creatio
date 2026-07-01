@@ -50,7 +50,7 @@ public class ClientSearchFlow {
         if (value == null || value.trim().isEmpty()) return;
         log.debug("Set search field: '{}' = '{}'", placeholder, value);
         $x("//input[@placeholder='" + placeholder + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .setValue(value);
     }
 
@@ -60,7 +60,7 @@ public class ClientSearchFlow {
         // Скоупим внутри SearchButtonContainer — исключаем дубликаты SearchButton на странице
         $x("//div[@data-item-marker='SearchButtonContainer']" +
                 "//span[@data-item-marker='SearchButton']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
     }
 

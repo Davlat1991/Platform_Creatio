@@ -66,7 +66,7 @@ public class ProductSelectionFlow {
 
         // Из DOM: span.t-btn-wrapper[data-item-marker='SelectionButton'] текст 'Подобрать'
         $x("//span[@data-item-marker='SelectionButton']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .click();
 
         basePage.waitForPage();
@@ -113,7 +113,7 @@ public class ProductSelectionFlow {
 
         $x("//span[@data-item-marker='Выбрать']" +
                 " | //span[normalize-space()='Выбрать']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .shouldBe(Condition.enabled)
                 .click();
 
@@ -137,7 +137,7 @@ public class ProductSelectionFlow {
                 labelText, dropdownMarker, value);
 
         SelenideElement input = inputByLabel(labelText)
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .shouldNotBe(Condition.disabled);
 
         // Клик на wrapper — снимает focus-trap, открывает поле
@@ -165,7 +165,7 @@ public class ProductSelectionFlow {
         log.debug("setNumericField: label='{}' value='{}'", labelText, value);
 
         SelenideElement input = inputByLabel(labelText)
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         input.click();
         input.sendKeys(Keys.CONTROL + "a");

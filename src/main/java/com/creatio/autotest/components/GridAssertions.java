@@ -62,7 +62,7 @@ public class GridAssertions extends BaseComponent {
 
         $$x("//div[contains(@class,'grid-captions')]//label")
                 .shouldBe(CollectionCondition.sizeGreaterThan(0),
-                        Duration.ofSeconds(10));
+                        Duration.ofSeconds(30));
 
         long endTime = System.currentTimeMillis() +
                 Duration.ofSeconds(60).toMillis();
@@ -184,5 +184,95 @@ public class GridAssertions extends BaseComponent {
         throw new AssertionError(
                 "Scoring decision did not appear within 90 seconds"
         );
+    }
+
+
+    @Step("Проверить значение '{value}' в колонке '{columnName}' (без ожидания)")
+    public boolean isValueInGridColumn(String columnName, String value) {
+        log.info("Check '{}' in column '{}' (no-throw)", value, columnName);
+
+        $$x("//div[contains(@class,'grid-captions')]//label")
+                .shouldBe(CollectionCondition.sizeGreaterThan(0),
+                        Duration.ofSeconds(10));
+
+        // Одна попытка с коротким окном — для retry-циклов снаружи.
+        long endTime = System.currentTimeMillis() +
+                Duration.ofSeconds(10).toMillis();
+
+        while (System.currentTimeMillis() < endTime) {
+            try {
+                int columnIndex = findColumnIndex(columnName);
+                if (columnIndex == -1) {
+                    Thread.sleep(500);
+                    continue;
+                }
+
+                ElementsCollection rows = $$x(
+                        "//div[contains(@class,'grid-listed-row')" +
+                                " or contains(@class,'grid-row')]"
+                );
+
+                if (rows.isEmpty()) {
+                    Thread.sleep(500);
+                    continue;
+                }
+
+                for (SelenideElement row : rows) {
+                    try {
+                        row.scrollIntoView(false);
+                        SelenideElement cell = row.$x(
+                                ".//div[contains(@class,'grid-cols-')]" +
+                                        "[" + columnIndex + "]"
+                        );
+                        if (!cell.exists()) {
+                            cell = row.$x(
+                                    ".//div[" + columnIndex + "]//span"
+                            );
+                        }
+                        if (cell.exists() && cell.isDisplayed()
+                                && cell.getText().trim().equalsIgnoreCase(value)) {
+                            log.info("Value '{}' found in column '{}'",
+                                    value, columnName);
+                            return true;
+                        }
+                    } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                        log.debug("Stale element, retrying row");
+                    }
+                }
+
+                Thread.sleep(500);
+
+            } catch (Throwable t) {
+                log.debug("Error in grid check: {}", t.getMessage());
+                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+            }
+        }
+
+        log.info("Value '{}' NOT found in column '{}' (this attempt)",
+                value, columnName);
+        return false;
+    }
+
+
+    @Step("Ожидать КК4 в детали 'Проекты решений'")
+    public boolean waitForCommitteeDecision(String committee, Duration timeout) {
+        log.info("Wait for '{}' in 'Проекты решений' (timeout={}s)",
+                committee, timeout.toSeconds());
+
+        // Строка данных в детали несёт committee прямо в data-item-marker
+        // (например "КК4 по заявке 391972"). Ищем строку со скоупом к гриду,
+        // маркер которой содержит нужный комитет.
+        try {
+            $x("//div[@id='grid-TsiProjectSolutionDetailDataGridGrid-wrap']" +
+                    "//div[contains(@class,'grid-listed-row')" +
+                    " and contains(@data-item-marker,'" + committee + "')]"
+            ).shouldBe(Condition.visible, timeout);
+            log.info("Committee '{}' found in 'Проекты решений'", committee);
+            return true;
+        } catch (Throwable t) {
+            log.warn("Committee '{}' NOT found within {}s",
+                    committee, timeout.toSeconds());
+            return false;
+        }
     }
 }

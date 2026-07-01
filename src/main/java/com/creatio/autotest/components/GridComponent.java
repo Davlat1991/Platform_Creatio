@@ -181,4 +181,37 @@ public class GridComponent extends BaseComponent {
 
         executeJavaScript("arguments[0].click();", row);
     }
+
+
+    @Step("Click row containing '{expectedText}' in grid: {gridId}")
+    public void clickFirstRowContaining(String gridId, String expectedText) {
+        log.info("Click row containing '{}' in grid '{}'", expectedText, gridId);
+
+        // 1. Ждём результат фильтрации: строка с искомым номером должна появиться.
+        //    Убирает гонку — пока грид не перефильтровался, такой строки нет.
+        SelenideElement row = $x(
+                "//div[@id='" + gridId + "']" +
+                        "//div[contains(@class,'grid-row')" +
+                        " and not(contains(@class,'grid-header'))" +
+                        " and contains(normalize-space(.), '" + expectedText + "')]"
+        ).shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
+
+        // 2. Проверяем количество строк в гриде (диагностика точности фильтра).
+        int rowCount = $x("//div[@id='" + gridId + "']")
+                .$$x(".//div[contains(@class,'grid-row')" +
+                        " and not(contains(@class,'grid-header'))]")
+                .size();
+
+        if (rowCount == 1) {
+            log.info("Filter result: exactly 1 row (expected)");
+        } else {
+            log.warn("Filter result: {} rows found for '{}' — " +
+                            "фильтр вернул не одну строку, кликаем строку с номером",
+                    rowCount, expectedText);
+        }
+
+        // 3. Кликаем именно строку с искомым номером.
+        row.scrollIntoView(true);
+        executeJavaScript("arguments[0].click();", row);
+    }
 }

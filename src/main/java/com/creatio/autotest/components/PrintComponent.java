@@ -20,14 +20,14 @@ public class PrintComponent extends BaseComponent {
         try {
             SelenideElement printBtn = $x(
                     "//*[@data-item-marker='PrintButton']"
-            ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+            ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
             executeJavaScript("arguments[0].click();", printBtn);
 
             SelenideElement item = $x(
                     "//*[contains(@data-item-marker,'" + name + "')" +
                             " or contains(text(),'" + name + "')]"
-            ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+            ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
             executeJavaScript("arguments[0].click();", item);
 

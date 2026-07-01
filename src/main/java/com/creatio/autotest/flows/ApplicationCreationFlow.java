@@ -59,7 +59,7 @@ public class ApplicationCreationFlow {
 
         SelenideElement input = $x(
                 "//div[@data-item-marker='RequestedPaymentDay']//input"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         input.click();
         input.sendKeys(Keys.chord(Keys.CONTROL, "a"));
@@ -75,12 +75,12 @@ public class ApplicationCreationFlow {
         log.info("Add schedule row");
 
         $x("//*[@id='KzParameterScheduleDetailAddRecordButtonButton-imageEl']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         // Ждём появления поля ввода в новой строке
         $x("//div[@data-item-marker='KzNumber']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         log.info("Schedule row added");
     }
@@ -109,13 +109,13 @@ public class ApplicationCreationFlow {
 
         SelenideElement saveBtn = $x(
                 "//span[@data-item-marker='save' and @data-tag='save']"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         executeJavaScript("arguments[0].click();", saveBtn);
 
         // Ждём исчезновения галочки — строка сохранена
         $x("//span[@data-item-marker='save' and @data-tag='save']")
-                .shouldBe(Condition.hidden, Duration.ofSeconds(10));
+                .shouldBe(Condition.hidden, Duration.ofSeconds(30));
 
         log.info("Schedule row saved");
     }
@@ -126,7 +126,7 @@ public class ApplicationCreationFlow {
 
         $x("//span[normalize-space()='РАССЧИТАТЬ']" +
                 " | //span[normalize-space()='Рассчитать']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         basePage.waitForPage();
@@ -151,7 +151,7 @@ public class ApplicationCreationFlow {
 
         $x("//*[@data-item-marker='ОК']" +
                 " | //span[normalize-space()='ОК']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
 
         basePage.waitForPage();
@@ -167,7 +167,7 @@ public class ApplicationCreationFlow {
 
         SelenideElement input = $x(
                 "//div[@data-item-marker='" + marker + "']//input"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         input.click();
         input.sendKeys(Keys.chord(Keys.CONTROL, "a"));

@@ -29,7 +29,7 @@ public class ReviewStageUnderwriterFlow {
     // ══════════════════════════════════════
 
     @Step("Review: Underwriter утверждает решение")
-    public void approveReview(String decisionProjectName) {
+    public void approveReview(String decisionProjectPrefix) {
         String applicationNumber =
                 ScenarioContextProvider.get().getApplicationNumber();
         log.info("Underwriter approve review: number='{}'",
@@ -37,13 +37,12 @@ public class ReviewStageUnderwriterFlow {
 
         consultation.closeIfOpened();
 
-        // Открываем заявку по номеру из контекста
         searchFlow
                 .withApplicationNumber(applicationNumber)
                 .openByNumber();
 
         openDecisionTab();
-        openDecisionProject(decisionProjectName);
+        openDecisionProject(decisionProjectPrefix, applicationNumber);
         takeToWork();
         approveDecision();
 
@@ -56,30 +55,28 @@ public class ReviewStageUnderwriterFlow {
 
     @Step("Открыть вкладку 'Решение по заявке'")
     private void openDecisionTab() {
-        try {
-            click.clickByMarker(
-                    "FinApplicationPageTabsTabPanel-scroll-right"
-            );
-        } catch (Exception e) {
-            log.debug("Scroll right not needed");
-        }
         buttons.clickTabByName("Решение по заявке");
     }
 
-    @Step("Открыть проект решения: {name}")
-    private void openDecisionProject(String name) {
-        log.info("Open decision project: '{}'", name);
-        // Двойной клик по строке в гриде
-        click.doubleClickByMarker(name);
+    @Step("Открыть проект решения: {prefix} {applicationNumber}")
+    private void openDecisionProject(String prefix, String applicationNumber) {
+        // Реальный маркер строки содержит номер: "КК4 по заявке 391973".
+        // Собираем полный маркер из префикса + номер из контекста.
+        String fullMarker = prefix + " " + applicationNumber;
+        log.info("Open decision project: '{}'", fullMarker);
+        click.doubleClickByMarker(fullMarker);
     }
 
     @Step("Взять в работу")
     private void takeToWork() {
-        click.waitAndClick("TakeToWorkButton");
+        click.waitAndClickWithRefresh("TakeToWorkButton");
+
+        // "Взять в работу" перезагружает форму проекта решения —
+        // ждём догрузки, иначе клик вкладки "Решение" не сработает.
+        wait.waitForLoader();
+
         buttons.clickTabByName("Решение");
-        lookup.select(
-                "Вид кредита для Проекта решения", "Кредит"
-        );
+        lookup.select("Вид кредита для Проекта решения", "Кредит");
     }
 
     @Step("Утвердить решение")

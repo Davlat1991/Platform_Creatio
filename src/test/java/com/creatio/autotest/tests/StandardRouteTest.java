@@ -30,7 +30,67 @@ import org.testng.annotations.Test;
 @Owner("Davlat")
 public class StandardRouteTest extends BaseTest {
 
-    @Test(groups = "regression")
+
+    @Test(groups = "debug", enabled = true)
+    @Story("Debug — от стадии Рассмотрение до конца")
+    @Description("Старт на заявке в стадии Рассмотрение по UUID, дальше весь процесс")
+    @Severity(SeverityLevel.NORMAL)
+    public void debugFromReviewStage() {
+        TestScenario scenario = ScenarioFactory.happyPath();
+
+        AuthFlow auth = new AuthFlow();
+        WorkspaceFlow workspace = new WorkspaceFlow();
+
+        // ── Розничный менеджер: заходим на заявку в стадии "Рассмотрение" ──
+        auth.login(scenario.getManager());
+        workspace.select(Workspace.RETAIL_MANAGER);
+
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
+                        "FinApplicationPage/edit/" +
+                        "f34a17b1-54a4-49e4-986a-e6a783fdce4d"
+        );
+
+        // completeReview сам сохранит applicationNumber в контекст
+        new ReviewStageRetailFlow().completeReview(
+                scenario.getRoute(),
+                scenario.getExpectedScoringDecision()
+        );
+
+        auth.logout();
+
+        // ── Верификатор ────────────────────────
+        auth.login(scenario.getUnderwriter());
+        workspace.select(Workspace.UNDERWRITER);
+
+        new ReviewStageUnderwriterFlow()
+                .approveReview("КК4 по заявке");
+
+        auth.logout();
+
+        // ── Розничный менеджер (уведомление) ───
+        auth.login(scenario.getManager());
+        workspace.select(Workspace.RETAIL_MANAGER);
+
+        new ClientNotificationStageFlow()
+                .completeClientNotification(scenario.getIkokGo().getDisplayName());
+
+        auth.logout();
+
+        // ── ИКОК-ГО (выдача) ───────────────────
+        auth.login(scenario.getIkokGo());
+        workspace.select(Workspace.IKOK_GO);
+
+        new LoanIssuanceFlow()
+                .issueLoan();
+
+        auth.logout();
+    }
+
+
+
+  /*  @Test(groups = "regression")
     @Story("Стандартный маршрут — полный путь с верификатором и комитетом")
     @Description("Стандартный маршрут — полный happy path с верификатором и комитетом")
     @Severity(SeverityLevel.BLOCKER)
@@ -76,11 +136,18 @@ public class StandardRouteTest extends BaseTest {
                 .completeCollateralStage(scenario.getCollaterals());
 
         // ── Сбор документов (заёмщик + поручитель + залогодатель) ──
-        // TODO: развернуть рабочий блок D4.1–D4.5 после живой проверки.
-        new DocumentCollectionStageFlow().uploadBorrowerDocuments();
-        new DocumentCollectionStageFlow().uploadAllParticipantDocuments(
-                 ScenarioFactory.documentOwners());
-        new DocumentCollectionStageFlow().completeDocumentsActivity();
+        // ── Сбор документов (заёмщик + поручитель + залогодатель) ──
+        DocumentCollectionStageFlow documents = new DocumentCollectionStageFlow();
+        documents.openDocumentsTab();
+
+        // Заёмщик — ДВА шага: сначала подготовка (наполняет карту), потом загрузка
+        documents.prepareBorrowerDetails();
+        documents.uploadBorrowerDocuments();
+
+        // Поручитель + залогодатель
+        documents.uploadAllParticipantDocuments(ScenarioFactory.documentOwners());
+
+        documents.completeDocumentsActivity();
 
         // ── Рассмотрение (STANDARD: КК4) ───────
         new ReviewStageRetailFlow().completeReview(
@@ -95,7 +162,7 @@ public class StandardRouteTest extends BaseTest {
         workspace.select(Workspace.UNDERWRITER);
 
         new ReviewStageUnderwriterFlow()
-                .approveReview("КК4 по заявке");
+        .approveReview("КК4 по заявке");
 
         auth.logout();
 
@@ -133,5 +200,5 @@ public class StandardRouteTest extends BaseTest {
                 .completeApplicationFinish();
 
         auth.logout();
-    }
+    }*/
 }

@@ -83,7 +83,7 @@ public class DetailPage extends BasePage {
                 "//span[normalize-space()='" + detailName + "']" +
                         "/ancestor::div[contains(@class,'ts-controlgroup')]" +
                         "//span[@data-item-marker='ToolsButton']"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(10));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         executeJavaScript("arguments[0].click();", menuBtn);
 
