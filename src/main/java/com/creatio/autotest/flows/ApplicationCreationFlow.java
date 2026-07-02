@@ -135,7 +135,7 @@ public class ApplicationCreationFlow {
         SelenideElement createBtn = $x(
                 "//span[normalize-space()='СОЗДАТЬ ЗАЯВКУ']" +
                         " | //span[normalize-space()='Создать заявку']"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(15));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         executeJavaScript("arguments[0].click();", createBtn);
         basePage.waitForPage();

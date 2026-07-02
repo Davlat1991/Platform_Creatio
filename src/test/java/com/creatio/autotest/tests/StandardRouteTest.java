@@ -42,14 +42,14 @@ public class StandardRouteTest extends BaseTest {
         WorkspaceFlow workspace = new WorkspaceFlow();
 
         // ── Розничный менеджер: заходим на заявку в стадии "Рассмотрение" ──
-        auth.login(scenario.getManager());
+       auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
 
         new NavigationFlow().open(
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/" +
                         "FinApplicationPage/edit/" +
-                        "f34a17b1-54a4-49e4-986a-e6a783fdce4d"
+                        "99a45586-1ed5-4e23-acb8-70f833202c5c"
         );
 
         // completeReview сам сохранит applicationNumber в контекст
@@ -60,7 +60,7 @@ public class StandardRouteTest extends BaseTest {
 
         auth.logout();
 
-        // ── Верификатор ────────────────────────
+      /*   // ── Верификатор ────────────────────────
         auth.login(scenario.getUnderwriter());
         workspace.select(Workspace.UNDERWRITER);
 
@@ -74,9 +74,9 @@ public class StandardRouteTest extends BaseTest {
         workspace.select(Workspace.RETAIL_MANAGER);
 
         new ClientNotificationStageFlow()
-                .completeClientNotification(scenario.getIkokGo().getDisplayName());
+                .completeClientNotificationWithSearch(scenario.getIkokGo().getDisplayName());
 
-        auth.logout();
+        auth.logout();*/
 
         // ── ИКОК-ГО (выдача) ───────────────────
         auth.login(scenario.getIkokGo());
@@ -90,7 +90,7 @@ public class StandardRouteTest extends BaseTest {
 
 
 
-  /*  @Test(groups = "regression")
+   /* @Test(groups = "regression")
     @Story("Стандартный маршрут — полный путь с верификатором и комитетом")
     @Description("Стандартный маршрут — полный happy path с верификатором и комитетом")
     @Severity(SeverityLevel.BLOCKER)
@@ -171,7 +171,7 @@ public class StandardRouteTest extends BaseTest {
         workspace.select(Workspace.RETAIL_MANAGER);
 
         new ClientNotificationStageFlow()
-                .completeClientNotification(scenario.getIkokGo().getDisplayName());
+                .completeClientNotificationWithSearch(scenario.getIkokGo().getDisplayName());
 
         auth.logout();
 

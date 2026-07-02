@@ -1,5 +1,6 @@
 package com.creatio.autotest.flows;
 
+import com.codeborne.selenide.Condition;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
@@ -10,6 +11,8 @@ import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.codeborne.selenide.Selenide.$x;
 
 public class ReviewStageUnderwriterFlow {
 
@@ -67,17 +70,32 @@ public class ReviewStageUnderwriterFlow {
         click.doubleClickByMarker(fullMarker);
     }
 
-    @Step("Взять в работу")
+    @Step("Взять в работу и открыть вкладку 'Решение'")
     private void takeToWork() {
         click.waitAndClickWithRefresh("TakeToWorkButton");
 
-        // "Взять в работу" перезагружает форму проекта решения —
-        // ждём догрузки, иначе клик вкладки "Решение" не сработает.
-        wait.waitForLoader();
+        // После "Взять в работу" форма перезагружается. Маску ждать ненадёжно
+        // (появляется с задержкой). Ждём РЕЗУЛЬТАТ: вкладка "Решение" открыта,
+        // когда на ней виден инпут поля "Вид кредита для Проекта решения".
+        // Retry: клик вкладки может потеряться, пока страница догружается.
+        String creditTypeInput =
+                "//*[@data-item-marker='Вид кредита для Проекта решения']//input";
 
-        buttons.clickTabByName("Решение");
+        for (int attempt = 1; attempt <= 5; attempt++) {
+            buttons.clickTabByName("Решение");
+
+            // editable = enabled И без readonly. Прямой признак, что поле готово к вводу,
+            // в отличие от visible (инпут виден и заблокированным до взятия в работу).
+            if ($x(creditTypeInput).is(Condition.editable)) {
+                log.info("Поле 'Вид кредита' редактируемо на попытке {}/5", attempt);
+                break;
+            }
+            log.warn("Поле ещё заблокировано на попытке {}/5 — повтор", attempt);
+            wait.waitForLoader();
+        }
         lookup.select("Вид кредита для Проекта решения", "Кредит");
     }
+
 
     @Step("Утвердить решение")
     private void approveDecision() {

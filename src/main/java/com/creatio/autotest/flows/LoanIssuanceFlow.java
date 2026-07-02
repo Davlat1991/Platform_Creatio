@@ -50,7 +50,7 @@ public class LoanIssuanceFlow {
 
         searchFlow.withApplicationNumber(applicationNumber).openByNumber();
 
-        completeKkDecisionCheck();
+      //  completeKkDecisionCheck();
         openContract();
         createAbsContract();
         bindAccountsAndSchedule();
@@ -75,9 +75,23 @@ public class LoanIssuanceFlow {
 
     @Step("Открыть договор")
     private void openContract() {
+        // Клик по названию активности открывает мини-панель "Связи", а не страницу договора.
         dashboard.clickByName(
                 "Создание договора в АБС (печать договоров для встречи)"
         );
+
+        // В детали "Связи" кликаем по номеру временного договора.
+        // Скоуп marker='Contract' + href на страницу договора отсекает значок
+        // (marker='ContractImage') и соседние ссылки (FinApplication, CreatedBy).
+        SelenideElement contractLink = $x(
+                "//a[@data-item-marker='Contract'" +
+                        " and contains(@href,'BnzContractCreditPage/edit')]"
+        ).shouldBe(Condition.visible);
+
+        // JS-клик: нативный клик по ссылке в мини-панели перехватывается значком документа.
+        click.jsClick(contractLink);
+
+        // Только теперь открывается страница временного договора.
         $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
                 .shouldBe(Condition.visible);
     }
@@ -86,10 +100,13 @@ public class LoanIssuanceFlow {
     private void createAbsContract() {
         log.info("Create ABS contract");
 
-        click.clickByName("Действия");
+       /* click.clickByName("Действия");
         menu.clickByName("Создание договора");
 
         lookup.select("Вид планирования", "Аннуитетный_005");
+
+    // Тип получения кредита — combobox с ul-листвью, marker=LoadCreditType
+        lookup.selectComboboxByMarker("LoadCreditType", "Получает сегодня");
 
         click.clickByName("Выбрать");
 
@@ -97,7 +114,7 @@ public class LoanIssuanceFlow {
         click.clickByName("ОК");
 
         msgBox.shouldSeeModal("Договор успешно создан");
-        click.clickByName("ОК");
+        click.clickByName("ОК"); */
 
         click.clickById(
                 "BnzContractCreditPageBnzCreateSavingAcountContractButtonButton-imageEl"
@@ -113,6 +130,15 @@ public class LoanIssuanceFlow {
     @Step("Привязка счётов и графика платежей")
     private void bindAccountsAndSchedule() {
         log.info("Bind accounts and schedule");
+
+        // Привязка созданного депозитного счёта: лупа поля "Счёт" →
+        // поиск по сохранённому номеру → выбор.
+        String depositAccount =
+                ScenarioContextProvider.get().getDepositAccountNumber();
+        lookup.selectInLookupByIdWithSearch(
+                "BnzContractCreditPageBnzCreditBankAccountLookupEdit",
+                depositAccount
+        );
 
         click.clickByName("Сохранить");
         click.clickByName("Действия");

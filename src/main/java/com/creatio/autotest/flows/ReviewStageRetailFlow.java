@@ -61,7 +61,7 @@ public class ReviewStageRetailFlow {
         // КК4 в "Проекты решений" формируется бэкендом с задержкой (до ~60с)
         // и подтягивается в грид только после рефреша. Делаем несколько
         // попыток: рефреш → длинное ожидание строки с КК4.
-        int maxAttempts = 5;
+        int maxAttempts = 10;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             refresh();
             consultation.closeAfterReload();

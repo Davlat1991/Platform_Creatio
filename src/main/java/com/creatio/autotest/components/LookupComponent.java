@@ -558,5 +558,83 @@ public class LookupComponent extends BaseComponent {
         return this;
     }
 
+    // ══════════════════════════════════════
+    // LOOKUP BY ID + SEARCH — открыть лупу по id поля, найти по поиску и выбрать
+    // (поле "Счёт" на странице договора: счетов несколько, ищем нужный по номеру)
+    // ══════════════════════════════════════
+
+    @Step("Lookup+search по id '{lookupId}': найти и выбрать '{value}'")
+    public LookupComponent selectInLookupByIdWithSearch(String lookupId, String value) {
+        log.info("selectInLookupByIdWithSearch: lookupId='{}' value='{}'", lookupId, value);
+
+        // 1. Открываем модалку выбора счёта по иконке-лупе (по id поля)
+        clickSearchIcon(lookupId);
+
+        // 2. Ждём grid-модалку
+        SelenideElement grid = $x("//div[@data-item-marker='LookupGrid']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+
+        // 3. Вводим номер счёта в поиск и подтверждаем Enter
+        //    (Enter запускает фильтрацию надёжнее, чем клик по кнопке "Поиск")
+        SelenideElement searchInput = $("#searchEdit-el")
+                .shouldBe(visible, Duration.ofSeconds(30));
+        searchInput.click();
+        searchInput.sendKeys(value);
+        searchInput.sendKeys(Keys.ENTER);
+
+        // 4. Кликаем отфильтрованную строку (маркер строки = номер счёта)
+        SelenideElement row = grid
+                .$x(".//div[@data-item-marker='" + value + "']")
+                .shouldBe(visible, Duration.ofSeconds(30));
+        executeJavaScript("arguments[0].click();", row);
+
+        // 5. Жмём ВЫБРАТЬ
+        SelenideElement selectBtn = $x("//span[@data-tag='SelectButton']")
+                .shouldBe(visible, enabled);
+        executeJavaScript("arguments[0].click();", selectBtn);
+
+        // 6. Ждём закрытия модалки
+        grid.should(disappear, Duration.ofSeconds(30));
+
+        log.info("selectInLookupByIdWithSearch: '{}' выбрано", value);
+        return this;
+    }
+
+
+    // ══════════════════════════════════════
+    // COMBOBOX — ul-листвью (не div.listview), маркер на враппере
+    // Используется для полей типа "Тип получения кредита" в модалке BnzInputPlanningType
+    // ══════════════════════════════════════
+
+    @Step("Combobox: выбрать '{value}' по marker '{marker}'")
+    public LookupComponent selectComboboxByMarker(String marker, String value) {
+        log.info("selectComboboxByMarker: marker='{}' value='{}'", marker, value);
+
+        SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
+                .shouldBe(visible, enabled);
+
+        // Нативный клик — JS-клик не стреляет mousedown/mouseup,
+        // которые Creatio слушает для открытия combobox-листвью.
+        input.click();
+
+        // Маркер на div.listview, li внутри — прямые потомки ul
+        SelenideElement listView = $x("//div[contains(@class,'listview') " +
+                "and @data-item-marker='" + marker + "']")
+                .shouldBe(visible, Duration.ofSeconds(15));
+
+        SelenideElement item = listView
+                .$x(".//li[@data-item-marker='" + value + "']")
+                .shouldBe(visible, Duration.ofSeconds(15));
+
+        // JS-клик по <li> — нативный клик перехватывается другими элементами модалки
+        executeJavaScript("arguments[0].click();", item);
+
+        listView.should(disappear, Duration.ofSeconds(15));
+        input.shouldHave(Condition.value(value), Duration.ofSeconds(15));
+
+        log.info("selectComboboxByMarker: '{}' выбрано", value);
+        return this;
+    }
+
 
 }

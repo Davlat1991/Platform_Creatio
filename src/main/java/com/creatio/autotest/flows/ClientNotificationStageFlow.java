@@ -6,6 +6,7 @@ import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +24,41 @@ public class ClientNotificationStageFlow {
     private final BasePage              basePage     = new BasePage();
     private final ClickService          click        = new ClickService();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
+    private final ApplicationSearchFlow searchFlow = new ApplicationSearchFlow();
 
     // ══════════════════════════════════════
-    // MAIN
+    // MAIN — без поиска (SIMPLIFIED: менеджер уже на заявке)
     // ══════════════════════════════════════
 
-    @Step("Client Notification: информирование клиента")
+    @Step("Client Notification: информирование клиента (без поиска)")
     public void completeClientNotification(String responsiblePerson) {
-        log.info("Complete client notification");
+        log.info("Complete client notification (no search)");
 
         consultation.closeIfOpened();
+
+        openNotificationMiniPage();
+        setClientAgreement();
+        assignResponsible(responsiblePerson);
+        confirmNotification();
+
+        log.info("Client notification completed");
+    }
+
+    // ══════════════════════════════════════
+    // OVERLOAD — с поиском заявки (STANDARD: менеджер зашёл заново)
+    // ══════════════════════════════════════
+
+    @Step("Client Notification: найти заявку по номеру и информировать клиента")
+    public void completeClientNotificationWithSearch(String responsiblePerson) {
+        String applicationNumber =
+                ScenarioContextProvider.get().getApplicationNumber();
+        log.info("Complete client notification with search: number='{}'",
+                applicationNumber);
+
+        consultation.closeIfOpened();
+
+        // Менеджер зашёл заново — открываем нужную заявку по номеру из контекста.
+        searchFlow.withApplicationNumber(applicationNumber).openByNumber();
 
         openNotificationMiniPage();
         setClientAgreement();

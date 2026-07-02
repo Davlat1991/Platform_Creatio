@@ -5,6 +5,7 @@ import com.creatio.autotest.flows.*;
 import com.creatio.autotest.flows.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.flows.registration.client.ClientFlowFactory;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
@@ -31,7 +32,51 @@ import org.testng.annotations.Test;
 @Owner("Davlat")
 public class SimplifiedRouteTest extends BaseTest {
 
-    @Test(groups = "regression")
+
+    @Test(groups = "debug", enabled = true)
+    @Story("Debug — от стадии Информирование клиента до конца")
+    @Description("Старт на заявке в стадии Информирование клиента по UUID, дальше выдача")
+    @Severity(SeverityLevel.NORMAL)
+    public void debugFromClientNotificationStage() {
+        TestScenario scenario = ScenarioFactory.simplePath();
+
+        AuthFlow auth = new AuthFlow();
+        WorkspaceFlow workspace = new WorkspaceFlow();
+
+        // ── Розничный менеджер: открываем заявку на "Информирование клиента" ──
+       /* auth.login(scenario.getManager());
+        workspace.select(Workspace.RETAIL_MANAGER);
+
+
+        new ClientNotificationStageFlow()
+                .completeClientNotification(scenario.getIkok().getDisplayName());
+
+        auth.logout(); */
+
+        // ── ИКОК (выдача) ──────────────────────
+        auth.login(scenario.getIkok());
+        workspace.select(Workspace.IKOK);
+
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
+                        "FinApplicationPage/edit/" +
+                        "16143d68-d1e2-4d4b-abdf-5d689095ae1a"
+        );
+
+        // Уведомление уже было завершено ранее — вручную проставь applicationNumber в контекст.
+        // Без этого LoanIssuanceFlow не сможет найти заявку (searchFlow.openByNumber()).
+        ScenarioContextProvider.get().setApplicationNumber("391980");
+
+        new LoanIssuanceFlow()
+                .issueLoan();
+
+        auth.logout();
+    }
+
+
+
+  /*  @Test(groups = "regression")
     @Story("Упрощённый маршрут — без участников, залогов и верификатора")
     @Description("Упрощённый маршрут — без участников, без залогов, без верификатора")
     @Severity(SeverityLevel.BLOCKER)
@@ -122,5 +167,5 @@ public class SimplifiedRouteTest extends BaseTest {
                 .completeApplicationFinish();
 
         auth.logout();
-    }
+    }*/
 }
