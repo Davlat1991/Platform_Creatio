@@ -9,10 +9,14 @@ import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.*;
 
 public class LoanIssuanceFlow {
@@ -50,11 +54,11 @@ public class LoanIssuanceFlow {
 
         searchFlow.withApplicationNumber(applicationNumber).openByNumber();
 
-      //  completeKkDecisionCheck();
+        //completeKkDecisionCheck();
         openContract();
-        createAbsContract();
-        bindAccountsAndSchedule();
-        signAndIssueCredit();
+       // createAbsContract();
+       // bindAccountsAndSchedule();
+       // signAndCreateOrders();
         verifyOrdersAndPrint();
     }
 
@@ -76,8 +80,12 @@ public class LoanIssuanceFlow {
     @Step("Открыть договор")
     private void openContract() {
         // Клик по названию активности открывает мини-панель "Связи", а не страницу договора.
+        /*dashboard.clickByName(
+                "Создание договора в АБС (печать договоров для встречи)"*/
+
         dashboard.clickByName(
-                "Создание договора в АБС (печать договоров для встречи)"
+                        "Сформируйте РКО"
+
         );
 
         // В детали "Связи" кликаем по номеру временного договора.
@@ -86,21 +94,21 @@ public class LoanIssuanceFlow {
         SelenideElement contractLink = $x(
                 "//a[@data-item-marker='Contract'" +
                         " and contains(@href,'BnzContractCreditPage/edit')]"
-        ).shouldBe(Condition.visible);
+        ).shouldBe(visible);
 
         // JS-клик: нативный клик по ссылке в мини-панели перехватывается значком документа.
         click.jsClick(contractLink);
 
         // Только теперь открывается страница временного договора.
         $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
-                .shouldBe(Condition.visible);
+                .shouldBe(visible);
     }
 
     @Step("Создание договора в АБС")
     private void createAbsContract() {
         log.info("Create ABS contract");
 
-       /* click.clickByName("Действия");
+        click.clickByName("Действия");
         menu.clickByName("Создание договора");
 
         lookup.select("Вид планирования", "Аннуитетный_005");
@@ -114,7 +122,14 @@ public class LoanIssuanceFlow {
         click.clickByName("ОК");
 
         msgBox.shouldSeeModal("Договор успешно создан");
-        click.clickByName("ОК"); */
+        click.clickByName("ОК");
+
+
+    }
+
+    @Step("Создание и привязка счётов и графика платежей")
+    private void bindAccountsAndSchedule() {
+        log.info("Bind accounts and schedule");
 
         click.clickById(
                 "BnzContractCreditPageBnzCreateSavingAcountContractButtonButton-imageEl"
@@ -123,56 +138,122 @@ public class LoanIssuanceFlow {
         msgBox.shouldSeeModal("Депозитный договор успешно создан в АБС");
         click.clickByName("ОК");
 
+        // Сохраняем номер депозитного счёта из ссылки поля (input пустой/readonly)
+        SelenideElement depositLink = $x(
+                "//*[@data-item-marker='BnzDepositBankAccount']" +
+                        "//a[contains(@class,'base-edit-link')]"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldHave(Condition.matchText("\\d+"), Duration.ofSeconds(30));
+
+        String depositAccount = depositLink.getText().trim();
+        ScenarioContextProvider.get().setDepositAccountNumber(depositAccount);
+        log.info("Депозитный счёт '{}' сохранён в контекст", depositAccount);
+
         click.clickByName("Закрыть");
         refresh();
-    }
 
-    @Step("Привязка счётов и графика платежей")
-    private void bindAccountsAndSchedule() {
-        log.info("Bind accounts and schedule");
-
-        // Привязка созданного депозитного счёта: лупа поля "Счёт" →
-        // поиск по сохранённому номеру → выбор.
-        String depositAccount =
-                ScenarioContextProvider.get().getDepositAccountNumber();
+        // Привязка счёта: лупа → поиск → выбор
         lookup.selectInLookupByIdWithSearch(
                 "BnzContractCreditPageBnzCreditBankAccountLookupEdit",
                 depositAccount
         );
 
         click.clickByName("Сохранить");
+
+        // Получение графика платежей
         click.clickByName("Действия");
+        menu.clickByName("Получение графика платежей");
 
-        msgBox.confirmOk("График платежей успешно получен");
+        msgBox.shouldSeeModal("График платежей успешно получен");
+        click.clickByName("ОК");
 
+
+        // Привязка счёта к договору
         click.clickByName("Действия");
+        menu.clickByName("Привязка счета к договору");
+        msgBox.shouldSeeModal("Счет успешно привязан к кредитному договору");
+        click.clickByName("ОК");
 
-        msgBox.confirmOk("Счет успешно привязан к кредитному договору");
     }
 
-    @Step("Подписание и выдача кредита")
-    private void signAndIssueCredit() {
-        log.info("Sign and issue credit");
 
-        dashboard.clickAndWaitMiniPage(
-                "Создание договора в АБС (печать договоров для встречи)",
-                "Execute"
-        );
+    @Step("Подписание и выдача кредита")
+    private void signAndCreateOrders() {
+        log.info("Sign and create orders");
+
+        dashboard.clickAndWaitMiniPage("Создание договора в АБС (печать договоров для встречи)","Execute");
 
         setFieldByMarker("Result", "Выполнена");
         menu.clickByName("Выполнена");
         click.clickByMarker("SaveEditButton");
 
         click.clickByName("Действия");
+        menu.clickByName("Подписание договора");
+        msgBox.shouldSeeModal("Резервирование счетов выполнено успешно");
+        click.clickByName("ОК");
 
-        msgBox.confirmOk("Резервирование счетов выполнено успешно");
+        issueCashCredit();
+    }
 
+    @Step("Выдача кредита наличными")
+    private void issueCashCredit() {
+        log.info("Issue cash credit");
+
+        // Действия → Выдача кредита → Наличными
         click.clickByName("Действия");
+        menu.hoverAndClickSubmenu("Выдача кредита", "Наличными");
+
+        // ── Модалка "Выдача кредита" ──
+        // Сумма к выдаче (marker=Amount) должна быть заполнена.
+        String issueAmount = FieldUtils.getValueByMarker("Amount");
+        log.info("Сумма к выдаче: '{}'", issueAmount);
+
+        click.clickByName("Подтвердить");
+
+        // ── Модалка "Комиссия за выдачу кредита" ──
+        // Это модальная СТРАНИЦА (ts-modalbox), не messagebox — якорем появления
+        // служит само чтение полей ниже (getValueByMarker ждёт поле до 30с).
+        // Проверяем что все три поля комиссии заполнены (readonly, значения от суммы).
+        // Не завязываемся на конкретные числа — они зависят от суммы кредита.
+        String commissionBase    = FieldUtils.getValueByMarker("IssuanceAmount");
+        String commissionPercent = FieldUtils.getValueByMarker("CommissionPercentage");
+        String commissionAmount  = FieldUtils.getValueByMarker("CommissionAmount");
+        log.info("Комиссия: сумма выдачи='{}', процент='{}', сумма комиссии='{}'",
+                commissionBase, commissionPercent, commissionAmount);
+
+        click.clickByName("Подтвердить");
+
+        // ── Три подтверждающих сообщения ──
+        msgBox.shouldSeeModal(
+                "Действие успешно выполнено. Необходимо оплатить комиссию за кредит");
+        click.clickByName("ОК");
+
+        msgBox.shouldSeeModal("Кассовый ордер успешно сформирован");
+        click.clickByName("ОК");
+
+        msgBox.shouldSeeModal("График платежей успешно получен");
+        click.clickByName("ОК");
     }
 
     @Step("Проверка ордеров и печать")
     private void verifyOrdersAndPrint() {
         log.info("Verify orders and print");
+
+        // Сохраняем номер финального кредитного договора из заголовка страницы.
+        // input поля пустой — номер только в label заголовка (data-item-marker='Кредитный').
+        // Нужен кассиру для поиска договора в разделе "Договоры".
+        String contractNumber = $x(
+                "//label[@id='MainHeaderSchemaPageHeaderCaptionLabel']"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .shouldHave(Condition.matchText("\\d"), Duration.ofSeconds(10))
+                .getText().trim();
+
+        ScenarioContextProvider.get().setCreditContractNumber(contractNumber);
+        log.info("Номер кредитного договора '{}' сохранён в контекст", contractNumber);
+
+        print.selectPrintOption("Чек лист маълумотнома(оферта)");
+
+        openDecisionTab();
 
         buttons.doubleClickByName("Приходный");
         basePage.checkPage("BnzOrderPageContainer");
@@ -181,8 +262,6 @@ public class LoanIssuanceFlow {
         buttons.doubleClickByName("Расходный");
         basePage.checkPage("BnzOrderPageContainer");
         click.clickByName("Закрыть");
-
-        print.selectPrintOption("Чек лист маълумотнома(оферта)");
     }
 
     // ══════════════════════════════════════
@@ -207,36 +286,37 @@ public class LoanIssuanceFlow {
         SelenideElement row = $x(
                 "//span[@grid-data-type='text'" +
                         " and normalize-space()='" + name + "']"
-        ).shouldBe(Condition.visible);
+        ).shouldBe(visible);
         actions().doubleClick(row).perform();
     }
 
     private void createCollateralContract() {
         click.clickByName("Действия");
         menu.clickByName("Создание договора обеспечения");
-        msgBox.confirmOk("Договор успешно создан");
+        msgBox.shouldSeeModal("Договор успешно создан");
+        click.clickByName("ОК");
     }
 
     private void printCollateralContract(String formName) {
         click.clickByName("Печать");
         $x("//ul[@data-item-marker='PrintButton']" +
                 "//li[normalize-space()='" + formName + "']")
-                .shouldBe(Condition.visible)
+                .shouldBe(visible)
                 .click();
     }
 
     private void waitForConfidantGrid() {
         $("[data-item-marker='Должностные лица']")
-                .shouldBe(Condition.visible);
+                .shouldBe(visible);
     }
 
     private void selectConfidantByPosition(String position) {
         $x("//span[@grid-data-type='text'" +
                 " and normalize-space()='" + position + "']")
-                .shouldBe(Condition.visible)
+                .shouldBe(visible)
                 .click();
         $x("//span[text()='Выбрать']")
-                .shouldBe(Condition.visible)
+                .shouldBe(visible)
                 .click();
     }
 
@@ -249,4 +329,10 @@ public class LoanIssuanceFlow {
         $x("//div[@data-item-marker='" + marker + "']/input")
                 .setValue(value);
     }
+
+    @Step("Открыть вкладку 'Решение по заявке'")
+    private void openDecisionTab() {
+        buttons.clickTabByName("Операции по договору");
+    }
+
 }

@@ -61,22 +61,31 @@ public class SimplifiedRouteTest extends BaseTest {
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/" +
                         "FinApplicationPage/edit/" +
-                        "16143d68-d1e2-4d4b-abdf-5d689095ae1a"
+                        "7a8e1041-e482-4721-83e2-e129e56ad6a6"
         );
 
         // Уведомление уже было завершено ранее — вручную проставь applicationNumber в контекст.
         // Без этого LoanIssuanceFlow не сможет найти заявку (searchFlow.openByNumber()).
-        ScenarioContextProvider.get().setApplicationNumber("391980");
+        ScenarioContextProvider.get().setApplicationNumber("391981");
 
         new LoanIssuanceFlow()
                 .issueLoan();
 
         auth.logout();
+
+        // ── Кассир ─────────────────────────────
+        auth.login(scenario.getCashier());
+        workspace.select(Workspace.CASHIER);
+
+        new SigningStageFlow().completeSigningStage();
+
+        auth.logout();
+
     }
 
 
 
-  /*  @Test(groups = "regression")
+    /*@Test(groups = "regression")
     @Story("Упрощённый маршрут — без участников, залогов и верификатора")
     @Description("Упрощённый маршрут — без участников, без залогов, без верификатора")
     @Severity(SeverityLevel.BLOCKER)

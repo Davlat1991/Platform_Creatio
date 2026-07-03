@@ -36,9 +36,8 @@ public final class DriverSetup {
         baseUrl      = config.getBaseUrl();
         Configuration.timeout      = config.getTimeout() * 1000;
         Configuration.pageLoadTimeout = config.getPageLoadTimeout() * 1000;
-        Configuration.screenshots  = true; //после прогона сделать false
+        Configuration.screenshots  = true;
         Configuration.savePageSource = false;
-        Configuration.reportsFolder   = "target/selenide"; // ← скриншоты Selenide теперь под target/
         Configuration.browser      = browser;
         Configuration.headless     = headless;
 
@@ -81,22 +80,28 @@ public final class DriverSetup {
                 "--window-size=1920,1080",
                 "--disable-extensions",
                 "--remote-allow-origins=*",
+                "--test-type",
                 "--safebrowsing-disable-download-protection",
-                "--disable-features=InsecureDownloadWarnings,SafeBrowsing",
+                "--disable-features=InsecureDownloadWarnings,SafeBrowsing,DownloadBubble,DownloadBubbleV2",
                 "--allow-running-insecure-content",
-                "--unsafely-treat-insecure-origin-as-secure=" + baseUrl  // ← динамически
+                "--unsafely-treat-insecure-origin-as-secure=" + baseUrl
         );
 
         String downloadPath = System.getProperty("user.dir") + "\\downloads";
+
+        // Гарантируем существование папки — иначе waitForDownload увидит null и выйдет сразу
+        new java.io.File(downloadPath).mkdirs();
 
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("download.default_directory",               downloadPath);
         prefs.put("download.prompt_for_download",             false);
         prefs.put("download.directory_upgrade",               true);
+        // 0 = разрешить все загрузки (снимает "Незащищённое скачивание заблокировано")
+        prefs.put("download_restrictions",                    0);
         prefs.put("safebrowsing.enabled",                     false);
         prefs.put("safebrowsing.disable_download_protection", true);
         prefs.put("plugins.always_open_pdf_externally",       true);
-        prefs.put("profile.default_content_setting_values.notifications", 2); // блокировать уведомления
+        prefs.put("profile.default_content_setting_values.notifications", 2);
 
         options.setExperimentalOption("prefs", prefs);
 

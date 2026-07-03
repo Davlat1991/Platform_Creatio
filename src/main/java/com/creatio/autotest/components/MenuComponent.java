@@ -43,4 +43,28 @@ public class MenuComponent extends BaseComponent {
 
         return this;
     }
+
+    /**
+     * Наведение на пункт меню с подменю → клик по пункту подменю.
+     * Подменю Creatio раскрывается при hover на родительском li;
+     * пункт подменю рендерится в отдельном ul[data-item-marker='actions'].
+     * Пример: "Выдача кредита" → "Наличными".
+     */
+
+    @Step("Hover '{parent}' → click submenu '{child}'")
+    public MenuComponent hoverAndClickSubmenu(String parent, String child) {
+        log.info("Hover menu item '{}' → click submenu '{}'", parent, child);
+
+        // Наводим на родительский пункт — подменю открывается через hover
+        $x("//li[@data-item-marker='" + parent + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .hover();
+
+        // Кликаем по пункту подменю
+        $x("//li[@data-item-marker='" + child + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .click();
+
+        return this;
+    }
 }

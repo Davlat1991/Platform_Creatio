@@ -61,6 +61,12 @@ public class ApplicationSearchFlow {
         click.clickByMarker("Открыть");
     }
 
+
+    // ══════════════════════════════════════
+    // OPEN BY CONTRACT NUMBER
+    // ══════════════════════════════════════
+
+
     @Step("Открыть договор по номеру: {savedApplicationNumber}")
     public void openContractByNumber() {
         log.info("Open contract by number: '{}'",

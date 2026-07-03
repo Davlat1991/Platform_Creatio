@@ -4,6 +4,7 @@ import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,12 @@ public class SigningStageFlow {
     public void completeSigningStage() {
         log.info("Complete signing stage");
 
+        String contractNumber =
+                ScenarioContextProvider.get().getCreditContractNumber();
+
         consultation.closeIfOpened();
+
+        //new ApplicationSearchFlow().withApplicationNumber(contractNumber).openContractByNumber();
 
         searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
 
@@ -60,10 +66,14 @@ public class SigningStageFlow {
         basePage.checkPage("BnzOrderPageContainer");
 
         assertions.assertOrderState("Новый");
-        fieldAssert.checkFieldValueNormalized("Сумма документа", "200,00");
+        fieldAssert.checkFieldValueNormalized("Сумма документа", "50,00");
 
         click.clickByName("Подтвердить");
-        msgBox.confirmOk("Кассовый ордер успешно подтвержден");
+
+        msgBox.shouldSeeModal("Кассовый ордер успешно подтвержден");
+        click.clickByName("ОК");
+
+
 
         assertions.assertOrderState("Подтвержден");
         print.selectPrintOption("Приходный кассовый ордер по комиссии");
@@ -79,13 +89,16 @@ public class SigningStageFlow {
         basePage.checkPage("BnzOrderPageContainer");
 
         assertions.assertOrderState("Новый");
-        fieldAssert.checkFieldValueNormalized("Сумма документа", "20 000,00");
+        fieldAssert.checkFieldValueNormalized("Сумма документа", "5 000,00");
 
         click.clickByName("Подтвердить");
-        msgBox.confirmOk("Кассовый ордер успешно подтвержден");
-        msgBox.confirmOk(
-                "Получение фактических операций клиента по договору успешно выполнено!"
-        );
+
+        msgBox.shouldSeeModal("Кассовый ордер успешно подтвержден");
+        click.clickByName("ОК");
+
+        msgBox.shouldSeeModal("Получение фактических операций клиента по договору успешно выполнено!");
+        click.clickByName("ОК");
+
 
         assertions.assertOrderState("Подтвержден");
         print.selectPrintOption("Расходный кассовый ордер");
