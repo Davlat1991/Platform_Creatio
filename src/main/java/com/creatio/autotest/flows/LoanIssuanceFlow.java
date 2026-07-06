@@ -56,9 +56,9 @@ public class LoanIssuanceFlow {
 
         //completeKkDecisionCheck();
         openContract();
-       // createAbsContract();
-       // bindAccountsAndSchedule();
-       // signAndCreateOrders();
+        createAbsContract();
+        bindAccountsAndSchedule();
+        signAndCreateOrders();
         verifyOrdersAndPrint();
     }
 
@@ -80,13 +80,8 @@ public class LoanIssuanceFlow {
     @Step("Открыть договор")
     private void openContract() {
         // Клик по названию активности открывает мини-панель "Связи", а не страницу договора.
-        /*dashboard.clickByName(
-                "Создание договора в АБС (печать договоров для встречи)"*/
-
         dashboard.clickByName(
-                        "Сформируйте РКО"
-
-        );
+                "Создание договора в АБС (печать договоров для встречи)" );  //dashboard.clickByName("Сформируйте РКО");
 
         // В детали "Связи" кликаем по номеру временного договора.
         // Скоуп marker='Contract' + href на страницу договора отсекает значок

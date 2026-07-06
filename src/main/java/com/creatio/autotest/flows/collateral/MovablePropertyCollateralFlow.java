@@ -3,6 +3,8 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.SimpleObjectData;
 import io.qameta.allure.Step;
 
 public class MovablePropertyCollateralFlow extends BaseCollateralFlow {
@@ -19,22 +21,24 @@ public class MovablePropertyCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill movable property collateral");
 
+        CollateralType type = data.getType();
+        SimpleObjectData object = (SimpleObjectData) data.getSpecificData();
+
         tabs.openCollateralTab();
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Движимое имущество");
-        form.selectSubType("Гарави амволи манкул");
-        form.setName("Залог движимого имущества");
-        form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Садуллоев Сафарали Нусратович");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectOwnership(type.getOwnership());
 
         valuation.fillObjects(
-                "Производственное оборудование",
-                "70000",
+                object.getName(),
+                object.getSum(),
                 data.getCurrency(),
-                "2",
-                "Новое оборудование"
+                object.getAmount(),
+                object.getDescription()
         );
 
         address.fillPropertyAddress();

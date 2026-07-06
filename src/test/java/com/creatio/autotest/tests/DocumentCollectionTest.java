@@ -116,8 +116,6 @@ public class DocumentCollectionTest extends BaseTest {
         // Закрыть активность (D4.5)
         docs.completeDocumentsActivity();
 
-        Selenide.sleep(15000);
-
         auth.logout();
     }
 

@@ -3,6 +3,8 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.EquipmentData;
 import io.qameta.allure.Step;
 
 public class EquipmentCollateralFlow extends BaseCollateralFlow {
@@ -19,24 +21,26 @@ public class EquipmentCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill equipment collateral");
 
+        CollateralType type = data.getType();
+        EquipmentData equipment = (EquipmentData) data.getSpecificData();
+
         tabs.openCollateralTab();
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Движимое имущество");
-        form.selectSubType("Гарави тачхизот");
-        form.setName("Залог оборудования");
-        form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Садуллоев Сафарали Нусратович");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectOwnership(type.getOwnership());
 
         valuation.fillEquipment(
-                "Прицеп",
-                "80000",
+                equipment.getName(),
+                equipment.getSum(),
                 data.getCurrency(),
-                "БЕЛОРУССИЯ",
-                "2025",
-                "Промышленное оборудование",
-                "Германский прицеп"
+                equipment.getCountry(),
+                equipment.getYear(),
+                equipment.getEquipmentType(),
+                equipment.getDescription()
         );
 
         address.fillPropertyAddress();

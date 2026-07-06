@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
 import io.qameta.allure.Step;
 
 public class VehicleCollateralFlow extends BaseCollateralFlow {
@@ -20,22 +21,24 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill vehicle collateral");
 
+        CollateralType type = data.getType();
+
         tabs.openCollateralTab();
 
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Движимое имущество");
-        form.selectSubType("Гарави наклиёт");
-        form.setName("Залог транспорта");
-        form.selectCondition("Новое");
-        form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Садуллоев Сафарали Нусратович");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectCondition(type.getCondition());
+        form.selectOwnership(type.getOwnership());
 
         grid.addCollateralValue();
         grid.waitForPageLoaded();
 
-        form.setName("Залог транспорта");
+        form.setName(type.getUiName());
+        // TODO: залогодатель сейчас захардкожен, параметризация отложена
         form.selectPledger("Садуллоев Сафарали Нусратович");
 
         vehicle.fillTechnicalData();
@@ -48,7 +51,7 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
         );
 
         form.close();
-        form.setName("Залог транспорта");
+        form.setName(type.getUiName());
         form.save();
         form.close();
 

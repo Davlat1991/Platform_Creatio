@@ -28,7 +28,7 @@ public class VehicleCharacteristicsComponent extends BaseComponent {
                 .select("Тип кузова",                              "Седан")
                 .select("Тип двигателя",                           "Бензин+Газ")
                 .selectByLabel("Объем двигателя, куб. см.",        "300")
-                .selectByLabel("Мощность двигателя, кВт/л.с.",    "1000")
+                .selectByLabel("Мощность двигателя, кВт/л.с.",     "1000")
                 .selectByLabel("Грузоподъёмность, кг",             "500")
                 .selectByLabel("Вес, кг",                          "1500")
                 .selectByLabel("Описание",                         "Классная машина");

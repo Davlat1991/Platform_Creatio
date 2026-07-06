@@ -66,7 +66,7 @@ public class CollateralTest extends BaseTest {
     @Description("Открываем заявку по UUID, добавляем залоги")
     @Severity(SeverityLevel.NORMAL)
     public void debugCollateralsOnly() {
-        TestScenario scenario = ScenarioFactory.happyPath();
+        TestScenario scenario = ScenarioFactory.allCollaterals();
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());
@@ -77,7 +77,7 @@ public class CollateralTest extends BaseTest {
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/" +
                         "FinApplicationPage/edit/" +
-                        "cb6594e3-a2c6-4d1e-b83d-19bf6fd53f53"
+                        "4688e1f0-3e90-475d-9294-02df61f03ff9"
         );
 
         new CollateralStageFlow().completeCollateralStage(
@@ -132,7 +132,7 @@ public class CollateralTest extends BaseTest {
     @Description("Логин → регистрация → предварительная проверка → участники → залоги")
     @Severity(SeverityLevel.BLOCKER)
     public void collateralStageTest() {
-        TestScenario scenario = ScenarioFactory.happyPath();
+        TestScenario scenario = ScenarioFactory.allCollaterals();
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());

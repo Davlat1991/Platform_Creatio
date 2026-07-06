@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
 import io.qameta.allure.Step;
 
 public class CashDepositCollateralFlow extends BaseCollateralFlow {
@@ -18,14 +19,17 @@ public class CashDepositCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill cash deposit collateral");
 
+        CollateralType type = data.getType();
+
         tabs.openCollateralTab();
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Денежные средства (депозитные счета)");
-        form.selectSubType("Гарави пасандоз");
-        form.setName("Денежный вклад");
-        form.selectOwnership("Третьего лица");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectOwnership(type.getOwnership());
+        // TODO: залогодатель сейчас захардкожен, параметризация отложена
         form.selectPledger("Хамидов Азизходжа Азамходжаевич");
 
         valuation.fillCashDeposit(

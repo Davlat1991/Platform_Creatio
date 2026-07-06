@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
 import io.qameta.allure.Step;
 
 public class CottonCollateralFlow extends BaseCollateralFlow {
@@ -20,15 +21,16 @@ public class CottonCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill cotton collateral");
 
+        CollateralType type = data.getType();
+
         tabs.openCollateralTab();
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Движимое имущество");
-        form.selectSubType("Гарави пахта");
-        form.setName("Залог хлопка");
-        form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Садуллоев Сафарали Нусратович");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectOwnership(type.getOwnership());
 
         cotton.fillTechnicalData();
         address.fillPropertyAddress();

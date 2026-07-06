@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
 import com.creatio.autotest.testdata.models.RealEstateData;
 import io.qameta.allure.Step;
 
@@ -21,24 +22,25 @@ public class RealEstateCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill real estate collateral");
 
+        CollateralType type = data.getType();
         RealEstateData realEstate = (RealEstateData) data.getSpecificData();
 
         tabs.openCollateralTab();
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Недвижимое имущество");
-        form.selectSubType("Гарави амволи гайриманкул");
-        form.setName("Залог недвижимого имущества");
-        form.selectCondition("Новое");
-        form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Ашурова Шукрона Махсудовна");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectCondition(type.getCondition());
+        form.selectOwnership(type.getOwnership());
 
         grid.addCollateralValue();
         grid.waitForPageLoaded();
 
-        form.setName("Залог недвижимого имущества");
-        form.selectPledger("Ашурова Шукрона Махсудовна");
+        form.setName(type.getUiName());
+        // TODO: залогодатель сейчас захардкожен, параметризация отложена
+        form.selectPledger("Садуллоев Сафарали Нусратович");
 
         chars.fillCharacteristics(
                 realEstate.getLivingArea(),
@@ -58,7 +60,7 @@ public class RealEstateCollateralFlow extends BaseCollateralFlow {
         );
 
         form.close();
-        form.setName("Залог недвижимого имущества");
+        form.setName(type.getUiName());
         form.save();
         form.close();
 

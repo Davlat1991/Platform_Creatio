@@ -12,6 +12,7 @@ import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.$$x;
 import static com.codeborne.selenide.Selenide.$x;
+import static java.lang.Thread.sleep;
 
 public class GridAssertions extends BaseComponent {
 
@@ -71,7 +72,7 @@ public class GridAssertions extends BaseComponent {
             try {
                 int columnIndex = findColumnIndex(columnName);
                 if (columnIndex == -1) {
-                    Thread.sleep(500);
+                    sleep(500);
                     continue;
                 }
 
@@ -81,7 +82,7 @@ public class GridAssertions extends BaseComponent {
                 );
 
                 if (rows.isEmpty()) {
-                    Thread.sleep(500);
+                    sleep(500);
                     continue;
                 }
 
@@ -109,11 +110,11 @@ public class GridAssertions extends BaseComponent {
                     }
                 }
 
-                Thread.sleep(500);
+                sleep(500);
 
             } catch (Throwable t) {
                 log.debug("Error in grid check: {}", t.getMessage());
-                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+                try { sleep(500); } catch (InterruptedException ignored) {}
             }
         }
 
@@ -203,7 +204,7 @@ public class GridAssertions extends BaseComponent {
             try {
                 int columnIndex = findColumnIndex(columnName);
                 if (columnIndex == -1) {
-                    Thread.sleep(500);
+                    sleep(500);
                     continue;
                 }
 
@@ -213,7 +214,7 @@ public class GridAssertions extends BaseComponent {
                 );
 
                 if (rows.isEmpty()) {
-                    Thread.sleep(500);
+                    sleep(500);
                     continue;
                 }
 
@@ -240,11 +241,11 @@ public class GridAssertions extends BaseComponent {
                     }
                 }
 
-                Thread.sleep(500);
+                sleep(500);
 
             } catch (Throwable t) {
                 log.debug("Error in grid check: {}", t.getMessage());
-                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+                try { sleep(500); } catch (InterruptedException ignored) {}
             }
         }
 

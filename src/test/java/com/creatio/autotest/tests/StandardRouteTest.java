@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 public class StandardRouteTest extends BaseTest {
 
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Debug — от стадии Рассмотрение до конца")
     @Description("Старт на заявке в стадии Рассмотрение по UUID, дальше весь процесс")
     @Severity(SeverityLevel.NORMAL)
@@ -60,7 +60,7 @@ public class StandardRouteTest extends BaseTest {
 
         auth.logout();
 
-      /*   // ── Верификатор ────────────────────────
+         // ── Верификатор ────────────────────────
         auth.login(scenario.getUnderwriter());
         workspace.select(Workspace.UNDERWRITER);
 
@@ -76,7 +76,7 @@ public class StandardRouteTest extends BaseTest {
         new ClientNotificationStageFlow()
                 .completeClientNotificationWithSearch(scenario.getIkokGo().getDisplayName());
 
-        auth.logout();*/
+        auth.logout();
 
         // ── ИКОК-ГО (выдача) ───────────────────
         auth.login(scenario.getIkokGo());
@@ -90,7 +90,7 @@ public class StandardRouteTest extends BaseTest {
 
 
 
-   /* @Test(groups = "regression")
+    @Test(groups = "regression")
     @Story("Стандартный маршрут — полный путь с верификатором и комитетом")
     @Description("Стандартный маршрут — полный happy path с верификатором и комитетом")
     @Severity(SeverityLevel.BLOCKER)
@@ -185,12 +185,13 @@ public class StandardRouteTest extends BaseTest {
         auth.logout();
 
         // ── Кассир ─────────────────────────────
-        // TODO: активировать после миграции creditContractNumber на ScenarioContext.
         // Кассир ищет 10-значный номер договора (раздел "Договоры").
-        // auth.login(scenario.getCashier());
-        // workspace.select(Workspace.CASHIER);
-        // new SigningStageFlow().completeSigningStage();
-        // auth.logout();
+        auth.login(scenario.getCashier());
+        workspace.select(Workspace.CASHIER);
+
+        new SigningStageFlow().completeSigningStage();
+
+        auth.logout();
 
         // ── ИКОК-ГО (завершение) ───────────────
         auth.login(scenario.getIkokGo());
@@ -200,5 +201,5 @@ public class StandardRouteTest extends BaseTest {
                 .completeApplicationFinish();
 
         auth.logout();
-    }*/
+    }
 }

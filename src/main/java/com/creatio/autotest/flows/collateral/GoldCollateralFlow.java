@@ -3,6 +3,8 @@ package com.creatio.autotest.flows.collateral;
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
+import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.GoldData;
 import io.qameta.allure.Step;
 
 public class GoldCollateralFlow extends BaseCollateralFlow {
@@ -18,22 +20,24 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
     public void fill(CollateralData data) {
         log.info("Fill gold collateral");
 
+        CollateralType type = data.getType();
+        GoldData gold = (GoldData) data.getSpecificData();
+
         tabs.openCollateralTab();
         grid.addCollateral();
         grid.openPropertyLookup();
 
-        form.selectType("Движимое имущество");
-        form.selectSubType("Гарави дорои");
-        form.setName("Золотые изделия");
-        form.selectOwnership("Третьего лица");//Собственный
-        form.selectPledger("Садуллоев Сафарали Нусратович");
+        form.selectType(type.getCategory());
+        form.selectSubType(type.getSubType());
+        form.setName(type.getUiName());
+        form.selectOwnership(type.getOwnership());
 
         valuation.fillGold(
-                "Золотое украшение",
-                "999",
-                "50",
-                "40",
-                "50000",
+                gold.getName(),
+                gold.getPurity(),
+                gold.getWeight(),
+                gold.getWeightWithoutStones(),
+                gold.getAmount(),
                 data.getCurrency()
         );
 
