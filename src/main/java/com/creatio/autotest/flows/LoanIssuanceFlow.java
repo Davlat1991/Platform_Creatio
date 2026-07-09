@@ -54,7 +54,7 @@ public class LoanIssuanceFlow {
 
         searchFlow.withApplicationNumber(applicationNumber).openByNumber();
 
-        //completeKkDecisionCheck();
+        completeKkDecisionCheck();
         openContract();
         createAbsContract();
         bindAccountsAndSchedule();

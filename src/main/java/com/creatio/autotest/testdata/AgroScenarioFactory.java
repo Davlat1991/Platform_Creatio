@@ -46,12 +46,11 @@ public final class AgroScenarioFactory {
 
     public static AgroProductData agroMicroProduct() {
         return AgroProductData.builder()
-                .productType("Агро")
-                .creditPurpose("Барои эхтиёчоти кишоварзи")
-                .amount("15000")
-                .term("12")
+                .productType("Агро кредиты")
+                .creditPurpose("Барои кишти пахта ва картошка")
+                .amount("70000")
+                .term("36")
                 .currency("Сомони Чумхурии Точикистон")
-                .segment("Микро")
                 .repaymentDay("3")
                 .scheduleNumber("1")
                 .scheduleType("Аннуитетный")

@@ -44,8 +44,6 @@ public class SigningStageFlow {
 
         consultation.closeIfOpened();
 
-        //new ApplicationSearchFlow().withApplicationNumber(contractNumber).openContractByNumber();
-
         searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
 
         buttons.clickTabByName("Операции по договору");

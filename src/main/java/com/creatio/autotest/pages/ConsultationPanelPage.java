@@ -20,6 +20,8 @@ public class ConsultationPanelPage extends BasePage {
     private static final String RIGHT_PANEL    = "//div[@id='rightPanel']";
     private static final String TOGGLE_BUTTON  = "//span[@id='view-button-OBSW-imageEl']";
     private static final String MESSAGE_BOX_OK = "//span[@data-item-marker='ОК']";
+    private static final String COMPLETE_PANEL_BUTTON ="//*[@data-item-marker='CompleteConsultationButton']";
+    private static final String COMPLETE_MODAL_BUTTON ="//*[@data-item-marker='CompleteButton']";
 
     // ══════════════════════════════════════
     // PANEL CONTROL
@@ -51,6 +53,24 @@ public class ConsultationPanelPage extends BasePage {
                 .click();
         $x(RIGHT_PANEL).shouldBe(Condition.hidden, Duration.ofSeconds(5));
         return this;
+    }
+
+    @Step("Завершить консультацию: 'Завершить' в панели + подтверждение в модалке")
+    public void completeConsultation() {
+        log.info("Complete consultation via panel");
+
+        // 1. Кнопка 'Завершить' в консультационной панели.
+        // JS-клик — в старом проекте нативный клик по этой кнопке не срабатывал.
+        SelenideElement panelBtn = $x(COMPLETE_PANEL_BUTTON)
+                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+        executeJavaScript("arguments[0].click();", panelBtn);
+        log.info("Clicked 'Завершить' in consultation panel");
+
+        // 2. Кнопка 'Завершить' в модальном окне подтверждения.
+        SelenideElement modalBtn = $x(COMPLETE_MODAL_BUTTON)
+                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+        executeJavaScript("arguments[0].click();", modalBtn);
+        log.info("Clicked 'Завершить' in modal — consultation completed");
     }
 
     // ══════════════════════════════════════
@@ -100,4 +120,6 @@ public class ConsultationPanelPage extends BasePage {
         }
         return closeIfOpened();
     }
+
+
 }

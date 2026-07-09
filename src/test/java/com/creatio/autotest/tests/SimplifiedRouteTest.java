@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 public class SimplifiedRouteTest extends BaseTest {
 
 
-    @Test(groups = "debug", enabled = false)
+    @Test(groups = "debug", enabled = true)
     @Story("Debug — от стадии Информирование клиента до конца")
     @Description("Старт на заявке в стадии Информирование клиента по UUID, дальше выдача")
     @Severity(SeverityLevel.NORMAL)
@@ -44,16 +44,14 @@ public class SimplifiedRouteTest extends BaseTest {
         WorkspaceFlow workspace = new WorkspaceFlow();
 
         // ── Розничный менеджер: открываем заявку на "Информирование клиента" ──
-      /* auth.login(scenario.getManager());
+        auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
-
-
 
 
         new ClientNotificationStageFlow()
                 .completeClientNotification(scenario.getIkok().getDisplayName());
 
-        auth.logout();*/
+        auth.logout();
 
         // ── ИКОК (выдача) ──────────────────────
         auth.login(scenario.getIkok());
@@ -64,12 +62,14 @@ public class SimplifiedRouteTest extends BaseTest {
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/" +
                         "FinApplicationPage/edit/" +
-                        "201ac769-5851-4551-adec-7f39965f2518"
+                        "9f1c04a8-7acf-494f-917e-36055c2eb310"
         );
 
-        // Уведомление уже было завершено ранее — вручную проставь applicationNumber в контекст.
+        // Уведомление уже было завершено ранее — вручную проставь applicationNumber или creditContractNumber в контекст.
         // Без этого LoanIssuanceFlow не сможет найти заявку (searchFlow.openByNumber()).
-        ScenarioContextProvider.get().setApplicationNumber("394874");
+        ScenarioContextProvider.get().setApplicationNumber("391990");
+
+        ScenarioContextProvider.get().setCreditContractNumber("02-005-033405");
 
 
         new LoanIssuanceFlow()
@@ -89,8 +89,9 @@ public class SimplifiedRouteTest extends BaseTest {
         auth.login(scenario.getIkok());
         workspace.select(Workspace.IKOK);
 
+
         new ApplicationFinishFlow()
-                .completeApplicationFinish();
+                .completeSimplifiedFinish();
 
         auth.logout();
 
@@ -188,7 +189,7 @@ public class SimplifiedRouteTest extends BaseTest {
         workspace.select(Workspace.IKOK);
 
         new ApplicationFinishFlow()
-                .completeApplicationFinish();
+                .completeSimplifiedFinish();
 
         auth.logout();
     }

@@ -177,4 +177,49 @@ public final class CollateralDataFactory {
                         .build())
                 .build();
     }
+
+    // ══════════════════════════════════════
+    // AGRO — COTTON (сегмент «Микро»)
+    // ──────────────────────────────────────
+    // Примечание: CottonCharacteristicsComponent.fillTechnicalData() сейчас
+    // не принимает параметров и не читает specificData (см. аудит) —
+    // это известный техдолг вне рамок подзадачи 3, фиксируется только на
+    // память. specificData здесь заложен заранее (SimpleObjectData), чтобы
+    // конструктор CollateralData был готов к моменту, когда компонент будет
+    // параметризован в Sprint 2.
+    // ══════════════════════════════════════
+
+    public static CollateralData agroCotton(CurrencyType currency) {
+        return CollateralData.builder()
+                .type(CollateralType.COTTON)
+                .liquidationValue("450000")
+                .marketValue("620000")
+                .currency(currency.getUiValue())
+                .specificData(SimpleObjectData.builder()
+                        .name("Урожай хлопка 2026")
+                        .sum("620000")
+                        .amount("2500")
+                        .description("Хлопок-сырец, поле Б.Гафуров")
+                        .build())
+                .build();
+    }
+
+    // ══════════════════════════════════════
+    // AGRO — FUTURE HARVEST (сегмент «Микро»)
+    // ══════════════════════════════════════
+
+    public static CollateralData agroFutureHarvest(CurrencyType currency) {
+        return CollateralData.builder()
+                .type(CollateralType.FUTURE_HARVEST)
+                .liquidationValue("90000")
+                .marketValue("130000")
+                .currency(currency.getUiValue())
+                .specificData(SimpleObjectData.builder()
+                        .name("Будущий урожай пшеницы")
+                        .sum("130000")
+                        .amount("3")
+                        .description("Озимая пшеница, площадь 1.5 га")
+                        .build())
+                .build();
+    }
 }
