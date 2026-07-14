@@ -34,6 +34,13 @@ public class ClientSearchFlow {
         // Поиск в ЦФТ занимает 5-10 сек — ждём появления результата
         waitForSearchResult();
 
+        // Выбрать конкретного клиента по ФИО среди результатов.
+        // Поиск может вернуть несколько строк (однофамильцы); без явного
+        // выбора старт консультации кликнул бы по первой строке в DOM —
+        // не обязательно нашему клиенту (это открывало мини-карточку чужого
+        // контакта и перекрывало «Оформить заявку»).
+        selectClientRow(lastName, firstName, middleName);
+
         log.info("Client search completed");
     }
 
@@ -50,7 +57,7 @@ public class ClientSearchFlow {
         if (value == null || value.trim().isEmpty()) return;
         log.debug("Set search field: '{}' = '{}'", placeholder, value);
         $x("//input[@placeholder='" + placeholder + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .setValue(value);
     }
 
@@ -60,7 +67,7 @@ public class ClientSearchFlow {
         // Скоупим внутри SearchButtonContainer — исключаем дубликаты SearchButton на странице
         $x("//div[@data-item-marker='SearchButtonContainer']" +
                 "//span[@data-item-marker='SearchButton']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .click();
     }
 
@@ -72,5 +79,23 @@ public class ClientSearchFlow {
                 .shouldBe(Condition.visible, Duration.ofSeconds(30));
 
         log.info("Search result received");
+    }
+
+    /**
+     * Выбирает строку клиента по ФИО среди результатов поиска.
+     * Строка результата имеет data-item-marker = «Фамилия Имя Отчество».
+     * Клик по строке делает её активной (grid-row-selected), после чего
+     * старт консультации гарантированно относится к этому клиенту.
+     */
+    private void selectClientRow(String lastName, String firstName, String middleName) {
+        String fullName = (lastName + " " + firstName + " " + middleName).trim();
+        log.info("Select client row by full name: '{}'", fullName);
+
+        $x("//div[contains(@class,'grid-row')" +
+                " and @data-item-marker='" + fullName + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .click();
+
+        log.info("Client row selected: '{}'", fullName);
     }
 }

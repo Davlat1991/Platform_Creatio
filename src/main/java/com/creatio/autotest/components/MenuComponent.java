@@ -57,12 +57,12 @@ public class MenuComponent extends BaseComponent {
 
         // Наводим на родительский пункт — подменю открывается через hover
         $x("//li[@data-item-marker='" + parent + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .hover();
 
         // Кликаем по пункту подменю
         $x("//li[@data-item-marker='" + child + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .click();
 
         return this;

@@ -194,11 +194,11 @@ public class GridAssertions extends BaseComponent {
 
         $$x("//div[contains(@class,'grid-captions')]//label")
                 .shouldBe(CollectionCondition.sizeGreaterThan(0),
-                        Duration.ofSeconds(10));
+                        Duration.ofSeconds(20));
 
         // Одна попытка с коротким окном — для retry-циклов снаружи.
         long endTime = System.currentTimeMillis() +
-                Duration.ofSeconds(10).toMillis();
+                Duration.ofSeconds(20).toMillis();
 
         while (System.currentTimeMillis() < endTime) {
             try {

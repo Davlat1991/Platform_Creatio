@@ -1,10 +1,12 @@
 package com.creatio.autotest.flows;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
+import com.creatio.autotest.core.driver.DriverSetup;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
@@ -27,14 +29,14 @@ public class ApplicationFinishFlow {
 
 
 
-    private final BasePage                 basePage      = new BasePage();
-    private final ButtonsComponent         buttons       = new ButtonsComponent();
-    private final DashboardComponent       dashboard     = new DashboardComponent();
-    private final MenuComponent            menu          = new MenuComponent();
-    private final CreditApplicationAssertions assertions = new CreditApplicationAssertions();
-    private final ConsultationPanelPage    consultation  = new ConsultationPanelPage();
-    private final ClickService             click         = new ClickService();
-    private final ApplicationSearchFlow    searchFlow    = new ApplicationSearchFlow();
+    private final BasePage                    basePage      = new BasePage();
+    private final ButtonsComponent            buttons       = new ButtonsComponent();
+    private final DashboardComponent          dashboard     = new DashboardComponent();
+    private final MenuComponent               menu          = new MenuComponent();
+    private final CreditApplicationAssertions assertions    = new CreditApplicationAssertions();
+    private final ConsultationPanelPage       consultation  = new ConsultationPanelPage();
+    private final ClickService                click         = new ClickService();
+    private final ApplicationSearchFlow       searchFlow    = new ApplicationSearchFlow();
 
     // ══════════════════════════════════════
     // MAIN
@@ -107,7 +109,7 @@ public class ApplicationFinishFlow {
 
 
     @Step("Завершение (ИКОК-ГО): прикрепление документа Розничным менеджером")
-    public void completeIkokGoAttach() {
+    public void completeManagerAttach() {
         String contractNumber =
                 ScenarioContextProvider.get().getCreditContractNumber();
         log.info("ИКОК-ГО attach (RM): contract='{}'", contractNumber);
@@ -122,9 +124,54 @@ public class ApplicationFinishFlow {
         buttons.clickTabByName("Файлы и примечания");
         attachFile("Расходный кассовый ордер.docx");
 
-        Selenide.sleep(20000);
+        completeActivity("Прикрепите документы для завершения заявки", "Выполнена");
+    }
 
-        //completeActivity("Прикрепите документы для завершения заявки", "Выполнена");
+
+    @Step("Завершение (ИКОК-ГО): Подтверждение получения документа")
+    public void completeIkokGoFinish() {
+        String contractNumber =
+                ScenarioContextProvider.get().getCreditContractNumber();
+        log.info("ИКОК-ГО finish: contract='{}'", contractNumber);
+
+        consultation.closeIfOpened();
+
+        // 1. Открыть договор по номеру
+        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.visible);
+
+        // 2. Файлы и примечания → физическое скачивание документа
+        buttons.clickTabByName("Файлы и примечания");
+        downloadFile("Расходный кассовый ордер.docx");
+
+        // 3. Операции по договору → проверка ордеров (переиспользуем)
+        // Пока что для ИКОК-ГО не настроены появления ордеров но по сценарию они должны быть!
+        //buttons.clickTabByName("Операции по договору");
+        //checkConfirmedIncomingOrder();
+        //checkConfirmedOutgoingOrder();
+
+        // 4. Закрыть активность "Подтвердить получение документа"
+        completeActivity("Подтвердить получение документа", "Подтвердить получение документа");
+
+
+    }
+
+    @Step("Завершение (ИКОК-ГО): Розничный менеджер завершает заявку")
+    public void completeIkokGoManagerFinish() {
+        String contractNumber =
+                ScenarioContextProvider.get().getCreditContractNumber();
+        log.info("ИКОК-ГО manager finish: contract='{}'", contractNumber);
+
+        consultation.closeIfOpened();
+
+        // 1. Открыть договор по номеру
+        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.visible);
+
+        // 2. Завершить заявку через консультационную панель (как у ИКОК)
+        finishViaConsultation();
     }
 
     // ══════════════════════════════════════
@@ -239,6 +286,11 @@ public class ApplicationFinishFlow {
         executeJavaScript("arguments[0].click();",
                 $x("//span[@data-item-marker='SaveEditButton']")
                         .shouldBe(Condition.visible, Duration.ofSeconds(60)));
+        // После закрытия активности Creatio показывает оверлей мини-панели + крутилку.
+        // Ждём их исчезновения, иначе следующий клик (логаут) перехватывается оверлеем.
+        $$("#AlignableMiniPageContainer-overlay, .alignable-container-overlay, .ts-loader, .mask")
+                .filter(Condition.visible)
+                .shouldHave(CollectionCondition.size(0), Duration.ofSeconds(30));
 
         basePage.waitForPage();
         log.info("Activity closed: '{}'", title);
@@ -260,6 +312,48 @@ public class ApplicationFinishFlow {
                         "  window.__tsiUploadPatched = true;" +
                         "}"
         );
+    }
+
+
+    @Step("Скачать файл '{fileName}' (клик по ссылке файла)")
+    private void downloadFile(String fileName) {
+        log.info("Download file via row link: '{}'", fileName);
+
+        File dir = new File(DriverSetup.getDownloadDir());
+        dir.mkdirs();
+        int before = countReadyFiles(dir); // счётчик ДО клика — загрузка мгновенная
+
+        // Клик по ССЫЛКЕ файла в строке грида — инициирует скачивание в downloads.
+        // (SaveToDiscButton — это upload-input, он открывает OS-диалог, поэтому не он.)
+        $x("//div[@data-item-marker='" + fileName + "']//a")
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .scrollIntoView(false)
+                .click();
+
+        waitForNewFile(dir, before);
+        log.info("File downloaded: '{}'", fileName);
+    }
+
+    private int countReadyFiles(File dir) {
+        File[] files = dir.listFiles(
+                f -> f.isFile() && !f.getName().endsWith(".crdownload"));
+        return files == null ? 0 : files.length;
+    }
+
+    /** Ждём появления нового готового файла (не .crdownload). Файловый поллинг —
+     *  тот же приём, что в PrintComponent (Selenide-условий для ФС нет). */
+    private void waitForNewFile(File dir, int before) {
+        for (int i = 0; i < 30; i++) {
+            File[] inProgress = dir.listFiles(f -> f.getName().endsWith(".crdownload"));
+            boolean downloading = inProgress != null && inProgress.length > 0;
+            if (countReadyFiles(dir) > before && !downloading) {
+                log.info("Download completed: было {}, стало {}", before, countReadyFiles(dir));
+                return;
+            }
+            try { Thread.sleep(1000); }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
+        }
+        throw new AssertionError("Скачивание не завершилось за 30с, папка: " + dir.getAbsolutePath());
     }
 
 

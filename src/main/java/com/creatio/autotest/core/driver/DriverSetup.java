@@ -10,6 +10,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,11 @@ public final class DriverSetup {
 
     private static final Logger log = LoggerFactory.getLogger(DriverSetup.class);
     private static final Config config = Config.getInstance();
+    private static final ThreadLocal<String> DOWNLOAD_DIR = new ThreadLocal<>();
+
+    public static String getDownloadDir() {
+        return DOWNLOAD_DIR.get();
+    }
 
     private DriverSetup() {}
 
@@ -87,7 +93,11 @@ public final class DriverSetup {
                 "--unsafely-treat-insecure-origin-as-secure=" + baseUrl
         );
 
+        // Пока однопоточно — единая папка downloads.
+        // Для параллельного запуска позже: + "\\thread-" + Thread.currentThread().getId()
         String downloadPath = System.getProperty("user.dir") + "\\downloads";
+        new File(downloadPath).mkdirs();   // создаём папку, если её нет
+        DOWNLOAD_DIR.set(downloadPath);    // запоминаем — флоу возьмёт отсюда
 
         // Гарантируем существование папки — иначе waitForDownload увидит null и выйдет сразу
         new java.io.File(downloadPath).mkdirs();

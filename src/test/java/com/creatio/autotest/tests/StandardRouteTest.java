@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 public class StandardRouteTest extends BaseTest {
 
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Debug — от стадии Рассмотрение до конца")
     @Description("Старт на заявке в стадии Рассмотрение по UUID, дальше весь процесс")
     @Severity(SeverityLevel.NORMAL)
@@ -43,8 +43,20 @@ public class StandardRouteTest extends BaseTest {
         WorkspaceFlow workspace = new WorkspaceFlow();
 
         // ── Розничный менеджер: заходим на заявку в стадии "Рассмотрение" ──
-     /* auth.login(scenario.getManager());
+        auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
+
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
+                        "FinApplicationPage/edit/" +
+                        "54c030b9-e0c8-4ea4-8e33-b5d7fc1a0d5f"
+        );
+
+        // Уведомление уже было завершено ранее — вручную проставь applicationNumber или creditContractNumber в контекст.
+        ScenarioContextProvider.get().setApplicationNumber("391996");
+
+        //ScenarioContextProvider.get().setCreditContractNumber("02-005-033413");
 
 
         // completeReview сам сохранит applicationNumber в контекст
@@ -64,7 +76,7 @@ public class StandardRouteTest extends BaseTest {
 
         auth.logout();
 
-        // ── Розничный менеджер (уведомление) ───
+        // ── Розничный менеджер (Уведомление) ───
         auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
 
@@ -83,46 +95,46 @@ public class StandardRouteTest extends BaseTest {
         auth.logout();
 
         // ── Кассир ─────────────────────────────
-        // Кассир ищет 10-значный номер договора (раздел "Договоры").
+        // Кассир ищет 11-значный номер договора (раздел "Договоры").
         auth.login(scenario.getCashier());
         workspace.select(Workspace.CASHIER);
 
         new SigningStageFlow().completeSigningStage();
 
-        auth.logout();*/
+        auth.logout();
 
-        // ── Розничный менеджер (завершение) ───────────────
+        // ── Розничный менеджер (Прикрепление документа) ───────────────
         auth.login(scenario.getManager());
         workspace.select(Workspace.RETAIL_MANAGER);
 
-        new NavigationFlow().open(
-                config.getBaseUrl() +
-                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
-                        "FinApplicationPage/edit/" +
-                        "b39af651-7eee-40b9-99b4-994657cbf3b9"
-        );
-
-        // Уведомление уже было завершено ранее — вручную проставь applicationNumber или creditContractNumber в контекст.
-        // Без этого LoanIssuanceFlow не сможет найти заявку (searchFlow.openByNumber()).
-       // ScenarioContextProvider.get().setApplicationNumber("391990");
-
-        ScenarioContextProvider.get().setCreditContractNumber("02-005-033413");
-
         new ApplicationFinishFlow()
-                .completeIkokGoAttach();
+                .completeManagerAttach();
 
         auth.logout();
 
-        // ── ИКОК-ГО (завершение) ───────────────
-      /*  auth.login(scenario.getIkokGo());
+        // ── ИКОК-ГО (Подтверждение получения документа) ───────────────
+        auth.login(scenario.getIkokGo());
         workspace.select(Workspace.IKOK_GO);
 
-        auth.logout();*/
+        new ApplicationFinishFlow()
+                .completeIkokGoFinish();
+
+        auth.logout();
+
+        // ── Розничный менеджер (Завершение заявки) ───────────────
+        auth.login(scenario.getManager());
+        workspace.select(Workspace.RETAIL_MANAGER);
+
+        new ApplicationFinishFlow()
+                .completeIkokGoManagerFinish();
+
+        auth.logout();
+
     }
 
 
 
-  /*  @Test(groups = "regression")
+    @Test(groups = "regression")
     @Story("Стандартный маршрут — полный путь с верификатором и комитетом")
     @Description("Стандартный маршрут — полный happy path с верификатором и комитетом")
     @Severity(SeverityLevel.BLOCKER)
@@ -217,7 +229,7 @@ public class StandardRouteTest extends BaseTest {
         auth.logout();
 
         // ── Кассир ─────────────────────────────
-        // Кассир ищет 10-значный номер договора (раздел "Договоры").
+        // Кассир ищет 11-значный номер договора (раздел "Договоры").
         auth.login(scenario.getCashier());
         workspace.select(Workspace.CASHIER);
 
@@ -225,13 +237,33 @@ public class StandardRouteTest extends BaseTest {
 
         auth.logout();
 
-        // ── ИКОК-ГО (завершение) ───────────────
+      // ── Розничный менеджер (Прикрепление документа) ───────────────
+        auth.login(scenario.getManager());
+        workspace.select(Workspace.RETAIL_MANAGER);
+
+        new ApplicationFinishFlow()
+                .completeManagerAttach();
+
+        auth.logout();
+
+        // ── ИКОК-ГО (Подтверждение получения документа) ───────────────
         auth.login(scenario.getIkokGo());
         workspace.select(Workspace.IKOK_GO);
 
         new ApplicationFinishFlow()
-                .completeIkokGoAttach();
+                .completeIkokGoFinish();
 
         auth.logout();
-    }*/
+
+    // ── Розничный менеджер (Завершение заявки) ───────────────
+        auth.login(scenario.getManager());
+        workspace.select(Workspace.RETAIL_MANAGER);
+
+        new ApplicationFinishFlow()
+                .completeIkokGoManagerFinish();
+
+        auth.logout();
+
+
+    }
 }

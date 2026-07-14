@@ -1,6 +1,7 @@
 package com.creatio.autotest.flows;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import io.qameta.allure.Step;
@@ -35,15 +36,26 @@ public class ConsultationStartFlow {
     }
 
     // ══════════════════════════════════════
-    // PRIVATE
+    // ШАГИ (public — для пошагового вызова)
+    // ──────────────────────────────────────
+    // Методы публичны, чтобы вызывающий код мог вставить действия между
+    // шагами консультации (например, проверку сегмента клиента на анкете,
+    // открывающейся сразу после «Начать консультацию» — см. Микро-маршрут).
+    // Розничный startConsultation() вызывает их последовательно как есть.
     // ══════════════════════════════════════
 
     @Step("Нажать 'Начать консультацию'")
-    private void clickStartConsultation() {
+    public void clickStartConsultation() {
         log.info("Click 'Начать консультацию'");
 
-        $x("//*[@data-item-marker='Начать консультацию']" +
-                " | //span[normalize-space()='Начать консультацию']")
+        // Берём кнопку в НЕ скрытой строке результатов (grid-row-hidden —
+        // это чужие строки при нескольких результатах поиска). Для единственного
+        // результата (розница) фильтр ничего не меняет.
+        $x("//div[contains(@class,'grid-row-actions')" +
+                " and not(contains(@class,'grid-row-hidden'))]" +
+                "//span[@data-item-marker='Начать консультацию']" +
+                " | //*[@data-item-marker='Начать консультацию']" +
+                "[not(ancestor::div[contains(@class,'grid-row-hidden')])]")
                 .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .click();
 
@@ -51,13 +63,21 @@ public class ConsultationStartFlow {
     }
 
     @Step("Открыть деталь 'Оформить заявку'")
-    private void openApplicationDetail() {
+    public void openApplicationDetail() {
         log.info("Open 'Оформить заявку'");
 
-        $x("//span[contains(@id,'consultation-block-caption')" +
-                " and normalize-space()='Оформить заявку']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(20))
-                .click();
+        // JS-клик вместо обычного: обычный клик Selenide наводит курсор на
+        // элемент, а над панелью «Продолжить консультацию» (список отложенных
+        // заявок) наведение на любое имя открывает hover-мини-карточку контакта,
+        // перекрывающую «Оформить заявку» (click intercepted). JS-клик не двигает
+        // курсор (не триггерит hover) и вызывается напрямую на элементе, минуя
+        // overlay.
+        SelenideElement caption = $x(
+                "//span[contains(@id,'consultation-block-caption')" +
+                        " and normalize-space()='Оформить заявку']"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(20));
+
+        executeJavaScript("arguments[0].click();", caption);
 
         $x("//div[@data-item-marker='ConsultationThemesContainer']")
                 .shouldBe(Condition.exist, Duration.ofSeconds(20));
@@ -66,7 +86,7 @@ public class ConsultationStartFlow {
     }
 
     @Step("Выбрать продукт: {dim}")
-    private void selectProduct(String dim) {
+    public void selectProduct(String dim) {
         log.info("Select product by DIM: {}", dim);
 
         $x("//div[@data-item-marker='" + dim + "']")

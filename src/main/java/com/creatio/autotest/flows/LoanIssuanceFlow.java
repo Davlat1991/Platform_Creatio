@@ -240,7 +240,7 @@ public class LoanIssuanceFlow {
         String contractNumber = $x(
                 "//label[@id='MainHeaderSchemaPageHeaderCaptionLabel']"
         ).shouldBe(Condition.visible, Duration.ofSeconds(15))
-                .shouldHave(Condition.matchText("\\d"), Duration.ofSeconds(10))
+                .shouldHave(Condition.matchText("\\d"), Duration.ofSeconds(20))
                 .getText().trim();
 
         ScenarioContextProvider.get().setCreditContractNumber(contractNumber);

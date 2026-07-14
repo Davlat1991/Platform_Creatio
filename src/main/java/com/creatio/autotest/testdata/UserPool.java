@@ -49,6 +49,8 @@ public final class UserPool {
         return acquire(UserRole.MANAGER);
     }
 
+    public static UserCredentials creditExpert() { return acquire(UserRole.CREDIT_EXPERT); }
+
     public static UserCredentials underwriter() {
         return acquire(UserRole.UNDERWRITER);
     }

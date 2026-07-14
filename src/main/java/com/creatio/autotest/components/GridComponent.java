@@ -205,7 +205,7 @@ public class GridComponent extends BaseComponent {
         for (int attempt = 1; attempt <= 4; attempt++) {
             try {
                 SelenideElement row = $x(rowXpath)
-                        .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                        .shouldBe(Condition.visible, Duration.ofSeconds(20))
                         .scrollIntoView(true);
                 executeJavaScript("arguments[0].click();", row);
                 log.info("Row clicked on attempt {}/4", attempt);

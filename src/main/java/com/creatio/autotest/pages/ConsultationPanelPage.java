@@ -62,13 +62,13 @@ public class ConsultationPanelPage extends BasePage {
         // 1. Кнопка 'Завершить' в консультационной панели.
         // JS-клик — в старом проекте нативный клик по этой кнопке не срабатывал.
         SelenideElement panelBtn = $x(COMPLETE_PANEL_BUTTON)
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(20));
         executeJavaScript("arguments[0].click();", panelBtn);
         log.info("Clicked 'Завершить' in consultation panel");
 
         // 2. Кнопка 'Завершить' в модальном окне подтверждения.
         SelenideElement modalBtn = $x(COMPLETE_MODAL_BUTTON)
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(20));
         executeJavaScript("arguments[0].click();", modalBtn);
         log.info("Clicked 'Завершить' in modal — consultation completed");
     }
@@ -113,7 +113,7 @@ public class ConsultationPanelPage extends BasePage {
     public ConsultationPanelPage closeAfterReload() {
         new WaitService().waitForLoader();
         try {
-            $x(RIGHT_PANEL).shouldBe(Condition.visible, Duration.ofSeconds(10));
+            $x(RIGHT_PANEL).shouldBe(Condition.visible, Duration.ofSeconds(20));
         } catch (Exception e) {
             log.info("Panel did not reappear after reload — nothing to close");
             return this;

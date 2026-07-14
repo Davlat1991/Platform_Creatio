@@ -11,12 +11,8 @@ import org.slf4j.LoggerFactory;
  * (первый продукт — «Агро»).
  * <p>
  * Самостоятельный класс в ветке {@code flows.micro}, изолированный от
- * розничного {@code RegistrationGeneralInfoFlow}. Изоляция осознанная:
- * «Микро» — растущая линейка продуктов, и общий класс с розницей создал бы
- * скрытое зацепление (любое розничное изменение полей автоматически потекло
- * бы в Микро). Логика заполнения на данный момент совпадает с розничной
- * (подтверждено: до стадии «Информирование клиента» процесс Агро идентичен
- * рознице), но класс развивается независимо.
+ * розничного {@code RegistrationGeneralInfoFlow}. Отличие от розницы:
+ * дополнительное обязательное поле «Сектор экономики» (для Агро).
  */
 public class AgroRegistrationGeneralInfoFlow {
 
@@ -25,13 +21,20 @@ public class AgroRegistrationGeneralInfoFlow {
 
     private final LookupComponent lookup = new LookupComponent();
 
+    /**
+     * @param data           общие данные регистрации (регион, источник)
+     * @param economicSector значение поля «Сектор экономики» (Агро-специфично,
+     *                       передаётся отдельно, чтобы не тащить его в
+     *                       розничную {@link RegistrationData})
+     */
     @Step("Заполнение общей информации регистрации (Агро/Микро)")
-    public void fillGeneralInfo(RegistrationData data) {
-        log.info("Fill general info (Agro/Micro): region='{}' source='{}'",
-                data.getRegion(), data.getInfoSource());
+    public void fillGeneralInfo(RegistrationData data, String economicSector) {
+        log.info("Fill general info (Agro/Micro): region='{}' source='{}' sector='{}'",
+                data.getRegion(), data.getInfoSource(), economicSector);
 
         lookup
                 .select("Регион использования кредита", data.getRegion())
-                .select("Источник информации",           data.getInfoSource());
+                .select("Источник информации",           data.getInfoSource())
+                .select("Сектор экономики",              economicSector);
     }
 }

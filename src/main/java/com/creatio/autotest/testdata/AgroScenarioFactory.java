@@ -46,11 +46,15 @@ public final class AgroScenarioFactory {
 
     public static AgroProductData agroMicroProduct() {
         return AgroProductData.builder()
-                .productType("Агро кредиты")
-                .creditPurpose("Барои кишти пахта ва картошка")
+                .productType("Агро кредиты")   // Тип продукта
+                .productKind("Агро Животноводство")   // Вид продукта
+                .creditPurpose("Харидани чорво")
                 .amount("70000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")
+                // Имя строки результата подбора (частичное совпадение).
+                // "нав сегменти микро" = продукт для нового клиента сегмента Микро.
+                .productName("барои мизочони нав сегменти микро")
                 .repaymentDay("3")
                 .scheduleNumber("1")
                 .scheduleType("Аннуитетный")
@@ -70,6 +74,52 @@ public final class AgroScenarioFactory {
         return AgroScoringScenarios.MICRO_CROP_FARMING();
     }
 
+    /**
+     * Значение обязательного поля «Сектор экономики» в общей информации Агро.
+     * Передаётся отдельно (не через RegistrationData), чтобы не тащить
+     * Агро-специфику в розничную модель.
+     */
+    public static String agroEconomicSector() {
+        return "Животноводство";
+    }
+
+    /**
+     * Данные документов заёмщика для Агро/Микро (значения совпадают с
+     * розничными, но заданы явно в тест-данных, а не в теле флоу).
+     */
+    public static BorrowerDocumentData agroBorrowerDocuments() {
+        return BorrowerDocumentData.builder()
+                .birthCountry("Точикистон")
+                .issueDate("01.01.2020")
+                .validUntil("01.01.2030")
+                .documentType("Шиносномаи ЧТ")
+                .build();
+    }
+
+    /**
+     * Базовые данные вкладки «Адреса» (значения совпадают с розничными,
+     * заданы явно в тест-данных).
+     */
+    public static AddressBaseData agroAddressBase() {
+        return AddressBaseData.builder()
+                .registrationDate("01.01.2020")
+                .communicationMeans("Мобильный")
+                .factualDate("01.01.2020")
+                .clientType("Нав")
+                .build();
+    }
+
+    /**
+     * Доп.данные вкладки «Доходы и расходы» (уровень риска, подтверждение).
+     */
+    public static IncomeExtraData agroIncomeExtra() {
+        return IncomeExtraData.builder()
+                .riskLevel("Низкий")
+                .incomeConfirmation("Да")
+                .confirmationDocType("Выписка с банковского счета")
+                .build();
+    }
+
     // ══════════════════════════════════════
     // INTERNAL — BASE BUILDER
     // ══════════════════════════════════════
@@ -77,11 +127,12 @@ public final class AgroScenarioFactory {
     private static TestScenario.TestScenarioBuilder baseBuilder() {
         return TestScenario.builder()
                 .manager(UserPool.manager())
+                .creditExpert(UserPool.creditExpert())
                 .underwriter(UserPool.underwriter())
                 .ikok(UserPool.ikok())
                 .ikokGo(UserPool.ikokGo())
                 .cashier(UserPool.cashier())
-                .contact(ContactData.defaultContact())
+                .contact(ContactData.microContact())
                 .registration(agroMicroRegistration());
     }
 
@@ -102,9 +153,9 @@ public final class AgroScenarioFactory {
     private static RegistrationIncomeExpensesData agroIncomeExpenses() {
         return RegistrationIncomeExpensesData.builder()
                 .income(IncomeData.builder()
-                        .type("Доход от сельского хозяйства")
+                        .type("Предпринимательство")
                         .frequency("Ежемесячно")
-                        .amount("4000")
+                        .amount("20000")
                         .build())
                 .expense(ExpenseData.builder()
                         .type("Коммунальные платежи")
@@ -122,30 +173,30 @@ public final class AgroScenarioFactory {
         return ClientProfileData.builder()
                 .employmentType(EmploymentType.SELF_EMPLOYED)
                 .educationCareer(EducationCareerData.builder()
-                        .position("Фермер")
+                        .position("Агроном")
                         .organizationName("Дехканское хозяйство")
                         .role("Руководитель")
-                        .education("Среднее специальное")
+                        .education("Высшее")
                         .legalForm("Дехканские (фермерские) хозяйства")
                         .businessReputation("Управленческая должность")
                         .build())
                 .workAddress(WorkAddressData.builder()
                         .country("Точикистон")
                         .region("Вилояти Сугд")
-                        .district("нохияи Б.Гафуров")
-                        .city("Б.Гафуров")
+                        .district("Хучанд")
+                        .city("ш. Хучанд")
                         .streetType("Улица")
-                        .street("Дехаи Навобод")
-                        .house("5")
+                        .street("Чашма, куаи Пушкин")
+                        .house("106")
                         .index("735700")
                         .regDate("01.01.2019")
                         .build())
                 .activity(ActivityData.builder()
                         .sector("Самозанятость")
                         .segment("Агро")
-                        .subSegment("Растениеводство")
+                        .subSegment("Животновод")
                         .salesType("Оптовая")
-                        .market("Местный рынок")
+                        .market("Авангард")
                         .build())
                 .build();
     }

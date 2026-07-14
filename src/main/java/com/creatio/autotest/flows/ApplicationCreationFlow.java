@@ -1,5 +1,6 @@
 package com.creatio.autotest.flows;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.LookupComponent;
@@ -13,8 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.executeJavaScript;
+import static com.codeborne.selenide.Selenide.*;
 
 public class ApplicationCreationFlow {
 
@@ -120,7 +120,7 @@ public class ApplicationCreationFlow {
         log.info("Schedule row saved");
     }
 
-    @Step("Рассчитать и создать заявку")
+    @Step("Рассчитать график и создать заявку")
     private void calculateAndCreate() {
         log.info("Click РАССЧИТАТЬ");
 
@@ -130,12 +130,22 @@ public class ApplicationCreationFlow {
                 .click();
 
         basePage.waitForPage();
-        log.info("Calculation done, click СОЗДАТЬ ЗАЯВКУ");
+
+        // Ждём, пока расчёт заполнит деталь "График" строками платежей.
+        // Грид результата: #grid-KzProductCalculateScheduleDetailDataGridGrid-wrap,
+        // строки — grid-listed-row (подтверждено по DOM). Без этого "Создать заявку"
+        // жмётся раньше времени → "Необходимо рассчитать график платежей".
+        $$x("//div[@id='grid-KzProductCalculateScheduleDetailDataGridGrid-wrap']" +
+                "//div[contains(@class,'grid-listed-row')]")
+                .shouldHave(CollectionCondition.sizeGreaterThanOrEqual(1),
+                        Duration.ofSeconds(30));
+
+        log.info("Schedule calculated, click СОЗДАТЬ ЗАЯВКУ");
 
         SelenideElement createBtn = $x(
                 "//span[normalize-space()='СОЗДАТЬ ЗАЯВКУ']" +
                         " | //span[normalize-space()='Создать заявку']"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(15));
 
         executeJavaScript("arguments[0].click();", createBtn);
         basePage.waitForPage();

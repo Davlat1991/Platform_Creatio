@@ -3,7 +3,6 @@ package com.creatio.autotest.flows.micro;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BasePage;
-import com.creatio.autotest.flows.ProductSelectionFlow;
 import com.creatio.autotest.testdata.models.AgroProductData;
 import io.qameta.allure.Step;
 import org.openqa.selenium.Keys;
@@ -17,18 +16,13 @@ import static com.codeborne.selenide.Selenide.$x;
 /**
  * Флоу подбора продукта «Агро» (сегмент «Микро»).
  * <p>
- * Live-подтверждение (скрин страницы «Подбор продукта» для Агро-клиента):
- * структура страницы идентична розничному {@link ProductSelectionFlow} —
- * заполняются программно только «Вид продукта» и «Цель кредитования»,
- * плюс «Сумма», «Срок, мес.» и «Валюта». Отличаются только конкретные
- * значения (продукт «Агро кредиты», иная цель, сумма и срок).
- * <p>
- * «Категория продукта» и «Тип продукта» — readonly-поля (серый текст на
- * скрине), проставляются Creatio автоматически при выборе «Вид продукта»,
- * программно не заполняются.
- * <p>
- * Поле «Сегмент» из {@code AgroProductData} на UI страницы подбора
- * продукта отсутствует — не используется в этом флоу.
+ * Live-подтверждение (скрины страницы «Подбор продукта» для Агро):
+ * заполняются «Тип продукта» (по умолчанию «Потребительское кредитование»
+ * → «Агро кредиты»), «Вид продукта», «Цель кредитования», «Сумма»,
+ * «Срок, мес.», «Валюта». «Категория продукта» — readonly, не заполняется.
+ * После «Подобрать» из детали «Результаты подбора» выбирается нужный
+ * продукт ПО ИМЕНИ (несколько результатов различаются диапазоном суммы и
+ * типом клиента — новый/повторный).
  */
 public class AgroProductSelectionFlow {
 
@@ -39,11 +33,12 @@ public class AgroProductSelectionFlow {
 
     @Step("Выбор продукта Агро")
     public void selectProduct(AgroProductData product) {
-        log.info("Select Agro product: type='{}'", product.getProductType());
+        log.info("Select Agro product: type='{}' kind='{}' name='{}'",
+                product.getProductType(), product.getProductKind(), product.getProductName());
 
         fillCriteria(product);
         findProducts();
-        chooseFirstProduct();
+        chooseProductByName(product.getProductName());
 
         log.info("Agro product selected successfully");
     }
@@ -56,8 +51,12 @@ public class AgroProductSelectionFlow {
     private void fillCriteria(AgroProductData product) {
         log.info("Fill Agro product criteria");
 
+        // Тип продукта — по умолчанию "Потребительское кредитование",
+        // меняем на "Агро кредиты" (разблокирует Вид продукта для Агро).
+        setHandbookField("Тип продукта", "ProductType", product.getProductType());
+
         // Вид продукта — разблокирует "Цель кредитования"
-        setHandbookField("Вид продукта", "ProductKind", product.getProductType());
+        setHandbookField("Вид продукта", "ProductKind", product.getProductKind());
 
         // Цель кредитования — активна только после выбора "Вид продукта"
         setHandbookField("Цель кредитования", "CreditPurpose", product.getCreditPurpose());
@@ -81,53 +80,54 @@ public class AgroProductSelectionFlow {
         log.info("Click 'Подобрать'");
 
         $x("//span[@data-item-marker='SelectionButton']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+                .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .click();
 
         basePage.waitForPage();
     }
 
     // ══════════════════════════════════════
-    // CHOOSE FIRST PRODUCT
+    // CHOOSE PRODUCT BY NAME
     // ══════════════════════════════════════
 
-    @Step("Выбрать первый продукт из грида")
-    private void chooseFirstProduct() {
-        log.info("Choose first Agro product from grid");
+    /**
+     * Выбирает продукт из «Результаты подбора» по имени (частичное совпадение).
+     * <p>
+     * Из DOM: строка грида — div.grid-row с data-item-marker = названием
+     * продукта. Кнопка «Выбрать» лежит в отдельном соседнем блоке
+     * div.grid-row-actions, связанном со строкой общим суффиксом
+     * id (…-item-&lt;rowGuid&gt;). Клик по строке делает её активной и
+     * раскрывает её actions, после чего кликаем «Выбрать» именно этой строки.
+     */
+    @Step("Выбрать продукт по имени: {productName}")
+    private void chooseProductByName(String productName) {
+        log.info("Choose Agro product by name: '{}'", productName);
 
-        SelenideElement gridWrap = $x(
-                "//div[@id='grid-TsiOpportunityConditionSelectionDetailDataGridGrid-wrap']"
+        SelenideElement row = $x(
+                "//div[contains(@class,'grid-row')" +
+                        " and contains(@data-item-marker, \"" + productName + "\")]"
         ).shouldBe(Condition.visible, Duration.ofSeconds(15));
 
-        gridWrap.scrollIntoView(true);
+        row.scrollIntoView(true);
+        row.click();  // активируем строку → раскрываются её actions
 
-        for (int attempt = 1; attempt <= 5; attempt++) {
-            try {
-                SelenideElement row = gridWrap.$x(
-                        ".//div[contains(@class,'grid-row')" +
-                                " and contains(@class,'grid-active-selectable')]"
-                ).shouldBe(Condition.visible, Duration.ofSeconds(5));
-
-                row.click();
-
-                $x("//span[normalize-space()='Выбрать']")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(5))
-                        .shouldBe(Condition.enabled);
-
-                break;
-
-            } catch (Exception e) {
-                if (attempt == 5) {
-                    throw new AssertionError(
-                            "После клика по строке грида кнопка 'Выбрать' не появилась", e
-                    );
-                }
-            }
+        // Извлекаем суффикс item-<rowGuid> из id строки, чтобы найти
+        // именно её блок actions (а не соседних строк).
+        String rowId = row.getAttribute("id");
+        String selectSpan;
+        if (rowId != null && rowId.contains("item-")) {
+            String rowGuid = rowId.substring(rowId.lastIndexOf("item-") + "item-".length());
+            selectSpan = "//div[contains(@id,'actions-item-" + rowGuid + "')]" +
+                    "//span[@data-item-marker='Выбрать']";
+        } else {
+            // Фолбэк: видимая (не скрытая) кнопка «Выбрать» активной строки.
+            selectSpan = "//div[contains(@class,'grid-row-actions')" +
+                    " and not(contains(@class,'grid-row-hidden'))]" +
+                    "//span[@data-item-marker='Выбрать']";
         }
 
-        $x("//span[@data-item-marker='Выбрать']" +
-                " | //span[normalize-space()='Выбрать']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10))
+        $x(selectSpan)
+                .shouldBe(Condition.visible, Duration.ofSeconds(20))
                 .shouldBe(Condition.enabled)
                 .click();
 

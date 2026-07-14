@@ -50,8 +50,8 @@ public final class ScenarioFactory {
                         ParticipantData.pledger(false)
                 ))
                 .collaterals(List.of(
-                        CollateralDataFactory.vehicle(CurrencyType.TJS),
-                        CollateralDataFactory.realEstate(CurrencyType.TJS)
+                        CollateralDataFactory.gold(CurrencyType.TJS),
+                        CollateralDataFactory.goods(CurrencyType.TJS)
                 ))
                 .build();
     }
