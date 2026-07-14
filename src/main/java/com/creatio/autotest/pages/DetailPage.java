@@ -101,4 +101,23 @@ public class DetailPage extends BasePage {
                 .shouldNotHave(Condition.attributeMatching("class", ".*collapsed.*"));
         return this;
     }
+
+    @Step("Detail has record: {detailName}")
+    public boolean detailHasRecord(String detailName) {
+        log.info("Check detail has record: '{}'", detailName);
+
+        // Контейнер детали должен быть видим (значит мы на нужной вкладке)
+        $x("//div[contains(@class,'detail') and @data-item-marker='" + detailName + "']")
+                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(15));
+
+        // Есть запись = есть хотя бы одна видимая строка грида (grid-listed-row).
+        // Пустая grid-detail строк не содержит (показывает «Нет данных»).
+        boolean exists = $$x(
+                "//div[contains(@class,'detail') and @data-item-marker='" + detailName + "']" +
+                        "//div[contains(@class,'grid-listed-row')]"
+        ).filter(Condition.visible).size() > 0;
+
+        log.info("Detail '{}' has record: {}", detailName, exists);
+        return exists;
+    }
 }

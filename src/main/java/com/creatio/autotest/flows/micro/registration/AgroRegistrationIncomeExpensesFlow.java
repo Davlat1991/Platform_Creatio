@@ -65,7 +65,17 @@ public class AgroRegistrationIncomeExpensesFlow {
     public void fillIndividualActivitySelfEmployed(ActivityData activity) {
         log.info("Fill individual activity (SelfEmployed) Agro/Micro");
 
+        // Всегда возвращаемся на «Дополнительную информацию»: после добавления
+        // адреса система авто-переключает на «Основную», а при skip адреса мы уже
+        // здесь (клик идемпотентен — вкладка остаётся активной).
         buttons.clickTabByName("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ");
+
+        // Если деятельность уже добавлена — дубль не создаём.
+        if (detailPage.detailHasRecord("Деятельность физ.лица")) {
+            log.info("Individual activity already exists — skip adding");
+            return;
+        }
+
         detailPage.clickAddRecord("Деятельность физ.лица");
 
         lookup.selectCascadeByMarker(ActivityField.SECTOR.marker,      activity.getSector());

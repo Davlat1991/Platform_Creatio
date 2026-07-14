@@ -120,6 +120,20 @@ public final class AgroScenarioFactory {
                 .build();
     }
 
+
+    /**
+     * Значения вкладки «ОЦЕНКА ИНФОРМАЦИИ» (стадия «Оформление»).
+     * В рознице захардкожены в теле RegistrationScoringConfirmationFlow
+     * ("Более 2-ух квартир" / "Есть автомобиль"); для Агро вынесены в тест-данные.
+     * ВНИМАНИЕ: propertyOwnershipType подтверждён по live DOM (скриншот: «Дом»).
+     */
+    public static AgroScoringConfirmationData agroScoringConfirmation() {
+        return AgroScoringConfirmationData.builder()
+                .propertyOwnershipType("Дом")
+                .vehicleOwnershipType("Есть автомобиль")
+                .build();
+    }
+
     // ══════════════════════════════════════
     // INTERNAL — BASE BUILDER
     // ══════════════════════════════════════

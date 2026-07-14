@@ -68,7 +68,7 @@ public class ReviewStageRetailFlow {
             openDecisionTab();
 
             if (gridAssertions.waitForCommitteeDecision(
-                    "КК4", java.time.Duration.ofSeconds(20))) {
+                    "КК4", java.time.Duration.ofSeconds(10))) {
                 log.info("КК4 найдено на попытке {}/{}", attempt, maxAttempts);
                 return;
             }

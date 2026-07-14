@@ -98,6 +98,17 @@ public class AgroRegistrationAddressFlow {
     public void fillWorkAddressSelfEmployed(WorkAddressData addr) {
         log.info("Fill work address (SelfEmployed) Agro/Micro");
 
+        // Деталь «Адрес места работы» — на вкладке «Дополнительная информация».
+        // Явно переходим (после выбора типа занятости мы здесь, но делаем надёжно).
+        buttons.clickTabByName("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ");
+
+        // Если у клиента уже есть адрес места работы — второй НЕ добавляем:
+        // дубль ломает завершение активности «...анкеты участников заявки».
+        if (detailPage.detailHasRecord("Адрес места работы")) {
+            log.info("Work address already exists — skip adding");
+            return;
+        }
+
         detailPage.clickAddRecord("Адрес места работы");
 
         // диалог смены типа занятости (может появиться)
@@ -110,8 +121,6 @@ public class AgroRegistrationAddressFlow {
         lookup.selectByMarkerWithSoftValidation(
                 AddressField.STREET_TYPE.marker, addr.getStreetType());
 
-        // Текстовые поля адреса — пропускаем пустые (корпус/квартира и др.
-        // необязательны; ввод null/blank ломал бы setTextByMarker).
         setTextIfPresent(AddressField.STREET.marker,    addr.getStreet());
         setTextIfPresent(AddressField.HOUSE.marker,     addr.getHouse());
         setTextIfPresent(AddressField.BUILDING.marker,  addr.getBuilding());

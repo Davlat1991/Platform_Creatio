@@ -1,20 +1,13 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.ApplicationCreationFlow;
-import com.creatio.autotest.flows.AuthFlow;
-import com.creatio.autotest.flows.ClientSearchFlow;
-import com.creatio.autotest.flows.ConsultationStartFlow;
-import com.creatio.autotest.flows.WorkspaceFlow;
+import com.creatio.autotest.flows.*;
+import com.creatio.autotest.flows.micro.AgroPreliminaryCheckFlow;
 import com.creatio.autotest.flows.micro.AgroProductSelectionFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationAdditionalInfoFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationGeneralInfoFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationAddressFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationDocumentsFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationIncomeExpensesFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationParticipantsFlow;
+import com.creatio.autotest.flows.micro.registration.*;
 import com.creatio.autotest.flows.micro.registration.client.MicroClientFlowFactory;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.AgroProductData;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
@@ -51,7 +44,55 @@ import org.testng.annotations.Test;
 @Owner("Davlat")
 public class AgroCreditApplicationTest extends BaseTest {
 
-    @Test(groups = "debug", enabled = true)
+    // Номер заявки для debug-прогона. Переопределяется через -Dapp=NNNNN.
+    private static final String RESUME_APPLICATION_NUMBER = "394969"; // ← подставь свой номер
+
+    /**
+     * DEBUG / RESUME — продолжение отладки с середины заявки.
+     * <p>
+     * Не гоняет регистрацию заново: логин Кредитным экспертом → открытие уже
+     * созданной заявки по номеру → запуск только отлаживаемой стадии. Экономит
+     * ~5 мин полного прогона на каждой итерации.
+     * <p>
+     * Заявка должна быть заранее доведена до нужной точки. Для стадии
+     * «Предварительная проверка» — «Оформление» с заполненной анкетой заёмщика
+     * и активностью «Добавьте и заполните анкеты участников заявки».
+     * <p>
+     * Номер: -Dapp=NNNNN или правка RESUME_APPLICATION_NUMBER. Запуск только этого метода:
+     *   mvn test -Dtest=AgroCreditApplicationTest#agroMicroResumeFromApplication -Dapp=12345
+     */
+    @Test(groups = "resume", enabled = false)
+    @Story("Агро/Микро — DEBUG: продолжение с середины заявки по номеру")
+    @Description("Отладочный вход: логин кредитного эксперта, открытие существующей заявки " +
+            "по номеру и запуск отлаживаемой стадии без повторного прогона регистрации.")
+    @Severity(SeverityLevel.NORMAL)
+    public void agroMicroResumeFromApplication() {
+
+        String appNumber = System.getProperty("app", RESUME_APPLICATION_NUMBER);
+
+        TestScenario scenario = AgroScenarioFactory.agroMicroHappyPath();
+
+        AuthFlow auth = new AuthFlow();
+        WorkspaceFlow workspace = new WorkspaceFlow();
+
+        // ── Логин + рабочее место ──
+        auth.login(scenario.getCreditExpert());
+        workspace.select(Workspace.CREDIT_EXPERT);
+
+        // ── Открыть существующую заявку по номеру ──
+        new ApplicationSearchFlow()
+                .withApplicationNumber(appNumber)
+                .openByNumber();
+
+        // ── RESUME POINT — отлаживаемая стадия. Меняй по мере продвижения Sprint 2. ──
+        new AgroPreliminaryCheckFlow()
+                .completePreliminaryCheckStage();
+
+        auth.logout();
+    }
+
+
+   @Test(groups = "debug", enabled = true)
     @Story("Агро/Микро — начало маршрута (подбор продукта → создание заявки → частичная регистрация)")
     @Description("Частичный прогон реализованных Агро-флоу Sprint 1: логин кредитного эксперта, " +
             "поиск клиента, старт консультации, проверка сегмента клиента (Микро), подбор продукта " +
@@ -129,9 +170,15 @@ public class AgroCreditApplicationTest extends BaseTest {
                 .from(scenario.getRegistration().getClientProfile())
                 .fill();
 
-        // ── Предел реализованного (Sprint 1). Далее — Sprint 2:
-        //    адрес, доходы/расходы, документы, скоринг-подтверждение, печать,
-        //    участники, залоги, рассмотрение, выдача, подписание, завершение.
+        new AgroRegistrationScoringConfirmationFlow()
+                .confirmScoring(AgroScenarioFactory.agroScoringConfirmation());
+
+        new AgroRegistrationPrintFlow()
+                .printApplication();
+
+        new AgroPreliminaryCheckFlow()
+                .completePreliminaryCheckStage();
+
 
         auth.logout();
     }

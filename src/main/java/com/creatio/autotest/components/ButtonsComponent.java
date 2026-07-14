@@ -58,33 +58,49 @@ public class ButtonsComponent extends BaseComponent {
         return this;
     }
 
-    @Step("Click tab button contains: {name}")
+
+    @Step("Click tab by name: {value}")
     public ButtonsComponent clickTabByName(String value) {
         log.info("Click tab: '{}'", value);
 
-        for (int i = 0; i < 3; i++) {
+        String liXpath =
+                "//ul[contains(@class,'ts-tabpanel-items')]" +
+                        "/li[.//span[contains(normalize-space(),'" + value + "')]]";
+
+        for (int i = 0; i < 4; i++) {
             try {
-                SelenideElement btn = $x("//span[contains(text(),'" + value + "')]")
-                        .shouldBe(visible)
-                        .scrollIntoView(false);
-
-                // Ждём исчезновения лоадеров
-                $$(".ts-loader,.mask,.loading-indicator")
+                // Именно ВИДИМАЯ вкладка (в DOM может быть несколько таб-баров)
+                SelenideElement li = $$x(liXpath)
                         .filter(visible)
-                        .shouldHave(CollectionCondition.size(0));
+                        .first()
+                        .shouldBe(visible, Duration.ofSeconds(15));
 
-                executeJavaScript("arguments[0].click();", btn);
+                // Горизонтальное центрирование, без вертикального прыжка
+                executeJavaScript(
+                        "arguments[0].scrollIntoView({block:'nearest', inline:'center'});", li);
 
-                btn.closest("li")
-                        .shouldHave(Condition.cssClass("ts-tabpanel-active-item"),
-                                Duration.ofSeconds(5));
+                // ВСЕГДА кликаем (клик по активной вкладке идемпотентен).
+                // НЕ выходим по 'уже активна': после сохранения деталей система
+                // авто-переключает на «Основную информацию», и устаревший класс
+                // active на этой вкладке ложно срабатывал бы как short-circuit,
+                // оставляя нас на чужой вкладке.
+                if (i < 2) {
+                    executeJavaScript("arguments[0].click();", li);
+                } else {
+                    li.click();
+                }
+
+                li.shouldHave(Condition.cssClass("ts-tabpanel-active-item"),
+                        Duration.ofSeconds(5));
+                log.info("Tab '{}' activated", value);
                 return this;
             } catch (Exception e) {
-                log.warn("Tab click attempt {}/3 failed", i + 1);
+                log.warn("Tab click attempt {}/4 failed for '{}'", i + 1, value);
             }
         }
         throw new RuntimeException("Failed to click tab: " + value);
     }
+
 
     public ButtonsComponent clickButtonByContainName(String Value) {
         SelenideElement element = $x("//span[contains(text(), '" + Value + "')]")

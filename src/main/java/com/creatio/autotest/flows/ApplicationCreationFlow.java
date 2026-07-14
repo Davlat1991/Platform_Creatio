@@ -47,6 +47,7 @@ public class ApplicationCreationFlow {
         saveScheduleRow();
         calculateAndCreate();
         confirmNoDebt();
+        waitForApplicationCreated();
     }
 
     // ══════════════════════════════════════
@@ -166,6 +167,23 @@ public class ApplicationCreationFlow {
 
         basePage.waitForPage();
         log.info("No debt confirmed");
+    }
+
+    @Step("Ожидание готовности карточки созданной заявки")
+    private void waitForApplicationCreated() {
+        log.info("Wait for application card ready");
+
+        // «Создание заявки» — асинхронный бизнес-процесс. waitForPage() отдаёт
+        // управление ДО навигации на карточку, из-за чего следующий флоу лезет
+        // в поля отсутствующей карточки. Ждём открытие FinApplicationPage
+        // и загрузку записи (data-item-marker='EntityLoaded').
+        $x("//div[@data-item-marker='FinApplicationPageContainer']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        $x("//div[@data-item-marker='EntityLoaded']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        log.info("Application card ready");
     }
 
     // ══════════════════════════════════════
