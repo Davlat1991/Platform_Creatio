@@ -1,14 +1,21 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
+import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.flows.*;
+import com.creatio.autotest.flows.micro.AgroDocumentCollectionStageFlow;
 import com.creatio.autotest.flows.micro.AgroPreliminaryCheckFlow;
 import com.creatio.autotest.flows.micro.AgroProductSelectionFlow;
+import com.creatio.autotest.flows.micro.collateral.AgroCollateralStageFlow;
+import com.creatio.autotest.flows.micro.participants.AgroGuarantorFlow;
+import com.creatio.autotest.flows.micro.participants.AgroParticipantsAddFlow;
+import com.creatio.autotest.flows.micro.participants.AgroParticipantsStageFlow;
 import com.creatio.autotest.flows.micro.registration.*;
 import com.creatio.autotest.flows.micro.registration.client.MicroClientFlowFactory;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.AgroProductData;
+import com.creatio.autotest.testdata.models.ParticipantData;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
 import com.creatio.autotest.utils.AllureTags;
@@ -45,7 +52,7 @@ import org.testng.annotations.Test;
 public class AgroCreditApplicationTest extends BaseTest {
 
     // Номер заявки для debug-прогона. Переопределяется через -Dapp=NNNNN.
-    private static final String RESUME_APPLICATION_NUMBER = "394969"; // ← подставь свой номер
+    private static final String RESUME_APPLICATION_NUMBER = "394971"; // ← подставь свой номер
 
     /**
      * DEBUG / RESUME — продолжение отладки с середины заявки.
@@ -61,6 +68,7 @@ public class AgroCreditApplicationTest extends BaseTest {
      * Номер: -Dapp=NNNNN или правка RESUME_APPLICATION_NUMBER. Запуск только этого метода:
      *   mvn test -Dtest=AgroCreditApplicationTest#agroMicroResumeFromApplication -Dapp=12345
      */
+
     @Test(groups = "resume", enabled = false)
     @Story("Агро/Микро — DEBUG: продолжение с середины заявки по номеру")
     @Description("Отладочный вход: логин кредитного эксперта, открытие существующей заявки " +
@@ -84,15 +92,15 @@ public class AgroCreditApplicationTest extends BaseTest {
                 .withApplicationNumber(appNumber)
                 .openByNumber();
 
-        // ── RESUME POINT — отлаживаемая стадия. Меняй по мере продвижения Sprint 2. ──
-        new AgroPreliminaryCheckFlow()
-                .completePreliminaryCheckStage();
+        new AgroDocumentCollectionStageFlow()
+                .completeDocumentCollectionStage();
+
 
         auth.logout();
     }
 
 
-   @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = true)
     @Story("Агро/Микро — начало маршрута (подбор продукта → создание заявки → частичная регистрация)")
     @Description("Частичный прогон реализованных Агро-флоу Sprint 1: логин кредитного эксперта, " +
             "поиск клиента, старт консультации, проверка сегмента клиента (Микро), подбор продукта " +
@@ -178,6 +186,15 @@ public class AgroCreditApplicationTest extends BaseTest {
 
         new AgroPreliminaryCheckFlow()
                 .completePreliminaryCheckStage();
+
+         new AgroParticipantsStageFlow()
+                .completeParticipantsStage(scenario.getParticipants());
+
+         new AgroCollateralStageFlow()
+                .completeCollateralStage(scenario.getCollaterals());
+
+         new AgroDocumentCollectionStageFlow()
+                .completeDocumentCollectionStage();
 
 
         auth.logout();

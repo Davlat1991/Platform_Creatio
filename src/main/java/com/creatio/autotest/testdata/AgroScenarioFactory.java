@@ -1,13 +1,15 @@
 package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
+
 import com.creatio.autotest.testdata.models.registration.ActivityData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import com.creatio.autotest.testdata.models.registration.EducationCareerData;
 import com.creatio.autotest.testdata.models.registration.WorkAddressData;
 import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 
-import java.util.Collections;
+
+import java.util.List;
 
 /**
  * Фабрика тест-данных для сценария «Агро» (сегмент «Микро»).
@@ -35,8 +37,14 @@ public final class AgroScenarioFactory {
         return baseBuilder()
                 .route(CreditRoute.SIMPLIFIED)
                 .expectedScoringDecision(ScoringDecision.APPROVE)
-                .participants(Collections.emptyList())
-                .collaterals(Collections.emptyList())
+                .participants(List.of(
+                        ParticipantData.guarantor(false),
+                        ParticipantData.pledger(false)
+                ))
+                .collaterals(List.of(
+                CollateralDataFactory.agroCotton(CurrencyType.TJS),
+                CollateralDataFactory.agroFutureHarvest(CurrencyType.TJS)
+        ))
                 .build();
     }
 
@@ -214,4 +222,67 @@ public final class AgroScenarioFactory {
                         .build())
                 .build();
     }
+
+
+    // ══════════════════════════════════════
+    // PARTICIPANTS
+    // ══════════════════════════════════════
+
+    public static AgroGuarantorData agroGuarantorData() {
+        return AgroGuarantorData.builder()
+                // Документы
+                .communicationMeans("Мобильный")
+                .birthCountry("Точикистон")
+                .docIssueDate("01.01.2020")
+                .docValidUntil("01.01.2030")
+                .passportIssueDate("01.01.2020")
+                .passportValidUntil("01.01.2030")
+                // Адреса
+                .registrationDate("01.01.2020")
+                .clientType("Такрори")
+                .relationType("Партнер")
+                // Доход/расход + доп.инфо
+                .riskLevel("Низкий")
+                .incomeConfirmationProvided("Да")
+                .incomeConfirmationDocType("Выписка с банковского счета")
+                .income(IncomeData.builder()
+                        .type("Зарплата по доп. месту работы")
+                        .frequency("Ежемесячно")
+                        .amount("5000")
+                        .build())
+                .expense(ExpenseData.builder()
+                        .type("Коммунальные платежи")
+                        .frequency("Ежемесячно")
+                        .amount("1000")
+                        .build())
+                // Скоринг
+                .maritalStatus("Оиладор (зан)")
+                .dependents("3")
+                .children("3")
+                .familyMembers("5")
+                .totalExperience("36")
+                .experienceYears("3")
+                .experienceMonths("36")
+                .lastPlaceYears("2")
+                .lastPlaceMonths("24")
+                // Причина отсутствия работы
+                .reasonForNotWorking("Получатель Д/П")
+                // Оценка информации
+                .propertyOwnershipType("Более 2-ух квартир")  // ← как «Дом», проверить для Агро
+                .vehicleOwnershipType("Есть автомобиль")
+                .build();
+    }
+
+    public static AgroPledgerData agroPledgerData() {
+        return AgroPledgerData.builder()
+                .communicationMeans("Мобильный")
+                .registrationDate("01.01.2020")
+                .relationType("Партнер")
+                .nationality("Таджик / таджичка")
+                .maritalStatus("Оиладор (зан)")
+                .riskLevel("Низкий")
+                .build();
+    }
+
+
 }
