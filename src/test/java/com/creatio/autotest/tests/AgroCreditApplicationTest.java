@@ -3,9 +3,7 @@ package com.creatio.autotest.tests;
 import com.creatio.autotest.base.BaseTest;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.flows.*;
-import com.creatio.autotest.flows.micro.AgroDocumentCollectionStageFlow;
-import com.creatio.autotest.flows.micro.AgroPreliminaryCheckFlow;
-import com.creatio.autotest.flows.micro.AgroProductSelectionFlow;
+import com.creatio.autotest.flows.micro.*;
 import com.creatio.autotest.flows.micro.collateral.AgroCollateralStageFlow;
 import com.creatio.autotest.flows.micro.participants.AgroGuarantorFlow;
 import com.creatio.autotest.flows.micro.participants.AgroParticipantsAddFlow;
@@ -52,7 +50,7 @@ import org.testng.annotations.Test;
 public class AgroCreditApplicationTest extends BaseTest {
 
     // Номер заявки для debug-прогона. Переопределяется через -Dapp=NNNNN.
-    private static final String RESUME_APPLICATION_NUMBER = "394971"; // ← подставь свой номер
+    private static final String RESUME_APPLICATION_NUMBER = "394981"; // ← подставь свой номер
 
     /**
      * DEBUG / RESUME — продолжение отладки с середины заявки.
@@ -92,8 +90,18 @@ public class AgroCreditApplicationTest extends BaseTest {
                 .withApplicationNumber(appNumber)
                 .openByNumber();
 
-        new AgroDocumentCollectionStageFlow()
-                .completeDocumentCollectionStage();
+        new AgroReviewStageFlow()
+                .completeReview();
+
+        auth.logout();
+
+        // ── Верификатор: утверждение проекта решения ──
+        auth.login(scenario.getUnderwriter());
+        workspace.select(Workspace.UNDERWRITER);
+
+        new AgroReviewStageUnderwriterFlow()
+                .approveReview(AgroScenarioFactory
+                        .agroDecisionData());
 
 
         auth.logout();
@@ -195,6 +203,18 @@ public class AgroCreditApplicationTest extends BaseTest {
 
          new AgroDocumentCollectionStageFlow()
                 .completeDocumentCollectionStage();
+
+        new AgroReviewStageFlow()
+                .completeReview();
+
+        // ── Верификатор: утверждение проекта решения ──
+        auth.login(scenario.getUnderwriter());
+        workspace.select(Workspace.UNDERWRITER);
+
+        new AgroReviewStageUnderwriterFlow()
+                .approveReview(AgroScenarioFactory
+                        .agroDecisionData());
+
 
 
         auth.logout();

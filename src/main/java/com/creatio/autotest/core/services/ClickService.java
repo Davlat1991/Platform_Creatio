@@ -150,10 +150,9 @@ public class ClickService {
 
             com.codeborne.selenide.Selenide.refresh();
 
-            // ✅ Вместо sleep(5000) — ждём появления элемента
             try {
                 $x(xpath).shouldBe(visible, Duration.ofSeconds(5));
-            } catch (Exception ignored) {}
+            } catch (Exception | AssertionError ignored) {}
         }
         throw new AssertionError(
                 "Button marker='" + marker + "' did not appear after refresh"

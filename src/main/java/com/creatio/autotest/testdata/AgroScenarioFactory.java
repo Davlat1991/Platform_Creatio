@@ -35,7 +35,7 @@ public final class AgroScenarioFactory {
 
     public static TestScenario agroMicroHappyPath() {
         return baseBuilder()
-                .route(CreditRoute.SIMPLIFIED)
+                .route(CreditRoute.STANDARD)
                 .expectedScoringDecision(ScoringDecision.APPROVE)
                 .participants(List.of(
                         ParticipantData.guarantor(false),
@@ -281,6 +281,18 @@ public final class AgroScenarioFactory {
                 .nationality("Таджик / таджичка")
                 .maritalStatus("Оиладор (зан)")
                 .riskLevel("Низкий")
+                .build();
+    }
+
+
+    /**
+     * Данные вкладки «Решение» проекта решения (верификатор).
+     * «Кредитный лимит» заполняется только в сегменте «Микро».
+     */
+    public static AgroDecisionData agroDecisionData() {
+        return AgroDecisionData.builder()
+                .creditType("Кредит")
+                .creditLimit("100000")
                 .build();
     }
 
