@@ -4,6 +4,8 @@ import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
+import com.creatio.autotest.components.MessageBoxComponent;
+import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.flows.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
@@ -55,6 +57,8 @@ public class AgroReviewStageUnderwriterFlow {
     private final ClickService          click        = new ClickService();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
+    private final MessageBoxComponent   msgBox       = new MessageBoxComponent();
+    private final BasePage              basePage     = new BasePage();
 
     // ══════════════════════════════════════
     // MAIN
@@ -158,18 +162,19 @@ public class AgroReviewStageUnderwriterFlow {
     /**
      * Утверждение решения.
      * <p>
-     * Исчезновение кнопки — признак, что действие реально обработано бэкендом,
-     * а не только отправлено. Без этого следующий шаг (или logout) может уйти
-     * в момент, когда действие ещё выполняется.
+     * После клика приходит модалка «Процесс успешно завершен» — её подтверждение
+     * и есть признак, что действие обработано бэкендом. Кнопка «Утвердить» при
+     * этом не исчезает, поэтому ожидание её скрытия недопустимо.
      */
     @Step("Агро: утвердить решение")
     private void approveDecision() {
         click.waitAndClick("ApproveButton");
 
-        $x("//*[@data-item-marker='ApproveButton']")
-                .should(Condition.disappear, Duration.ofSeconds(60));
+        msgBox.shouldSeeModal("Процесс успешно завершен");
+        click.clickByName("ОК");
+        basePage.waitForPage();
 
-        log.info("Agro: решение утверждено, кнопка «Подтвердить» скрыта");
+        log.info("Agro: решение утверждено, процесс завершён");
     }
 
     // ══════════════════════════════════════

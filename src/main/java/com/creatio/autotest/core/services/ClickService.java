@@ -144,16 +144,22 @@ public class ClickService {
                     btn.shouldBe(visible, Duration.ofSeconds(5))
                             .shouldBe(enabled, Duration.ofSeconds(5))
                             .click();
+                    log.info("'{}' clicked on attempt {}/30", marker, i);
                     return;
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception | AssertionError ignored) {
+                // shouldBe() бросает ElementShould/ElementNotFound —
+                // они наследуются от AssertionError, а не от Exception
+            }
 
+            log.info("'{}' not ready on attempt {}/30 — refresh", marker, i);
             com.codeborne.selenide.Selenide.refresh();
 
             try {
                 $x(xpath).shouldBe(visible, Duration.ofSeconds(5));
             } catch (Exception | AssertionError ignored) {}
         }
+
         throw new AssertionError(
                 "Button marker='" + marker + "' did not appear after refresh"
         );

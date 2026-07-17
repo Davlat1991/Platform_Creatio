@@ -23,7 +23,6 @@ import io.qameta.allure.Step;
 public class AgroCottonCollateralFlow extends AgroBaseCollateralFlow {
 
     private final CollateralTabsComponent        tabs      = new CollateralTabsComponent();
-    private final CollateralGridComponent        grid      = new CollateralGridComponent();
     private final CollateralFormComponent        form      = new CollateralFormComponent();
     private final CottonCharacteristicsComponent cotton    = new CottonCharacteristicsComponent();
     private final CollateralAddressComponent     address   = new CollateralAddressComponent();
@@ -39,7 +38,7 @@ public class AgroCottonCollateralFlow extends AgroBaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        grid.openPropertyLookup();
+        openPropertyLookupStable();
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());

@@ -45,6 +45,7 @@ public final class AgroScenarioFactory {
                 CollateralDataFactory.agroCotton(CurrencyType.TJS),
                 CollateralDataFactory.agroFutureHarvest(CurrencyType.TJS)
         ))
+                .middleController(UserPool.middleController())
                 .build();
     }
 
@@ -55,8 +56,8 @@ public final class AgroScenarioFactory {
     public static AgroProductData agroMicroProduct() {
         return AgroProductData.builder()
                 .productType("Агро кредиты")   // Тип продукта
-                .productKind("Агро Животноводство")   // Вид продукта
-                .creditPurpose("Харидани чорво")
+                .productKind("Агро кредиты")   // Вид продукта
+                .creditPurpose("Барои кишти пахта ва картошка")
                 .amount("70000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")
@@ -86,9 +87,11 @@ public final class AgroScenarioFactory {
      * Значение обязательного поля «Сектор экономики» в общей информации Агро.
      * Передаётся отдельно (не через RegistrationData), чтобы не тащить
      * Агро-специфику в розничную модель.
+
+     *  Животноводство
      */
     public static String agroEconomicSector() {
-        return "Животноводство";
+        return "Выращивание картофеля и посадочного материала";
     }
 
     /**
@@ -293,6 +296,24 @@ public final class AgroScenarioFactory {
         return AgroDecisionData.builder()
                 .creditType("Кредит")
                 .creditLimit("100000")
+                .build();
+    }
+
+
+    /**
+     * Данные стадии «Информирование клиента».
+     * ФИО берутся из displayName учёток — единый источник правды, без дублирования.
+     * «Мидл контролер» — функциональная роль внутри пользователя: отдельный логин
+     * есть (чтобы не путать с настоящим ИКОК), но рабочее место при входе — ИКОК.
+     */
+    public static AgroClientNotificationData agroClientNotificationData(
+            UserCredentials middleController,
+            UserCredentials ikokGo) {
+
+        return AgroClientNotificationData.builder()
+                .clientAgreement("Клиент согласен")
+                .middleControllerName(middleController.getDisplayName())
+                .signingResponsible(ikokGo.getDisplayName())
                 .build();
     }
 

@@ -42,7 +42,7 @@ public class AgroReviewStageFlow {
     private static final String COMMITTEE = "КК4";
 
     /** Сколько раз рефрешим страницу в ожидании решения комитета. */
-    private static final int MAX_ATTEMPTS = 5;
+    private static final int MAX_ATTEMPTS = 10;
 
     private final ButtonsComponent      buttons        = new ButtonsComponent();
     private final GridAssertions        gridAssertions = new GridAssertions();
@@ -110,7 +110,7 @@ public class AgroReviewStageFlow {
             openDecisionTab();
 
             if (gridAssertions.waitForCommitteeDecision(
-                    COMMITTEE, Duration.ofSeconds(20))) {
+                    COMMITTEE, Duration.ofSeconds(10))) {
                 log.info("Agro: '{}' найдено на попытке {}/{}",
                         COMMITTEE, attempt, MAX_ATTEMPTS);
                 return;

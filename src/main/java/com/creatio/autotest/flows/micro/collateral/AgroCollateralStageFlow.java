@@ -129,11 +129,11 @@ public class AgroCollateralStageFlow {
         // последующие клики. Ждём его снятия, чтобы стадия завершалась
         // со свободным интерфейсом.
         $x("//div[@id='AlignableMiniPageContainer-overlay']")
-                .should(Condition.disappear, Duration.ofSeconds(60));
+                .should(Condition.disappear, Duration.ofSeconds(80));
 
         // Ждём перехода на стадию «Сбор документов»
         $x("//label[normalize-space()='" + DOCUMENTS_STAGE_ANCHOR + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+                .shouldBe(Condition.visible, Duration.ofSeconds(80));
 
         log.info("Agro: documents stage reached");
     }

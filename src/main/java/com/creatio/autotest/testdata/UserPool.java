@@ -67,6 +67,9 @@ public final class UserPool {
         return acquire(UserRole.CASHIER);
     }
 
+    public static UserCredentials middleController() { return acquire(UserRole.MIDDLE_CONTROLLER);
+    }
+
     // ══════════════════════════════════════
     // INTERNAL
     // ══════════════════════════════════════

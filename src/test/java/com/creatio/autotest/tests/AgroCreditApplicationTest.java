@@ -50,7 +50,7 @@ import org.testng.annotations.Test;
 public class AgroCreditApplicationTest extends BaseTest {
 
     // Номер заявки для debug-прогона. Переопределяется через -Dapp=NNNNN.
-    private static final String RESUME_APPLICATION_NUMBER = "394981"; // ← подставь свой номер
+    private static final String RESUME_APPLICATION_NUMBER = "392000"; // ← подставь свой номер
 
     /**
      * DEBUG / RESUME — продолжение отладки с середины заявки.
@@ -82,30 +82,28 @@ public class AgroCreditApplicationTest extends BaseTest {
         WorkspaceFlow workspace = new WorkspaceFlow();
 
         // ── Логин + рабочее место ──
-        auth.login(scenario.getCreditExpert());
+     auth.login(scenario.getCreditExpert());
         workspace.select(Workspace.CREDIT_EXPERT);
 
-        // ── Открыть существующую заявку по номеру ──
+       /* // ── Открыть существующую заявку по номеру ──
         new ApplicationSearchFlow()
                 .withApplicationNumber(appNumber)
-                .openByNumber();
+                .openByNumber();*/
 
-        new AgroReviewStageFlow()
-                .completeReview();
+        // Debug-прогон без стадии рассмотрения: номер в контекст кладём руками,
+        // обычно это делает AgroReviewStageFlow.completeReview()
+        ScenarioContextProvider.get().setApplicationNumber(appNumber);
 
-        auth.logout();
 
-        // ── Верификатор: утверждение проекта решения ──
-        auth.login(scenario.getUnderwriter());
-        workspace.select(Workspace.UNDERWRITER);
-
-        new AgroReviewStageUnderwriterFlow()
-                .approveReview(AgroScenarioFactory
-                        .agroDecisionData());
-
+        new AgroClientNotificationStageFlow()
+                .completeClientNotification(
+                        AgroScenarioFactory.agroClientNotificationData(
+                                scenario.getMiddleController(),
+                                scenario.getIkokGo()));
 
         auth.logout();
     }
+
 
 
     @Test(groups = "debug", enabled = true)
@@ -215,8 +213,19 @@ public class AgroCreditApplicationTest extends BaseTest {
                 .approveReview(AgroScenarioFactory
                         .agroDecisionData());
 
+        // ── Логин + рабочее место ──
+        auth.login(scenario.getCreditExpert());
+        workspace.select(Workspace.CREDIT_EXPERT);
+
+        new AgroClientNotificationStageFlow()
+                .completeClientNotification(
+                        AgroScenarioFactory.agroClientNotificationData(
+                                scenario.getMiddleController(),
+                                scenario.getIkokGo()));
 
 
         auth.logout();
     }
+
+
 }

@@ -51,16 +51,24 @@ public class ConsultationStartFlow {
         // Берём кнопку в НЕ скрытой строке результатов (grid-row-hidden —
         // это чужие строки при нескольких результатах поиска). Для единственного
         // результата (розница) фильтр ничего не меняет.
-        $x("//div[contains(@class,'grid-row-actions')" +
-                " and not(contains(@class,'grid-row-hidden'))]" +
-                "//span[@data-item-marker='Начать консультацию']" +
-                " | //*[@data-item-marker='Начать консультацию']" +
-                "[not(ancestor::div[contains(@class,'grid-row-hidden')])]")
-                .shouldBe(Condition.visible, Duration.ofSeconds(20))
-                .click();
+        SelenideElement startBtn = $x(
+                "//div[contains(@class,'grid-row-actions')" +
+                        " and not(contains(@class,'grid-row-hidden'))]" +
+                        "//span[@data-item-marker='Начать консультацию']" +
+                        " | //*[@data-item-marker='Начать консультацию']" +
+                        "[not(ancestor::div[contains(@class,'grid-row-hidden')])]"
+        ).shouldBe(Condition.visible, Duration.ofSeconds(20));
+
+        // JS-клик вместо нативного: нативный физически перемещает курсор на
+        // кнопку в строке грида и ОСТАВЛЯЕТ его там. После перерисовки в панель
+        // консультации под курсором оказывается имя клиента → всплывает
+        // hover-мини-карточка контакта → она перекрывает «Оформить заявку»
+        // в следующем шаге (click intercepted). JS-клик курсор не двигает.
+        executeJavaScript("arguments[0].click();", startBtn);
 
         basePage.waitForPage();
     }
+
 
     @Step("Открыть деталь 'Оформить заявку'")
     public void openApplicationDetail() {

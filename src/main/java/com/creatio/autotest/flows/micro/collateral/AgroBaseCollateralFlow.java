@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.micro.collateral;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.LookupComponent;
+import com.creatio.autotest.components.collateral.CollateralGridComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
@@ -31,6 +32,10 @@ public abstract class AgroBaseCollateralFlow {
     protected final LookupComponent lookup   = new LookupComponent();
     protected final BasePage        basePage = new BasePage();
     protected final ClickService    click    = new ClickService();
+    protected final CollateralGridComponent grid = new CollateralGridComponent();
+
+    /** Якорь открытой формы имущества — поле «Тип» есть только на ней. */
+    private static final String PROPERTY_FORM_ANCHOR = "//label[normalize-space(.)='Тип']";
 
     // ══════════════════════════════════════
     // CONTRACT
@@ -68,5 +73,32 @@ public abstract class AgroBaseCollateralFlow {
         input.sendKeys(Keys.DELETE);
         input.sendKeys(value);
         input.sendKeys(Keys.TAB);
+    }
+
+    /**
+     * Клик по лупе выбора имущества с проверкой, что форма реально открылась.
+     * <p>
+     * Клик может уйти раньше, чем Creatio довесит обработчик на инлайн-редактор
+     * строки залога: строка добавлена, лупа видна, но клик не открывает форму,
+     * и следующий шаг падает на поиске поля «Тип». Проверяем результат клика,
+     * а не сам факт клика.
+     * <p>
+     * catch ловит и AssertionError: Selenide бросает ElementNotFound, который
+     * наследуется от AssertionError, а не от Exception.
+     */
+    protected void openPropertyLookupStable() {
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            grid.openPropertyLookup();
+
+            try {
+                $x(PROPERTY_FORM_ANCHOR)
+                        .shouldBe(Condition.visible, Duration.ofSeconds(15));
+                log.info("Форма имущества открылась на попытке {}/3", attempt);
+                return;
+            } catch (Exception | AssertionError ignored) {
+                log.warn("Форма имущества не открылась на попытке {}/3 — повтор клика", attempt);
+            }
+        }
+        throw new AssertionError("Форма имущества не открылась после 3 попыток");
     }
 }

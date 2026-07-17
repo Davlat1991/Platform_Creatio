@@ -20,7 +20,6 @@ import io.qameta.allure.Step;
 public class AgroFutureHarvestCollateralFlow extends AgroBaseCollateralFlow {
 
     private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
-    private final CollateralGridComponent      grid      = new CollateralGridComponent();
     private final CollateralFormComponent      form      = new CollateralFormComponent();
     private final CollateralAddressComponent   address   = new CollateralAddressComponent();
     private final CollateralValuationComponent valuation = new CollateralValuationComponent();
@@ -35,7 +34,8 @@ public class AgroFutureHarvestCollateralFlow extends AgroBaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        grid.openPropertyLookup();
+        openPropertyLookupStable();
+
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());

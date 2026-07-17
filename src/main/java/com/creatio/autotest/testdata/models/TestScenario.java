@@ -12,6 +12,7 @@ public class TestScenario {
     // ── Пользователи ──────────────────────
     private UserCredentials manager;
     private UserCredentials creditExpert;
+    private UserCredentials middleController;
     private UserCredentials underwriter;
     private UserCredentials ikok;
     private UserCredentials ikokGo;
