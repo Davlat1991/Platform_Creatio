@@ -88,12 +88,12 @@ public enum CollateralType {
             true
     ),
     COTTON(
-            "Будущий урожай",
+            "Залог хлопка",
             "Движимое имущество",
             "Гарави пахта",
             null,
             "Собственный",
-            "Шартномаи гарави пахта",
+            "Шартномаи гарави хосили оянда",  //Шартномаи гарави пахта
             true
     ),
     FUTURE_HARVEST(
@@ -133,4 +133,16 @@ public enum CollateralType {
     public String  getOwnership()   { return ownership; }
     public String  getPrintForm()   { return printForm; }
     public boolean hasPrintForm()   { return hasPrintForm; }
+
+
+/** Поиск типа по имени объекта в гриде «Объекты обеспечения» (колонка «Обеспечение»). */
+public static CollateralType fromObjectName(String objectName) {
+    for (CollateralType type : values()) {
+        if (type.uiName.equalsIgnoreCase(objectName.trim())) {
+            return type;
+        }
+    }
+    throw new IllegalStateException(
+            "Неизвестный объект обеспечения: '" + objectName + "'");
+    }
 }

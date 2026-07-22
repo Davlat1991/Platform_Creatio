@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.executeJavaScript;
 
 public class ApplicationSearchFlow {
 
@@ -95,7 +96,7 @@ public class ApplicationSearchFlow {
     // HELPERS
     // ══════════════════════════════════════
 
-    private void removeFilterIfExists() {
+   /* private void removeFilterIfExists() {
         // Ждём загрузки раздела: кнопка "Фильтры/группы" (filterButton) есть всегда.
         $x("//*[@data-item-marker='filterButton']")
                 .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
@@ -110,6 +111,34 @@ public class ApplicationSearchFlow {
         } else {
             log.debug("Активного фильтра нет — пропускаем");
         }
+    }
+
+    */
+
+    private void removeFilterIfExists() {
+        // Раздел загружен: воронка фильтра (filterButton) есть всегда.
+        $x("//*[@data-item-marker='filterButton']")
+                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
+        basePage.waitForPage();
+
+        // Чип активного фильтра ("Номер Содержит …") рендерится асинхронно —
+        // мгновенный .is(exist) его не заставал, старый фильтр оставался.
+        // Ждём крестик ограниченно; отсутствие фильтра = штатный выход без броска.
+        SelenideElement removeBtn = $x(
+                "//*[contains(@id,'QuickFilterModuleV2')]" +
+                        "//*[contains(@class,'filter-remove-button')]");
+        try {
+            removeBtn.shouldBe(Condition.exist, java.time.Duration.ofSeconds(5));
+        } catch (AssertionError noFilter) {
+            log.debug("Активного фильтра нет — пропускаем");
+            return;
+        }
+
+        log.info("Активный фильтр найден — удаляем");
+        executeJavaScript("arguments[0].click();", removeBtn);
+        removeBtn.should(Condition.disappear, java.time.Duration.ofSeconds(10));
+        basePage.waitForPage();
+        log.info("Фильтр удалён");
     }
 
     /*private void applyNumberFilter() {

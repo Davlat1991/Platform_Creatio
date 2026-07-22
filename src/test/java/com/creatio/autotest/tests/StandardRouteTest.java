@@ -147,7 +147,7 @@ public class StandardRouteTest extends BaseTest {
 
         auth.logout();
 
-      /*  // ── ИКОК-ГО ────────────────────────────
+        // ── ИКОК-ГО ────────────────────────────
         auth.login(scenario.getIkokGo());
         workspace.select(Workspace.IKOK_GO);
 
@@ -190,7 +190,7 @@ public class StandardRouteTest extends BaseTest {
         new ApplicationFinishFlow()
                 .completeIkokGoManagerFinish();
 
-        auth.logout();*/
+        auth.logout();
 
 
     }

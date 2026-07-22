@@ -61,12 +61,12 @@ public class CollateralTest extends BaseTest {
     // Участники уже добавлены
     // ══════════════════════════════════════
 
-    @Test(groups = "debug", enabled = false)
+    @Test(groups = "debug", enabled = true)
     @Story("Debug — только залоговые обеспечения")
     @Description("Открываем заявку по UUID, добавляем залоги")
     @Severity(SeverityLevel.NORMAL)
     public void debugCollateralsOnly() {
-        TestScenario scenario = ScenarioFactory.allCollaterals();
+        TestScenario scenario = ScenarioFactory.happyPath();
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());
@@ -77,7 +77,7 @@ public class CollateralTest extends BaseTest {
                 config.getBaseUrl() +
                         "/0/Nui/ViewModule.aspx#CardModuleV2/" +
                         "FinApplicationPage/edit/" +
-                        "4688e1f0-3e90-475d-9294-02df61f03ff9"
+                        "7de58faf-f96c-4d35-8acc-a3190bbe7ad1"
         );
 
         new CollateralStageFlow().completeCollateralStage(
@@ -127,12 +127,12 @@ public class CollateralTest extends BaseTest {
     // От логина до завершения стадии обеспечения
     // ══════════════════════════════════════
 
-    @Test(groups = "regression")
+    @Test(groups = "regression", enabled = false)
     @Story("Стадия обеспечения — полный путь")
     @Description("Логин → регистрация → предварительная проверка → участники → залоги")
     @Severity(SeverityLevel.BLOCKER)
     public void collateralStageTest() {
-        TestScenario scenario = ScenarioFactory.allCollaterals();
+        TestScenario scenario = ScenarioFactory.happyPath();
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());

@@ -1,19 +1,15 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.flows.*;
 import com.creatio.autotest.flows.micro.*;
 import com.creatio.autotest.flows.micro.collateral.AgroCollateralStageFlow;
-import com.creatio.autotest.flows.micro.participants.AgroGuarantorFlow;
-import com.creatio.autotest.flows.micro.participants.AgroParticipantsAddFlow;
 import com.creatio.autotest.flows.micro.participants.AgroParticipantsStageFlow;
 import com.creatio.autotest.flows.micro.registration.*;
 import com.creatio.autotest.flows.micro.registration.client.MicroClientFlowFactory;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.AgroProductData;
-import com.creatio.autotest.testdata.models.ParticipantData;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
 import com.creatio.autotest.utils.AllureTags;
@@ -29,13 +25,16 @@ import org.testng.annotations.Test;
 /**
  * E2E-маршрут продукта «Агро» (сегмент «Микро»).
  * <p>
- * Sprint 1 / подзадача 7: сборка реализованных на данный момент Агро-флоу
- * (подзадачи 1–6) в единый тест. Частичный прогон — тест проходит начало
- * маршрута и доходит до предела реализованных Агро-флоу регистрации
- * (общая информация + дополнительная информация). Стадия регистрации
- * целиком НЕ завершается: Агро-версии остальных под-флоу регистрации
- * (адрес, доходы/расходы, документы, скоринг-подтверждение, печать) ещё
- * не реализованы (Sprint 2).
+ * Sprint 2: маршрут собран от подбора продукта до стадии «Подписание»
+ * включительно — регистрация, предварительная проверка, участники,
+ * обеспечение, сбор документов, рассмотрение (кредитный эксперт +
+ * верификатор), информирование клиента, вложение документов мидл-контролером,
+ * подписание (решение КК → кредитный договор → депозитный счёт → график →
+ * привязка счёта → договоры обеспечения с печатными формами → закрытие
+ * активности).
+ * <p>
+ * Не реализовано: подписание договора, создание ордеров, печатная форма
+ * «Оферта», проверка ордеров, кассовые операции.
  * <p>
  * Инфраструктурные флоу (Auth, Workspace, ClientSearch, ConsultationStart,
  * ApplicationCreation) переиспользуются из общей части — они не зависят от
@@ -49,69 +48,20 @@ import org.testng.annotations.Test;
 @Owner("Davlat")
 public class AgroCreditApplicationTest extends BaseTest {
 
-    // Номер заявки для debug-прогона. Переопределяется через -Dapp=NNNNN.
-    private static final String RESUME_APPLICATION_NUMBER = "392000"; // ← подставь свой номер
+    // Номер заявки для debug-прогонов. Переопределяется через -Dapp=NNNNN.
+    private static final String RESUME_APPLICATION_NUMBER = "";
 
-    /**
-     * DEBUG / RESUME — продолжение отладки с середины заявки.
-     * <p>
-     * Не гоняет регистрацию заново: логин Кредитным экспертом → открытие уже
-     * созданной заявки по номеру → запуск только отлаживаемой стадии. Экономит
-     * ~5 мин полного прогона на каждой итерации.
-     * <p>
-     * Заявка должна быть заранее доведена до нужной точки. Для стадии
-     * «Предварительная проверка» — «Оформление» с заполненной анкетой заёмщика
-     * и активностью «Добавьте и заполните анкеты участников заявки».
-     * <p>
-     * Номер: -Dapp=NNNNN или правка RESUME_APPLICATION_NUMBER. Запуск только этого метода:
-     *   mvn test -Dtest=AgroCreditApplicationTest#agroMicroResumeFromApplication -Dapp=12345
-     */
+    // ══════════════════════════════════════
+    // ОСНОВНОЙ E2E-ПРОГОН
+    // ══════════════════════════════════════
 
-    @Test(groups = "resume", enabled = false)
-    @Story("Агро/Микро — DEBUG: продолжение с середины заявки по номеру")
-    @Description("Отладочный вход: логин кредитного эксперта, открытие существующей заявки " +
-            "по номеру и запуск отлаживаемой стадии без повторного прогона регистрации.")
-    @Severity(SeverityLevel.NORMAL)
-    public void agroMicroResumeFromApplication() {
-
-        String appNumber = System.getProperty("app", RESUME_APPLICATION_NUMBER);
-
-        TestScenario scenario = AgroScenarioFactory.agroMicroHappyPath();
-
-        AuthFlow auth = new AuthFlow();
-        WorkspaceFlow workspace = new WorkspaceFlow();
-
-        // ── Логин + рабочее место ──
-     auth.login(scenario.getCreditExpert());
-        workspace.select(Workspace.CREDIT_EXPERT);
-
-       /* // ── Открыть существующую заявку по номеру ──
-        new ApplicationSearchFlow()
-                .withApplicationNumber(appNumber)
-                .openByNumber();*/
-
-        // Debug-прогон без стадии рассмотрения: номер в контекст кладём руками,
-        // обычно это делает AgroReviewStageFlow.completeReview()
-        ScenarioContextProvider.get().setApplicationNumber(appNumber);
-
-
-        new AgroClientNotificationStageFlow()
-                .completeClientNotification(
-                        AgroScenarioFactory.agroClientNotificationData(
-                                scenario.getMiddleController(),
-                                scenario.getIkokGo()));
-
-        auth.logout();
-    }
-
-
-
-    @Test(groups = "debug", enabled = true)
-    @Story("Агро/Микро — начало маршрута (подбор продукта → создание заявки → частичная регистрация)")
-    @Description("Частичный прогон реализованных Агро-флоу Sprint 1: логин кредитного эксперта, " +
-            "поиск клиента, старт консультации, проверка сегмента клиента (Микро), подбор продукта " +
-            "Агро, создание заявки, заполнение общей и дополнительной информации регистрации. " +
-            "Останавливается на пределе реализованных Агро-флоу — стадия регистрации не завершается.")
+    @Test(groups = "e2e", enabled = true)
+    @Story("Агро/Микро — маршрут от подбора продукта до стадии «Подписание»")
+    @Description("Полный прогон реализованной части маршрута Агро/Микро: логин кредитного " +
+            "эксперта, поиск клиента, старт консультации, подбор продукта, создание заявки, " +
+            "регистрация, предварительная проверка, участники, обеспечение, сбор документов, " +
+            "рассмотрение и утверждение верификатором, информирование клиента, вложение " +
+            "документов мидл-контролером, стадия «Подписание» под ИКОК-ГО.")
     @Severity(SeverityLevel.BLOCKER)
     public void agroMicroPartialRoute() {
 
@@ -148,7 +98,7 @@ public class AgroCreditApplicationTest extends BaseTest {
         new ApplicationCreationFlow()
                 .createApplication(product.toProductData());
 
-        // ── Шаг 4. Регистрация — реализованная часть ──
+        // ── Шаг 4. Регистрация ──
         // Общая информация (регион, источник, сектор экономики)
         new AgroRegistrationGeneralInfoFlow()
                 .fillGeneralInfo(
@@ -193,27 +143,30 @@ public class AgroCreditApplicationTest extends BaseTest {
         new AgroPreliminaryCheckFlow()
                 .completePreliminaryCheckStage();
 
-         new AgroParticipantsStageFlow()
+        new AgroParticipantsStageFlow()
                 .completeParticipantsStage(scenario.getParticipants());
 
-         new AgroCollateralStageFlow()
+        new AgroCollateralStageFlow()
                 .completeCollateralStage(scenario.getCollaterals());
 
-         new AgroDocumentCollectionStageFlow()
+        new AgroDocumentCollectionStageFlow()
                 .completeDocumentCollectionStage();
 
         new AgroReviewStageFlow()
                 .completeReview();
+
+        auth.logout();
 
         // ── Верификатор: утверждение проекта решения ──
         auth.login(scenario.getUnderwriter());
         workspace.select(Workspace.UNDERWRITER);
 
         new AgroReviewStageUnderwriterFlow()
-                .approveReview(AgroScenarioFactory
-                        .agroDecisionData());
+                .approveReview(AgroScenarioFactory.agroDecisionData());
 
-        // ── Логин + рабочее место ──
+        auth.logout();
+
+        // ── Кредитный эксперт: информирование клиента ──
         auth.login(scenario.getCreditExpert());
         workspace.select(Workspace.CREDIT_EXPERT);
 
@@ -223,9 +176,113 @@ public class AgroCreditApplicationTest extends BaseTest {
                                 scenario.getMiddleController(),
                                 scenario.getIkokGo()));
 
+        auth.logout();
+
+        // ── Мидл-контролер: вложение документов заёмщика ──
+        // На «Сборе документов» ничего не прикрепляли (сценарий Микро);
+        // единственный документ заёмщика (Шиносномаи ЧТ) вкладывается здесь,
+        // под ролью «Мидл контролер» — вход через рабочее место ИКОК.
+        auth.login(scenario.getMiddleController());
+        workspace.select(Workspace.IKOK);
+
+        new AgroMiddleControllerDocumentsFlow()
+                .attachBorrowerDocuments(
+                        AgroScenarioFactory.agroMiddleControllerDocuments());
+
+        auth.logout();
+
+        // ── ИКОК-ГО: стадия «Подписание» ──
+        // Решение КК → кредитный договор → депозитный счёт → график →
+        // привязка счёта → договоры обеспечения с печатными формами →
+        // закрытие активности создания договора.
+        auth.login(scenario.getIkokGo());
+        workspace.select(Workspace.IKOK_GO);
+
+        new AgroSigningStageFlow().completeSigningStage();
 
         auth.logout();
     }
 
+    // ══════════════════════════════════════
+    // DEBUG / RESUME (временные входы)
+    // ══════════════════════════════════════
 
+    /**
+     * ВРЕМЕННЫЙ вход: печать форм по уже зарегистрированным договорам
+     * обеспечения. Номер кредитного договора задаётся в теле метода.
+     */
+    @Test(groups = "resume", enabled = false)
+    @Story("Агро/Микро — DEBUG: печать форм по договорам обеспечения")
+    @Description("Логин ИКОК-ГО, открытие кредитного договора по номеру, обход детали " +
+            "«Договоры обеспечения» с печатью форм без повторного создания в АБС.")
+    @Severity(SeverityLevel.CRITICAL)
+    public void agroMicroResumeCollateralContracts() {
+        TestScenario scenario = AgroScenarioFactory.agroMicroHappyPath();
+
+        AuthFlow auth = new AuthFlow();
+        WorkspaceFlow workspace = new WorkspaceFlow();
+
+        auth.login(scenario.getIkokGo());
+        workspace.select(Workspace.IKOK_GO);
+
+        new AgroSigningStageFlow()
+                .debugPrintCollateralContracts("02-008-033521");
+
+        auth.logout();
+    }
+
+    /**
+     * DEBUG: стадия «Подписание» по номеру заявки, доведённой до этой точки.
+     * Номер: -Dapp=NNNNN или правка RESUME_APPLICATION_NUMBER.
+     */
+    @Test(groups = "resume", enabled = false)
+    @Story("Агро/Микро — DEBUG: стадия «Подписание» по номеру заявки")
+    @Description("Логин ИКОК-ГО, открытие заявки по номеру, стадия «Подписание» целиком: " +
+            "решение КК → кредитный договор → депозитный счёт → график → привязка счёта → " +
+            "договоры обеспечения → закрытие активности.")
+    @Severity(SeverityLevel.CRITICAL)
+    public void agroMicroResumeSigning() {
+        String appNumber = System.getProperty("app", RESUME_APPLICATION_NUMBER);
+        TestScenario scenario = AgroScenarioFactory.agroMicroHappyPath();
+
+        AuthFlow auth = new AuthFlow();
+        WorkspaceFlow workspace = new WorkspaceFlow();
+
+        auth.login(scenario.getIkokGo());
+        workspace.select(Workspace.IKOK_GO);
+
+        ScenarioContextProvider.get().setApplicationNumber(appNumber);
+
+        new AgroSigningStageFlow().completeSigningStage();
+
+        auth.logout();
+    }
+
+    /**
+     * DEBUG: вложение документов мидл-контролером по номеру заявки.
+     * Экономит полный прогон регистрации на каждой итерации.
+     */
+    @Test(groups = "resume", enabled = false)
+    @Story("Агро/Микро — DEBUG: вложение документов мидл-контролером")
+    @Description("Логин мидл-контролера (рабочее место ИКОК), открытие существующей заявки " +
+            "по номеру и вложение единственного документа заёмщика.")
+    @Severity(SeverityLevel.NORMAL)
+    public void agroMicroResumeMiddleControllerDocuments() {
+        String appNumber = System.getProperty("app", RESUME_APPLICATION_NUMBER);
+        TestScenario scenario = AgroScenarioFactory.agroMicroHappyPath();
+
+        AuthFlow auth = new AuthFlow();
+        WorkspaceFlow workspace = new WorkspaceFlow();
+
+        auth.login(scenario.getMiddleController());
+        workspace.select(Workspace.IKOK);
+
+        ScenarioContextProvider.get().setApplicationNumber(appNumber);
+
+        new AgroMiddleControllerDocumentsFlow()
+                .attachBorrowerDocuments(
+                        AgroScenarioFactory.agroMiddleControllerDocuments());
+
+        auth.logout();
+    }
 }

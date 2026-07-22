@@ -2,6 +2,9 @@ package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
 
+import com.creatio.autotest.testdata.models.documents.DocumentData;
+import com.creatio.autotest.testdata.models.documents.DocumentOwner;
+import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import com.creatio.autotest.testdata.models.registration.ActivityData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import com.creatio.autotest.testdata.models.registration.EducationCareerData;
@@ -314,6 +317,24 @@ public final class AgroScenarioFactory {
                 .clientAgreement("Клиент согласен")
                 .middleControllerName(middleController.getDisplayName())
                 .signingResponsible(ikokGo.getDisplayName())
+                .build();
+    }
+
+    /**
+     * Документы для вложения под мидл-контролером (Агро/Микро).
+     * Только заёмщик, единственный документ — паспорт «Шиносномаи ЧТ»
+     * (type=Passport, файл Passport.pdf в src/test/resources/files/),
+     * деталь «Досье клиента».
+     */
+    public static DocumentOwnerData agroMiddleControllerDocuments() {
+        return DocumentOwnerData.builder()
+                .owner(DocumentOwner.BORROWER)
+                .documents(List.of(
+                        DocumentData.builder()
+                                .type("Passport")
+                                .fileName("Passport.pdf")
+                                .detail("Досье клиента")
+                                .build()))
                 .build();
     }
 
