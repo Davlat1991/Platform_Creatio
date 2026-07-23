@@ -116,29 +116,30 @@ public class ApplicationSearchFlow {
     */
 
     private void removeFilterIfExists() {
-        // Раздел загружен: воронка фильтра (filterButton) есть всегда.
         $x("//*[@data-item-marker='filterButton']")
                 .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
         basePage.waitForPage();
 
-        // Чип активного фильтра ("Номер Содержит …") рендерится асинхронно —
-        // мгновенный .is(exist) его не заставал, старый фильтр оставался.
-        // Ждём крестик ограниченно; отсутствие фильтра = штатный выход без броска.
         SelenideElement removeBtn = $x(
                 "//*[contains(@id,'QuickFilterModuleV2')]" +
                         "//*[contains(@class,'filter-remove-button')]");
         try {
             removeBtn.shouldBe(Condition.exist, java.time.Duration.ofSeconds(5));
+            log.info("Активный фильтр найден — удаляем");
+            executeJavaScript("arguments[0].click();", removeBtn);
+            removeBtn.should(Condition.disappear, java.time.Duration.ofSeconds(10));
+            basePage.waitForPage();
+            log.info("Фильтр удалён");
         } catch (AssertionError noFilter) {
             log.debug("Активного фильтра нет — пропускаем");
-            return;
         }
 
-        log.info("Активный фильтр найден — удаляем");
-        executeJavaScript("arguments[0].click();", removeBtn);
-        removeBtn.should(Condition.disappear, java.time.Duration.ofSeconds(10));
-        basePage.waitForPage();
-        log.info("Фильтр удалён");
+        // Кнопка фильтра меняет вид по состоянию: при активном фильтре она
+        // иконочная (без текста), в пустом — текстовая «Фильтры/группы».
+        // После снятия фильтра перерисовка занимает время, и клик по тексту
+        // падал с NoSuchElement. Ждём именно текстовое состояние.
+        $x("//span[normalize-space(.)='Фильтры/группы']")
+                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
     }
 
     /*private void applyNumberFilter() {

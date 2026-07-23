@@ -17,6 +17,7 @@ public class TestScenario {
     private UserCredentials ikok;
     private UserCredentials ikokGo;
     private UserCredentials cashier;
+    private UserCredentials microCashier;
 
     // ── Клиент ────────────────────────────
     private ContactData contact;

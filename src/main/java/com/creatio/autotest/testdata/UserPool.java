@@ -67,8 +67,12 @@ public final class UserPool {
         return acquire(UserRole.CASHIER);
     }
 
-    public static UserCredentials middleController() { return acquire(UserRole.MIDDLE_CONTROLLER);
-    }
+    /** Кассир для продуктов сегмента «Микро» — отдельная учётка, чтобы
+     *  в прогонах и логах было видно, где розница, а где Микро.
+     *  Функционально роль та же: кассир подразделения видит все ордера. */
+    public static UserCredentials microCashier() { return acquire(UserRole.MICRO_CASHIER);}
+
+    public static UserCredentials middleController() { return acquire(UserRole.MIDDLE_CONTROLLER);}
 
     // ══════════════════════════════════════
     // INTERNAL

@@ -91,11 +91,12 @@ public class ButtonsComponent extends BaseComponent {
                 }
 
                 li.shouldHave(Condition.cssClass("ts-tabpanel-active-item"),
-                        Duration.ofSeconds(5));
+                        Duration.ofSeconds(10));
                 log.info("Tab '{}' activated", value);
                 return this;
-            } catch (Exception e) {
-                log.warn("Tab click attempt {}/4 failed for '{}'", i + 1, value);
+            } catch (Exception | AssertionError e) {
+                log.warn("Tab click attempt {}/4 failed for '{}': {}",
+                        i + 1, value, e.getClass().getSimpleName());
             }
         }
         throw new RuntimeException("Failed to click tab: " + value);

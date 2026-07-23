@@ -8,7 +8,9 @@ public enum UserRole {
     UNDERWRITER       ("user.underwriter"),
     IKOK              ("user.ikok"),
     IKOK_GO           ("user.ikok_go"),
-    CASHIER           ("user.cashier");
+    CASHIER           ("user.cashier"),
+    MICRO_CASHIER     ("user.micro_cashier");
+
 
 
     public final String configPrefix;

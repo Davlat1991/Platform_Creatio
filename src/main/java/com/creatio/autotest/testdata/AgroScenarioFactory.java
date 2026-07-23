@@ -49,6 +49,28 @@ public final class AgroScenarioFactory {
                 CollateralDataFactory.agroFutureHarvest(CurrencyType.TJS)
         ))
                 .middleController(UserPool.middleController())
+                .microCashier(UserPool.microCashier())
+                .build();
+    }
+
+    /**
+     * Сокращённый состав: заёмщик, поручитель, один залог «Будущий урожай».
+     * Без залогодателя и без залога хлопка — по задачам спринта они опциональны,
+     * стадия обеспечения их не требует. Второй договор обеспечения при этом
+     * уходит автоматически: их число CollateralContractsFlow определяет из системы.
+     */
+    public static TestScenario agroMicroRegression() {
+        return baseBuilder()
+                .route(CreditRoute.STANDARD)
+                .expectedScoringDecision(ScoringDecision.APPROVE)
+                .participants(List.of(
+                        ParticipantData.guarantor(false)
+                ))
+                .collaterals(List.of(
+                        CollateralDataFactory.agroFutureHarvest(CurrencyType.TJS)
+                ))
+                .middleController(UserPool.middleController())
+                .microCashier(UserPool.microCashier())
                 .build();
     }
 

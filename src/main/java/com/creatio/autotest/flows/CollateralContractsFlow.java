@@ -100,7 +100,7 @@ public class CollateralContractsFlow {
         int processed = 0;
 
         for (int i = 0; i < MAX_CONTRACTS; i++) {
-            buttons.clickTabByName(PARAMETERS_TAB);
+            openParametersTab();
 
             List<String> pending = collectContractNumbers();
             log.info("Осталось зарегистрировать: {} → {}", pending.size(), pending);
@@ -234,6 +234,40 @@ public class CollateralContractsFlow {
                 .first()
                 .getText()
                 .trim();
+    }
+
+
+    /**
+     * Переход на «Параметры договора» с защитой от авто-переключения вкладок.
+     * <p>
+     * После сохранения (в частности после привязки счёта) Creatio асинхронно
+     * возвращает активную вкладку на «Основную информацию» — клик проходит,
+     * класс active успевает выставиться, а через мгновение мы снова на чужой
+     * вкладке. Поэтому якорь не класс вкладки, а деталь «Договоры обеспечения»:
+     * она есть только на нужной вкладке. Проверяем её дважды — до и после
+     * waitForPage(), чтобы поймать переброс, случившийся уже после клика.
+     */
+    private void openParametersTab() {
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                buttons.clickTabByName(PARAMETERS_TAB);
+
+                $(PLEDGE_DETAIL).shouldBe(Condition.visible, Duration.ofSeconds(15));
+                basePage.waitForPage();
+                $(PLEDGE_DETAIL).shouldBe(Condition.visible, Duration.ofSeconds(5));
+
+                log.info("Вкладка «{}» открыта и удержана (попытка {}/3)",
+                        PARAMETERS_TAB, attempt);
+                return;
+
+            } catch (Exception | AssertionError e) {
+                log.warn("Попытка {}/3: вкладка «{}» не удержалась ({}) — повторяем",
+                        attempt, PARAMETERS_TAB, e.getClass().getSimpleName());
+            }
+        }
+        throw new AssertionError(
+                "Не удалось удержать вкладку «" + PARAMETERS_TAB +
+                        "»: Creatio возвращает активную вкладку после сохранения");
     }
 
     // ══════════════════════════════════════

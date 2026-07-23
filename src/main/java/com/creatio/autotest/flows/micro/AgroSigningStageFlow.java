@@ -2,20 +2,20 @@ package com.creatio.autotest.flows.micro;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import com.creatio.autotest.components.LookupComponent;
-import com.creatio.autotest.components.MenuComponent;
-import com.creatio.autotest.components.MessageBoxComponent;
+import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.flows.ApplicationSearchFlow;
 import com.creatio.autotest.flows.CollateralContractsFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Set;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -66,6 +66,10 @@ public class AgroSigningStageFlow {
     private static final String CREDIT_ACCOUNT_LOOKUP_ID =
             "BnzContractCreditPageBnzCreditBankAccountLookupEdit";
 
+    /** ← ПОДСТАВЬ точное название печатной формы оферты из меню «Печать». */
+    private static final String OFFER_PRINT_FORM = "Шартномаи кредити АГРО - СИ бо генерали";
+    private static final String ORDER_PAGE_MARKER = "BnzOrderPageContainer";
+
     private final BasePage                basePage            = new BasePage();
     private final LookupComponent         lookup              = new LookupComponent();
     private final MenuComponent           menu                = new MenuComponent();
@@ -74,6 +78,8 @@ public class AgroSigningStageFlow {
     private final ConsultationPanelPage   consultation        = new ConsultationPanelPage();
     private final ApplicationSearchFlow   searchFlow          = new ApplicationSearchFlow();
     private final CollateralContractsFlow collateralContracts = new CollateralContractsFlow();
+    private final ButtonsComponent        buttons             = new ButtonsComponent();
+    private final PrintComponent          print               = new PrintComponent();
 
     // ══════════════════════════════════════
     // MAIN — стадия целиком
@@ -221,7 +227,10 @@ public class AgroSigningStageFlow {
         log.info("Депозитный счёт '{}' сохранён в контекст", depositAccount);
 
         click.clickByName("Закрыть");
+
         refresh();
+
+        waitContractPageReady();
 
         // Привязка счёта: лупа → поиск → выбор
         lookup.selectInLookupByIdWithSearch(CREDIT_ACCOUNT_LOOKUP_ID, depositAccount);
@@ -238,6 +247,11 @@ public class AgroSigningStageFlow {
         menu.clickByName("Привязка счета к договору");
         msgBox.shouldSeeModal("Счет успешно привязан к кредитному договору");
         click.clickByMarker("ОК");
+
+        // Creatio после сохранения сам возвращает активную вкладку на
+        // «Основную информацию». Дожидаемся окончания обработки здесь, чтобы
+        // переброс случился до перехода на «Параметры договора», а не после.
+        basePage.waitForPage();
     }
 
     /**
@@ -315,6 +329,30 @@ public class AgroSigningStageFlow {
         basePage.waitForPage();
     }
 
+
+    /**
+     * Готовность страницы кредитного договора после refresh.
+     * <p>
+     * Каркас страницы появляется раньше данных карточки, поэтому клик по лупе
+     * сразу после refresh давал пустой результат поиска («Нет данных»).
+     * Якорь — активность стадии в дашборде: он догружается после данных
+     * сущности, поэтому её появление надёжнее свидетельствует о готовности
+     * карточки, чем отрисованное (и пока пустое) поле привязки счёта.
+     * Скрытую копию активности из правого сайдбара исключаем — она есть в DOM
+     * всегда и с displayed:false.
+     */
+    private void waitContractPageReady() {
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        $x("//div[.='" + CONTRACT_OPEN_ACTIVITY + "'" +
+                " and not(ancestor::*[contains(@id,'RightSideBarModule')])]")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        basePage.waitForPage();
+        log.info("Страница кредитного договора готова к привязке счёта");
+    }
+
     // ══════════════════════════════════════
     // DEBUG (временное — удалить после закрытия подзадачи 6)
     // ══════════════════════════════════════
@@ -335,5 +373,140 @@ public class AgroSigningStageFlow {
         collateralContracts.debugPrintExistingContracts();
 
         completeContractCreationActivity();
+    }
+
+    // ══════════════════════════════════════
+    // MAIN — часть 2 (подписание, ордера, оферта)
+    // ══════════════════════════════════════
+
+    /**
+     * Часть 2 стадии «Подписание»: подписание договора, выдача наличными,
+     * печать оферты и проверка созданных ордеров.
+     * <p>
+     * Активность «Создание договора в АБС» закрыта в части 1, поэтому
+     * (в отличие от розничного {@code signAndCreateOrders}) начинаем сразу
+     * с действия «Подписание договора». Выполняется на открытой странице
+     * кредитного договора.
+     */
+    @Step("Агро: подписание договора и выдача кредита")
+    public void signAndIssueCredit() {
+        signContract();
+        issueCashCredit();
+        verifyOrdersAndPrint();
+
+        log.info("Agro: sign and issue completed");
+    }
+
+    @Step("Подписание договора")
+    private void signContract() {
+        log.info("Agro: sign contract");
+
+        click.clickByName("Действия");
+        menu.clickByName("Подписание договора");
+
+        msgBox.shouldSeeModal("Резервирование счетов выполнено успешно");
+        click.clickByMarker("ОК");
+        basePage.waitForPage();
+    }
+
+    @Step("Выдача кредита наличными")
+    private void issueCashCredit() {
+        log.info("Agro: issue cash credit");
+
+        click.clickByName("Действия");
+        menu.hoverAndClickSubmenu("Выдача кредита", "Наличными");
+
+        // Модальная страница «Выдача кредита»: сумма readonly, зависит от кредита —
+        // на конкретное число не завязываемся, только фиксируем в логе.
+        log.info("Сумма к выдаче: '{}'", FieldUtils.getValueByMarker("Amount"));
+        click.clickByName("Подтвердить");
+
+        // Модальная страница «Комиссия за выдачу кредита» (ts-modalbox, не messagebox).
+        // Якорь появления — само чтение полей: getValueByMarker ждёт поле и падает,
+        // если значение пустое.
+        log.info("Комиссия: выдача='{}', процент='{}', сумма='{}'",
+                FieldUtils.getValueByMarker("IssuanceAmount"),
+                FieldUtils.getValueByMarker("CommissionPercentage"),
+                FieldUtils.getValueByMarker("CommissionAmount"));
+        click.clickByName("Подтвердить");
+
+        msgBox.shouldSeeModal(
+                "Действие успешно выполнено. Необходимо оплатить комиссию за кредит");
+        click.clickByMarker("ОК");
+
+        msgBox.shouldSeeModal("Кассовый ордер успешно сформирован");
+        click.clickByMarker("ОК");
+
+        msgBox.shouldSeeModal("График платежей успешно получен");
+        click.clickByMarker("ОК");
+    }
+
+    @Step("Печать оферты и проверка ордеров")
+    private void verifyOrdersAndPrint() {
+        log.info("Agro: verify orders and print offer");
+
+        // Номер финального кредитного договора — только в заголовке страницы
+        // (input поля пустой). Нужен кассиру для поиска договора в части 3.
+        String contractNumber = $x("//label[@id='MainHeaderSchemaPageHeaderCaptionLabel']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldHave(Condition.matchText("\\d"), Duration.ofSeconds(30))
+                .getText().trim();
+
+        ScenarioContextProvider.get().setCreditContractNumber(contractNumber);
+        log.info("Номер кредитного договора '{}' сохранён в контекст", contractNumber);
+
+        printOffer();
+
+        // Ордера под ИКОК-ГО не отображаются — настройка на стороне системы
+        // не выполнена. Метод реализован и готов к включению; проверка ордеров
+        // выполняется кассиром на следующей стадии.
+        log.info("Проверка ордеров пропущена: отображение для ИКОК-ГО не настроено");
+    }
+
+    /** Печать оферты с проверкой факта скачивания (паттерн из CollateralContractsFlow). */
+    private void printOffer() {
+        log.info("Печатная форма: '{}'", OFFER_PRINT_FORM);
+
+        Set<String> before = print.snapshotDownloads();
+
+        click.clickByName("Печать");
+        $x("//ul[contains(@data-item-marker,'PrintButton')]" +
+                "//li[normalize-space()='" + OFFER_PRINT_FORM + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
+                .click();
+
+        print.waitForNewDownload(before, OFFER_PRINT_FORM);
+    }
+
+    private void openAndCloseOrder(String orderType) {
+        log.info("Проверка ордера: '{}'", orderType);
+
+        buttons.doubleClickByName(orderType);
+        basePage.checkPage(ORDER_PAGE_MARKER);
+        click.clickByMarker("CloseButton");
+        basePage.waitForPage();
+    }
+
+    @Step("DEBUG: подписание и выдача по договору {contractNumber}")
+    public void debugSignAndIssue(String contractNumber) {
+        consultation.closeIfOpened();
+        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
+
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+
+        signAndIssueCredit();
+    }
+
+    /**
+     * НЕ ВЫЗЫВАЕТСЯ: отображение ордеров под ролью ИКОК-ГО не настроено
+     * в системе. Включить после исправления настроек — вызов из
+     * {@link #verifyOrdersAndPrint()} после {@code printOffer()}.
+     */
+    @Step("Проверка созданных ордеров")
+    private void verifyOrders() {
+        buttons.clickTabByName("Операции по договору");
+        openAndCloseOrder("Приходный");
+        openAndCloseOrder("Расходный");
     }
 }
