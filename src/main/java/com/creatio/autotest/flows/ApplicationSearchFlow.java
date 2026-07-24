@@ -123,23 +123,42 @@ public class ApplicationSearchFlow {
         SelenideElement removeBtn = $x(
                 "//*[contains(@id,'QuickFilterModuleV2')]" +
                         "//*[contains(@class,'filter-remove-button')]");
+        SelenideElement textBtn = $x("//span[normalize-space(.)='Фильтры/группы']");
+
+        // Раздел определяется с состоянием асинхронно: либо появляется чип
+        // фильтра с крестиком, либо текстовая кнопка «Фильтры/группы».
+        // Фиксированное ожидание (5 с) не заставало чип на загруженной среде,
+        // и фильтр оставался. Ждём то, что наступит раньше.
+        Boolean filterPresent;
         try {
-            removeBtn.shouldBe(Condition.exist, java.time.Duration.ofSeconds(5));
-            log.info("Активный фильтр найден — удаляем");
-            executeJavaScript("arguments[0].click();", removeBtn);
-            removeBtn.should(Condition.disappear, java.time.Duration.ofSeconds(10));
-            basePage.waitForPage();
-            log.info("Фильтр удалён");
-        } catch (AssertionError noFilter) {
-            log.debug("Активного фильтра нет — пропускаем");
+            filterPresent = new org.openqa.selenium.support.ui.FluentWait<>(
+                    com.codeborne.selenide.WebDriverRunner.getWebDriver())
+                    .withTimeout(java.time.Duration.ofSeconds(30))
+                    .pollingEvery(java.time.Duration.ofMillis(500))
+                    .until(d -> {
+                        if (removeBtn.is(Condition.exist))   return Boolean.TRUE;
+                        if (textBtn.is(Condition.visible))   return Boolean.FALSE;
+                        return null;   // состояние ещё не определилось
+                    });
+        } catch (org.openqa.selenium.TimeoutException e) {
+            throw new AssertionError(
+                    "Раздел не определился с состоянием фильтра за 30 с", e);
         }
 
-        // Кнопка фильтра меняет вид по состоянию: при активном фильтре она
-        // иконочная (без текста), в пустом — текстовая «Фильтры/группы».
-        // После снятия фильтра перерисовка занимает время, и клик по тексту
-        // падал с NoSuchElement. Ждём именно текстовое состояние.
-        $x("//span[normalize-space(.)='Фильтры/группы']")
-                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
+        if (!filterPresent) {
+            log.debug("Активного фильтра нет — пропускаем");
+            return;
+        }
+
+        log.info("Активный фильтр найден — удаляем");
+        executeJavaScript("arguments[0].click();", removeBtn);
+        removeBtn.should(Condition.disappear, java.time.Duration.ofSeconds(10));
+        basePage.waitForPage();
+
+        // Кнопка меняет вид по состоянию: иконочная при активном фильтре,
+        // текстовая в пустом. Дожидаемся перерисовки.
+        textBtn.shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
+        log.info("Фильтр удалён");
     }
 
     /*private void applyNumberFilter() {

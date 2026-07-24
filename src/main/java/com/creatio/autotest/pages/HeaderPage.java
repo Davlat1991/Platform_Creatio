@@ -19,16 +19,16 @@ public class HeaderPage extends BasePage {
         log.info("Logging out...");
 
         $x("//*[@data-item-marker='userProfileButton']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .click();
 
         $x("//*[@data-item-marker='Выход']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .click();
 
         // Ждём страницу логина
         $x("//*[@id='loginContainer']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15));
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         log.info("Logout successful");
     }

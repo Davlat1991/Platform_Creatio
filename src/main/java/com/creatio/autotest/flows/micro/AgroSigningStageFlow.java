@@ -11,8 +11,11 @@ import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.function.Supplier;
+
 
 import java.time.Duration;
 import java.util.Set;
@@ -176,13 +179,10 @@ public class AgroSigningStageFlow {
                 .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .click();
 
-        // В мини-панели «Связи» кликаем по ссылке договора (JS: нативный клик
-        // перехватывается значком документа). Скоуп marker='Contract' + href.
-        SelenideElement contractLink = $x(
-                "//a[@data-item-marker='Contract'" +
-                        " and contains(@href,'BnzContractCreditPage/edit')]"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
-        click.jsClick(contractLink);
+        jsClickWithRetry(() -> $x(
+                        "//a[@data-item-marker='Contract'" +
+                                " and contains(@href,'BnzContractCreditPage/edit')]"),
+                "ссылка на договор");
 
         $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
                 .shouldBe(Condition.visible, Duration.ofSeconds(30));
@@ -284,16 +284,15 @@ public class AgroSigningStageFlow {
     }
 
     private void clickExecuteButton(String activityTitle) {
-        SelenideElement activityRow = $x(
-                "//div[contains(@class,'dashboard-container-item')]" +
-                        "[.//text()[contains(.,'" + activityTitle + "')]]"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(60));
-        activityRow.hover();
+        $x("//div[contains(@class,'dashboard-container-item')]" +
+                "[.//text()[contains(.,'" + activityTitle + "')]]")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
+                .hover();
 
-        SelenideElement executeBtn = activityRow
-                .$x(".//span[@data-item-marker='Execute']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
-        executeJavaScript("arguments[0].click();", executeBtn);
+        jsClickWithRetry(() -> $x(
+                "//div[contains(@class,'dashboard-container-item')]" +
+                        "[.//text()[contains(.,'" + activityTitle + "')]]" +
+                        "//span[@data-item-marker='Execute']"), "Execute");
 
         $x("//div[@data-item-marker='ActivityMiniPageContainer']")
                 .shouldBe(Condition.visible, Duration.ofSeconds(30));
@@ -310,9 +309,8 @@ public class AgroSigningStageFlow {
     }
 
     private void clickSaveEditButton() {
-        executeJavaScript("arguments[0].click();",
-                $x("//span[@data-item-marker='SaveEditButton']")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(30)));
+        jsClickWithRetry(() -> $x("//span[@data-item-marker='SaveEditButton']"),
+                "SaveEditButton");
         basePage.waitForPage();
     }
 
@@ -351,6 +349,30 @@ public class AgroSigningStageFlow {
 
         basePage.waitForPage();
         log.info("Страница кредитного договора готова к привязке счёта");
+    }
+
+
+    /**
+     * JS-клик с повторным поиском элемента.
+     * <p>
+     * Creatio перерисовывает дашборд активностей асинхронно, поэтому ссылка,
+     * полученная до клика, может протухнуть (StaleElementReference). Элемент
+     * ищется заново на каждой попытке — переиспользовать найденный нельзя.
+     */
+    private void jsClickWithRetry(Supplier<SelenideElement> locator, String what) {
+        for (int attempt = 1; attempt <= 4; attempt++) {
+            try {
+                SelenideElement el = locator.get()
+                        .shouldBe(Condition.visible, Duration.ofSeconds(30));
+                executeJavaScript("arguments[0].click();", el);
+                return;
+            } catch (StaleElementReferenceException | AssertionError e) {
+                log.warn("JS-клик '{}': попытка {}/4 не удалась ({}) — ищем элемент заново",
+                        what, attempt, e.getClass().getSimpleName());
+                basePage.waitForPage();
+            }
+        }
+        throw new AssertionError("Не удалось кликнуть '" + what + "' за 4 попытки");
     }
 
     // ══════════════════════════════════════
@@ -509,4 +531,7 @@ public class AgroSigningStageFlow {
         openAndCloseOrder("Приходный");
         openAndCloseOrder("Расходный");
     }
+
+
+
 }
