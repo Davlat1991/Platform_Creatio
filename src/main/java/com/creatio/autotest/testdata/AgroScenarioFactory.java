@@ -83,7 +83,7 @@ public final class AgroScenarioFactory {
                 .productType("Агро кредиты")   // Тип продукта
                 .productKind("Агро кредиты")   // Вид продукта
                 .creditPurpose("Барои кишти пахта ва картошка")
-                .amount("70000")
+                .amount("40000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")
                 // Имя строки результата подбора (частичное совпадение).

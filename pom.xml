@@ -130,6 +130,10 @@
                 <configuration>
                     <release>17</release>
                     <encoding>UTF-8</encoding>
+                    <!-- Имена параметров методов в байткоде.
+      Без этого Allure не подставляет значения в @Step("... {param}")
+      и в отчёте остаются фигурные скобки. -->
+                    <parameters>true</parameters>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -186,6 +190,9 @@
                     </systemPropertyVariables>
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                        -Dfile.encoding=UTF-8
+                        -Dsun.stdout.encoding=UTF-8
+                        -Dsun.stderr.encoding=UTF-8
                     </argLine>
                 </configuration>
             </plugin>

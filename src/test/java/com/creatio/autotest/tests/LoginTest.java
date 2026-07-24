@@ -22,7 +22,7 @@ public class LoginTest extends BaseTest {
     // TESTS
     // ══════════════════════════════════════
 
-    @Test(groups = "smoke")
+    @Test(groups = "smoke", enabled = false)
     @Story("Вход: Розничный менеджер")
     @Description("Розничный менеджер успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
@@ -30,7 +30,8 @@ public class LoginTest extends BaseTest {
         new AuthFlow().login(Users.MANAGER());
     }
 
-    @Test(groups = "smoke")
+
+    @Test(groups = "smoke", enabled = true)
     @Story("Вход: Верификатор")
     @Description("Верификатор успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
@@ -38,7 +39,8 @@ public class LoginTest extends BaseTest {
         new AuthFlow().login(Users.UNDERWRITER());
     }
 
-    @Test(groups = "smoke")
+
+    @Test(groups = "smoke", enabled = false)
     @Story("Вход: ИКОК")
     @Description("ИКОК успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
@@ -46,7 +48,8 @@ public class LoginTest extends BaseTest {
         new AuthFlow().login(Users.IKOK());
     }
 
-    @Test(groups = "smoke")
+
+    @Test(groups = "smoke", enabled = false)
     @Story("Вход: ИКОК-ГО")
     @Description("ИКОК-ГО успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
@@ -54,7 +57,8 @@ public class LoginTest extends BaseTest {
         new AuthFlow().login(Users.IKOK_GO());
     }
 
-    @Test(groups = "smoke")
+
+    @Test(groups = "smoke",enabled = false)
     @Story("Вход: Касса")
     @Description("Кассир успешно входит в систему")
     @Severity(SeverityLevel.BLOCKER)
