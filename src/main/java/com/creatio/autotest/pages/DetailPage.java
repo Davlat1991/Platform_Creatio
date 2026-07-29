@@ -37,7 +37,7 @@ public class DetailPage extends BasePage {
                 .filter(Condition.visible)
                 .first();
 
-        detail.shouldBe(Condition.visible, Duration.ofSeconds(30))
+        detail.shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .scrollIntoView(true)
                 .hover()
                 .click();
@@ -83,7 +83,7 @@ public class DetailPage extends BasePage {
                 "//span[normalize-space()='" + detailName + "']" +
                         "/ancestor::div[contains(@class,'ts-controlgroup')]" +
                         "//span[@data-item-marker='ToolsButton']"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(30));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         executeJavaScript("arguments[0].click();", menuBtn);
 

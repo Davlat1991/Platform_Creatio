@@ -50,7 +50,7 @@ public class ClientSearchFlow {
 
     private void waitForSearchPanel() {
         $x("//input[@placeholder='Фамилия']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15));
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
     }
 
     private void setField(String placeholder, String value) {

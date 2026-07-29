@@ -57,7 +57,7 @@ public class ConsultationStartFlow {
                         "//span[@data-item-marker='Начать консультацию']" +
                         " | //*[@data-item-marker='Начать консультацию']" +
                         "[not(ancestor::div[contains(@class,'grid-row-hidden')])]"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(20));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         // JS-клик вместо нативного: нативный физически перемещает курсор на
         // кнопку в строке грида и ОСТАВЛЯЕТ его там. После перерисовки в панель

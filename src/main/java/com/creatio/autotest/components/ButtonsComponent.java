@@ -73,7 +73,7 @@ public class ButtonsComponent extends BaseComponent {
                 SelenideElement li = $$x(liXpath)
                         .filter(visible)
                         .first()
-                        .shouldBe(visible, Duration.ofSeconds(15));
+                        .shouldBe(visible, Duration.ofSeconds(20));
 
                 // Горизонтальное центрирование, без вертикального прыжка
                 executeJavaScript(

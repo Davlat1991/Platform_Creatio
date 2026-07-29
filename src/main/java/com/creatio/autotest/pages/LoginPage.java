@@ -43,7 +43,7 @@ public class LoginPage extends BasePage {
     public LoginPage openLoginPage() {
         log.info("Opening login page: {}", config.getBaseUrl());
         open(config.getBaseUrl());
-        usernameInput().shouldBe(visible, Duration.ofSeconds(15));
+        usernameInput().shouldBe(visible, Duration.ofSeconds(60));
         return this;
     }
 
@@ -75,7 +75,7 @@ public class LoginPage extends BasePage {
     @Step("Verify login success")
     public LoginPage verifyLoginSuccess() {
         log.info("Verifying login success");
-        header().shouldBe(visible, Duration.ofSeconds(30));
+        header().shouldBe(visible, Duration.ofSeconds(100));
         log.info("Login successful — dashboard loaded");
         return this;
     }

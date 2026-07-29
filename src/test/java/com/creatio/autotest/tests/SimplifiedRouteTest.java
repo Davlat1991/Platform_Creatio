@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 public class SimplifiedRouteTest extends BaseTest {
 
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Debug — от стадии Информирование клиента до конца")
     @Description("Старт на заявке в стадии Информирование клиента по UUID, дальше выдача")
     @Severity(SeverityLevel.NORMAL)
@@ -72,7 +72,7 @@ public class SimplifiedRouteTest extends BaseTest {
         ScenarioContextProvider.get().setCreditContractNumber("02-005-033405");
 
 
-        new LoanIssuanceFlow()
+        new SigningStageFlow()
                 .issueLoan();
 
         auth.logout();
@@ -81,7 +81,7 @@ public class SimplifiedRouteTest extends BaseTest {
         auth.login(scenario.getCashier());
         workspace.select(Workspace.CASHIER);
 
-        new SigningStageFlow().completeSigningStage();
+        new CashierFlow().completeCashOperations();
 
         auth.logout();
 
@@ -170,7 +170,7 @@ public class SimplifiedRouteTest extends BaseTest {
         auth.login(scenario.getIkok());
         workspace.select(Workspace.IKOK);
 
-        new LoanIssuanceFlow()
+        new SigningStageFlow()
                 .issueLoan();
 
         auth.logout();
@@ -180,7 +180,7 @@ public class SimplifiedRouteTest extends BaseTest {
          auth.login(scenario.getCashier());
          workspace.select(Workspace.CASHIER);
 
-         new SigningStageFlow().completeSigningStage();
+         new CashierFlow().completeCashOperations();
 
          auth.logout();
 

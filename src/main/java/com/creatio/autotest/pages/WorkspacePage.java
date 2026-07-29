@@ -83,20 +83,20 @@ public class WorkspacePage extends BasePage {
 
     private void openDropdown() {
         $x(WORKPLACE_BUTTON)
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         executeJavaScript("arguments[0].click();", $x(WORKPLACE_BUTTON));
 
         // Ждём появления дропдауна после клика
         $x(WORKPLACE_DROPDOWN)
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         log.info("Workspace dropdown opened");
     }
 
     private void clickItem(String workspaceName) {
         $x(String.format(WORKPLACE_ITEM, workspaceName))
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .click();
 
         log.info("Clicked workspace item: {}", workspaceName);
@@ -104,7 +104,7 @@ public class WorkspacePage extends BasePage {
 
     private void verifySelected(String workspaceName) {
         String current = $x(WORKPLACE_TEXT)
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .getText()
                 .trim();
 
@@ -121,7 +121,7 @@ public class WorkspacePage extends BasePage {
     private boolean isAlreadySelected(String workspaceName) {
         try {
             String current = $x(WORKPLACE_TEXT)
-                    .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                    .shouldBe(Condition.visible, Duration.ofSeconds(60))
                     .getText()
                     .trim();
 

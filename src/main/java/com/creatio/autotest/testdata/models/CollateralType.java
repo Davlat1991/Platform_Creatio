@@ -5,7 +5,7 @@ package com.creatio.autotest.testdata.models;
  * Аналог CurrencyType — все строки справочника UI живут здесь,
  * Flow-классы их не хардкодят.
  *
- * uiName     — значение, используемое LoanIssuanceFlow.openCollateralByName()
+ * uiName     — значение, используемое SigningStageFlow.openCollateralByName()
  *              для поиска строки залога в гриде (значения оригинальные, не менялись).
  * category   — значение поля "Тип" в форме залога (справочник Creatio).
  * subType    — значение поля "Подтип" в форме залога (справочник Creatio).

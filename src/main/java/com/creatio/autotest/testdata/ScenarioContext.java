@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
  * Жизненный цикл номеров:
  *   1. applicationNumber  — рождается на этапе Рассмотрения (ReviewStageRetailFlow)
  *                           используется до создания договора
- *   2. creditContractNumber — рождается при создании договора (LoanIssuanceFlow)
+ *   2. creditContractNumber — рождается при создании договора (SigningStageFlow)
  *                           используется ПОСЛЕ создания договора (Кассир, завершение)
- *   3. depositAccountNumber — рождается при создании сберегательного счёта (LoanIssuanceFlow)
+ *   3. depositAccountNumber — рождается при создании сберегательного счёта (SigningStageFlow)
  */
 public class ScenarioContext {
 
@@ -47,7 +47,7 @@ public class ScenarioContext {
 
     public String getCreditContractNumber() {
         return require(creditContractNumber, "creditContractNumber",
-                "LoanIssuanceFlow.createAbsContract()");
+                "SigningStageFlow.createAbsContract()");
     }
 
     // ══════════════════════════════════════
@@ -61,7 +61,7 @@ public class ScenarioContext {
 
     public String getDepositAccountNumber() {
         return require(depositAccountNumber, "depositAccountNumber",
-                "LoanIssuanceFlow (создание сберегательного счёта)");
+                "SigningStageFlow (создание сберегательного счёта)");
     }
 
     // ══════════════════════════════════════

@@ -27,6 +27,15 @@ public class ContactData {
                 .build();
     }
 
+    public static ContactData defaultContact2() {
+        return ContactData.builder()
+                .firstName("Шукрона")
+                .lastName("Ашурова")
+                .middleName("Махсудовна")
+                .segment(ClientSegment.RETAIL)
+                .build();
+    }
+
     public static ContactData selfemployeeContact() {
         return ContactData.builder()
                 .firstName("Сафарали")
@@ -37,6 +46,25 @@ public class ContactData {
     }
 
     public static ContactData selfemployeeContact1() {
+        return ContactData.builder()
+                .firstName("Давлатахмад")
+                .lastName("Одинаев")
+                .middleName("Сангахмадович")
+                .segment(ClientSegment.RETAIL)
+                .build();
+    }
+
+    public static ContactData selfemployeeContact2() {
+        return ContactData.builder()
+                .firstName("Фарангис")
+                .lastName("Ашурова")
+                .middleName("Шарифовна")
+                .segment(ClientSegment.RETAIL)
+                .build();
+    }
+
+
+    public static ContactData selfemployeeContact3() {
         return ContactData.builder()
                 .firstName("Фарангис")
                 .lastName("Ашурова")

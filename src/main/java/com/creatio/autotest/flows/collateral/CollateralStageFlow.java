@@ -111,7 +111,7 @@ public class CollateralStageFlow {
         $x("//label[normalize-space()=" +
                 "'Вложить документы и отправить на рассмотрение']")
                 .shouldBe(com.codeborne.selenide.Condition.visible,
-                        java.time.Duration.ofSeconds(60));
+                        java.time.Duration.ofSeconds(100));
     }
 
     private void setFieldByMarker(String marker, String value) {

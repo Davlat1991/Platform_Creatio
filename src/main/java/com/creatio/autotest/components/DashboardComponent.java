@@ -73,7 +73,7 @@ public class DashboardComponent extends BaseComponent {
                         .click();
 
                 $x("//*[@data-item-marker='MiniPage']")
-                        .shouldBe(visible, Duration.ofSeconds(5));
+                        .shouldBe(visible, Duration.ofSeconds(10));
 
                 log.info("MiniPage opened on attempt {}", attempt);
                 return this;

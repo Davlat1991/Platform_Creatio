@@ -27,7 +27,7 @@ import static com.codeborne.selenide.Selenide.$x;
  * берётся из {@link ScenarioContextProvider} — его сохраняет
  * {@code AgroSigningStageFlow.verifyOrdersAndPrint()}.
  * <p>
- * Отличия от розничного {@code SigningStageFlow}: суммы документов не
+ * Отличия от розничного {@code CashierFlow}: суммы документов не
  * проверяются на конкретные значения (зависят от суммы кредита и продукта —
  * хардкод в теле флоу запрещён), модалки обрабатываются через
  * {@code shouldSeeModal} + клик по «ОК», скачивание печатных форм

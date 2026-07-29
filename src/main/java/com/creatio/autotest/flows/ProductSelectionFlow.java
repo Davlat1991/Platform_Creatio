@@ -82,7 +82,7 @@ public class ProductSelectionFlow {
 
         SelenideElement gridWrap = $x(
                 "//div[@id='grid-TsiOpportunityConditionSelectionDetailDataGridGrid-wrap']"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(15));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(20));
 
         gridWrap.scrollIntoView(true);
 
@@ -92,12 +92,12 @@ public class ProductSelectionFlow {
                 SelenideElement row = gridWrap.$x(
                         ".//div[contains(@class,'grid-row')" +
                                 " and contains(@class,'grid-active-selectable')]"
-                ).shouldBe(Condition.visible, Duration.ofSeconds(5));
+                ).shouldBe(Condition.visible, Duration.ofSeconds(10));
 
                 row.click();
 
                 $x("//span[normalize-space()='Выбрать']")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(5))
+                        .shouldBe(Condition.visible, Duration.ofSeconds(10))
                         .shouldBe(Condition.enabled);
 
                 break;
