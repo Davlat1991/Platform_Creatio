@@ -30,7 +30,7 @@ public enum CollateralType {
             "Гарави амволи дар муомилотбуда",
             null,
             "Собственный",
-            "Шартномаи гарави молхои дар муомилот",
+            "Шартномаи гарави молхои дар муомилот ва коркард",
             true
     ),
     EQUIPMENT(
@@ -48,7 +48,7 @@ public enum CollateralType {
             "Гарави пасандоз",
             null,
             "Третьего лица",
-            "Гарави пасандоз",
+            "Шартномаи гарави пасандози пули",
             true
     ),
     REAL_ESTATE(
@@ -135,14 +135,26 @@ public enum CollateralType {
     public boolean hasPrintForm()   { return hasPrintForm; }
 
 
-/** Поиск типа по имени объекта в гриде «Объекты обеспечения» (колонка «Обеспечение»). */
-public static CollateralType fromObjectName(String objectName) {
-    for (CollateralType type : values()) {
-        if (type.uiName.equalsIgnoreCase(objectName.trim())) {
-            return type;
+    /** Поиск типа по имени объекта в гриде «Объекты обеспечения» (колонка «Обеспечение»). */
+    public static CollateralType fromObjectName(String objectName) {
+        String name = objectName.trim();
+
+        // Основной путь — точное совпадение по uiName (для всех типов).
+        for (CollateralType type : values()) {
+            if (type.uiName.equalsIgnoreCase(name)) {
+                return type;
+            }
         }
-    }
-    throw new IllegalStateException(
-            "Неизвестный объект обеспечения: '" + objectName + "'");
+
+        // Денежные средства: к имени объекта система дописывает номер депозитного
+        // счёта («Гарави пасандоз 2022097…»), поэтому точное сравнение не проходит.
+        // Депозит опознаём по префиксу имени — что бы ни было дописано после.
+        if (name.regionMatches(true, 0,
+                CASH_DEPOSIT.uiName, 0, CASH_DEPOSIT.uiName.length())) {
+            return CASH_DEPOSIT;
+        }
+
+        throw new IllegalStateException(
+                "Неизвестный объект обеспечения: '" + objectName + "'");
     }
 }

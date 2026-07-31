@@ -27,6 +27,10 @@ public class LookupComponent extends BaseComponent {
 
         SelenideElement input = getInputByLabel(label);
 
+        // li нашего значения — по нему находим и нужный список, и сам пункт.
+        String itemXpath = ".//li[@data-item-marker='" + value +
+                "' or normalize-space(.)='" + value + "']";
+
         for (int attempt = 1; attempt <= 3; attempt++) {
             try {
                 // На повторных попытках гасим «висящий» список перед переоткрытием.
@@ -41,13 +45,17 @@ public class LookupComponent extends BaseComponent {
                 input.shouldHave(exactValue(""), Duration.ofSeconds(5));
                 input.sendKeys(value);
 
-                // 2. Ждём видимый listview
-                SelenideElement listView = getVisibleListView();
+                // 2. Берём ИМЕННО тот listview, где есть li с нашим значением.
+                //    При заполнении зависимых полей подряд открытыми могут быть
+                //    два списка сразу; выбор «первого видимого» цеплял чужой и
+                //    тест зависал. Привязка к значению исключает рассинхрон.
+                SelenideElement listView = $$x(
+                        "//div[contains(@class,'listview')][" + itemXpath + "]")
+                        .findBy(visible)
+                        .shouldBe(visible, Duration.ofSeconds(30));
 
-                // 3. Ищем пункт
-                SelenideElement item = listView
-                        .$x(".//li[@data-item-marker='" + value +
-                                "' or normalize-space(.)='" + value + "']")
+                // 3. Пункт в этом списке
+                SelenideElement item = listView.$x(itemXpath)
                         .shouldBe(visible, Duration.ofSeconds(30));
 
                 // 4. JS клик — стабильнее для Creatio
@@ -87,10 +95,12 @@ public class LookupComponent extends BaseComponent {
         SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
                 .shouldBe(visible, enabled);
 
+        String itemXpath = ".//li[normalize-space(.)='" + value +
+                "' or @data-item-marker='" + value + "']";
+
         for (int attempt = 1; attempt <= 3; attempt++) {
             try {
                 // На повторных попытках закрываем «висящий» список перед переоткрытием.
-                // Первая попытка идентична проверенному поведению.
                 if (attempt > 1) {
                     try { input.sendKeys(Keys.ESCAPE); } catch (Throwable ignored) {}
                 }
@@ -98,13 +108,14 @@ public class LookupComponent extends BaseComponent {
                 executeJavaScript("arguments[0].focus();", input);
                 executeJavaScript("arguments[0].click();", input);
 
-                // Короткое ожидание: если список не открылся за 5 сек — быстро падаем
-                // и кликаем заново на след. попытке, а не ждём общий 60-сек таймаут.
-                SelenideElement listView = getVisibleListView(Duration.ofSeconds(5));
+                // Берём список по нашему значению, а не «первый видимый» —
+                // защита от рассинхрона при двух открытых списках сразу.
+                SelenideElement listView = $$x(
+                        "//div[contains(@class,'listview')][" + itemXpath + "]")
+                        .findBy(visible)
+                        .shouldBe(visible, Duration.ofSeconds(5));
 
-                SelenideElement option = listView
-                        .$x(".//li[normalize-space(.)='" + value + "'" +
-                                " or @data-item-marker='" + value + "']")
+                SelenideElement option = listView.$x(itemXpath)
                         .shouldBe(visible, Duration.ofSeconds(5));
 
                 executeJavaScript("arguments[0].click();", option);

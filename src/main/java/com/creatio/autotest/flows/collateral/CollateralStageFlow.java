@@ -103,7 +103,9 @@ public class CollateralStageFlow {
                 "Execute"
         );
 
-        setFieldByMarker("ProcessResult", "Выполнена");
+        // Открываем дропдаун результата кликом по полю — setValue(Result)
+        // не запускает onChange, и список пунктов не появляется в DOM.
+        menu.openResultDropdown();
         menu.clickByName("Выполнена");
         click.clickByMarker("SaveEditButton");
 
@@ -112,10 +114,5 @@ public class CollateralStageFlow {
                 "'Вложить документы и отправить на рассмотрение']")
                 .shouldBe(com.codeborne.selenide.Condition.visible,
                         java.time.Duration.ofSeconds(100));
-    }
-
-    private void setFieldByMarker(String marker, String value) {
-        $x("//div[@data-item-marker='" + marker + "']/input")
-                .setValue(value);
     }
 }

@@ -242,6 +242,8 @@ public class SigningStageFlow {
         click.clickByName("ОК");
 
         issueCashCredit();
+
+
     }
 
     @Step("Выдача кредита наличными")
@@ -319,11 +321,43 @@ public class SigningStageFlow {
     }
 
 
-
-
     @Step("Открыть вкладку 'Решение по заявке'")
     private void openDecisionTab() {
         buttons.clickTabByName("Операции по договору");
+    }
+
+
+    // ══════════════════════════════════════
+    // DEBUG — дорегистрация на существующей заявке
+    // ══════════════════════════════════════
+
+    /**
+     * DEBUG: дорегистрация договоров обеспечения на УЖЕ существующей заявке —
+     * без прохождения маршрута заново.
+     * <p>
+     * Открывает кредитный договор существующей заявки и запускает только
+     * {@link CollateralContractsFlow#processAllCollateralContracts()}: проверка
+     * КК, создание договора в АБС и привязка счетов пропускаются (уже сделаны).
+     * Регистрирует оставшиеся временные договоры (370…); зарегистрированные
+     * (Z-001-…) флоу пропускает сам.
+     * <p>
+     * Предусловие: стадия подписания НЕ завершена, поэтому активность
+     * «Создание договора в АБС …» ещё открыта — по ней {@code openContract()}
+     * находит договор. Номер заявки берётся из контекста ({@code resumeAt}).
+     */
+    @Step("DEBUG: дорегистрация договоров обеспечения на существующей заявке")
+    public void debugResumeCollateralContracts() {
+        String applicationNumber =
+                ScenarioContextProvider.get().getApplicationNumber();
+        log.info("DEBUG resume collateral contracts: application='{}'", applicationNumber);
+
+        consultation.closeIfOpened();
+        searchFlow.withApplicationNumber(applicationNumber).openByNumber();
+        openContract();
+
+        collateralContracts.processAllCollateralContracts();
+
+        log.info("DEBUG: дорегистрация договоров обеспечения завершена");
     }
 
 }

@@ -83,6 +83,8 @@ public class CollateralContractsFlow {
 
     /** Защита от зацикливания: договоров обеспечения в заявке заведомо меньше. */
     private static final int MAX_CONTRACTS = 20;
+    /** Защита от зацикливания «Показать больше» (страниц грида заведомо меньше). */
+    private static final int MAX_LOAD_MORE_CLICKS = 10;
 
     private final BasePage            basePage = new BasePage();
     private final ButtonsComponent    buttons  = new ButtonsComponent();
@@ -132,9 +134,7 @@ public class CollateralContractsFlow {
 
     /** Номер договора лежит в data-item-marker строки — читаем без разбора текста. */
     private List<String> collectContractNumbers() {
-        ElementsCollection rows = $$(PLEDGE_DETAIL + ROW)
-                .shouldHave(com.codeborne.selenide.CollectionCondition.sizeGreaterThan(0),
-                        Duration.ofSeconds(30));
+        ElementsCollection rows = expandAllRows();
 
         Set<String> numbers = new LinkedHashSet<>();
         for (SelenideElement row : rows) {
@@ -146,6 +146,55 @@ public class CollateralContractsFlow {
             }
         }
         return new ArrayList<>(numbers);
+    }
+
+
+    /**
+     * Раскрывает деталь «Договоры обеспечения» полностью.
+     * <p>
+     * Грид Creatio отдаёт строки страницами (~5), остальные скрыты за кнопкой
+     * «Показать больше» (data-item-marker='loadMore'). Без раскрытия
+     * collectContractNumbers() видит только первую страницу, и часть договоров
+     * не регистрируется (11 договоров → видно 5).
+     * <p>
+     * Универсально и безопасно: если строк мало и кнопки нет — ни одного клика.
+     * Кнопка перерисовывается после каждой подгрузки, поэтому ищем её заново на
+     * каждой итерации (защита от stale). Останавливаемся, когда кнопки нет,
+     * строки перестали расти, либо достигнут предел кликов.
+     *
+     * @return ленивая коллекция всех строк детали (уже раскрытых)
+     */
+    private ElementsCollection expandAllRows() {
+        String loadMore = PLEDGE_DETAIL + " [data-item-marker='loadMore']";
+
+        ElementsCollection rows = $$(PLEDGE_DETAIL + ROW)
+                .shouldHave(com.codeborne.selenide.CollectionCondition.sizeGreaterThan(0),
+                        Duration.ofSeconds(30));
+
+        for (int i = 1; i <= MAX_LOAD_MORE_CLICKS; i++) {
+            SelenideElement button = $(loadMore);
+            if (!button.is(Condition.visible)) {
+                return rows;                       // всё загружено (или строк мало)
+            }
+
+            int before = rows.size();
+            button.scrollIntoView("{block: 'center'}").click();
+
+            try {
+                rows.shouldHave(
+                        com.codeborne.selenide.CollectionCondition.sizeGreaterThan(before),
+                        Duration.ofSeconds(15));
+            } catch (Exception | AssertionError stalled) {
+                log.warn("«Показать больше»: число строк не выросло ({}) — считаем деталь раскрытой",
+                        before);
+                return rows;
+            }
+            log.info("«Показать больше» (клик {}): строк стало {}", i, rows.size());
+        }
+
+        log.warn("«Показать больше»: достигнут предел {} кликов — деталь могла раскрыться не полностью",
+                MAX_LOAD_MORE_CLICKS);
+        return rows;
     }
 
     // ══════════════════════════════════════

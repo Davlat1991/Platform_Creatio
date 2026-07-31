@@ -39,7 +39,10 @@ public class CollateralFormComponent extends BaseComponent {
 
     @Step("Название: {value}")
     public void setName(String value) {
-        lookup.selectByLabel("Название", value);
+        // Простое текстовое поле (readonly-до-фокуса). setText: фокус+клик снимают
+        // readonly, sendKeys + TAB фиксируют значение через onChange. Через setValue
+        // (как было в selectByLabel) на второй карточке значение не закреплялось.
+        lookup.setText("Название", value);
     }
 
     @Step("Сохранить")

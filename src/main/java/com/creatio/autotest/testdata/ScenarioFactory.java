@@ -117,6 +117,7 @@ public final class ScenarioFactory {
                 .build();
     }
 
+
     // ══════════════════════════════════════
     // СЦЕНАРИЙ 7 — Все залоги (регрессия)
     // ══════════════════════════════════════
@@ -124,6 +125,8 @@ public final class ScenarioFactory {
     public static TestScenario allCollaterals() {
         return baseBuilder()
                 .product(defaultProduct())
+                .route(CreditRoute.STANDARD)
+                .expectedScoringDecision(ScoringDecision.APPROVE)
                 .participants(List.of(
                         ParticipantData.guarantor(false),
                         ParticipantData.pledger(false),
