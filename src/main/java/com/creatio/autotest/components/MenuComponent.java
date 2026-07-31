@@ -67,4 +67,23 @@ public class MenuComponent extends BaseComponent {
 
         return this;
     }
+
+    /**
+     * Открывает дропдаун результата активности кликом по полю — замена
+     * setValue(Result), который не запускает onChange (значение не проставляется).
+     * Логика из AgroCollateralStageFlow.openResultDropdown(). Маркер поля
+     * различается между активностями (Result / ProcessResult) — ищем оба.
+     * <p>
+     * После вызова выбрать пункт результата через {@link #clickByName(String)}.
+     */
+    @Step("Открыть дропдаун результата активности")
+    public void openResultDropdown() {
+        com.codeborne.selenide.Selenide.$$x(
+                        "//div[@data-item-marker='Result' or @data-item-marker='ProcessResult']//input")
+                .filter(com.codeborne.selenide.Condition.visible)
+                .first()
+                .shouldBe(com.codeborne.selenide.Condition.visible,
+                        java.time.Duration.ofSeconds(60))
+                .click();
+    }
 }

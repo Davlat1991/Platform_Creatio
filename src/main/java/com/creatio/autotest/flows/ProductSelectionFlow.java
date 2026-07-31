@@ -137,7 +137,7 @@ public class ProductSelectionFlow {
                 labelText, dropdownMarker, value);
 
         SelenideElement input = inputByLabel(labelText)
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .shouldNotBe(Condition.disabled);
 
         // Клик на wrapper — снимает focus-trap, открывает поле

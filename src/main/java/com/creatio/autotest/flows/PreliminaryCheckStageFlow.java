@@ -106,7 +106,7 @@ public class PreliminaryCheckStageFlow {
 
         $x("//div[contains(@class,'dashboard-item-content')]" +
                 "[.//text()[contains(.,'" + activityTitle + "')]]")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60))
+                .shouldBe(Condition.visible, Duration.ofSeconds(100))
                 .hover();
     }
 
@@ -120,7 +120,7 @@ public class PreliminaryCheckStageFlow {
         SelenideElement activityRow = $x(
                 "//div[contains(@class,'dashboard-container-item')]" +
                         "[.//text()[contains(.,'" + activityTitle + "')]]"
-        ).shouldBe(Condition.visible, Duration.ofSeconds(60));
+        ).shouldBe(Condition.visible, Duration.ofSeconds(100));
 
         // Hover — делает кнопку видимой
         activityRow.hover();

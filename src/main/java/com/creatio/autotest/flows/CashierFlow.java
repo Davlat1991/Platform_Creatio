@@ -64,7 +64,6 @@ public class CashierFlow {
         basePage.checkPage("BnzOrderPageContainer");
 
         assertions.assertOrderState("Новый");
-       // fieldAssert.checkFieldValueNormalized("Сумма документа", "50,00");
 
         click.clickByName("Подтвердить");
 
@@ -87,7 +86,6 @@ public class CashierFlow {
         basePage.checkPage("BnzOrderPageContainer");
 
         assertions.assertOrderState("Новый");
-       // fieldAssert.checkFieldValueNormalized("Сумма документа", "5 000,00");
 
         click.clickByName("Подтвердить");
 

@@ -170,6 +170,41 @@ public class RetailRoute {
         );
     }
 
+    /**
+     * Стадия «Обеспечение» для упрощённого маршрута: залогов нет, но стадию
+     * обязательно закрыть, иначе процесс не переходит к сбору документов.
+     * No-arg перегрузка CollateralStageFlow — только закрытие стадии.
+     */
+    @Step("Стадия «Обеспечение» (упрощённый — без залогов)")
+    public void collateralStageClose() {
+        log.info("Стадия «Обеспечение» (упрощённый, без залогов)");
+        new CollateralStageFlow().completeCollateralStage();
+    }
+
+    /**
+     * Стадия «Сбор документов» для упрощённого маршрута: только документы
+     * заёмщика (участников нет).
+     */
+    @Step("Стадия «Сбор документов» (упрощённый — только заёмщик)")
+    public void documentCollectionBorrowerOnly() {
+        log.info("Стадия «Сбор документов» (упрощённый, только заёмщик)");
+        DocumentCollectionStageFlow documents = new DocumentCollectionStageFlow();
+        documents.openDocumentsTab();
+        documents.prepareBorrowerDetails();
+        documents.uploadBorrowerDocuments();
+        documents.completeDocumentsActivity();
+    }
+
+    /**
+     * Стадия «Информирование клиента» для упрощённого маршрута: без поиска,
+     * цель — ИКОК (в стандартном — с поиском, цель ИКОК-ГО).
+     */
+    @Step("Стадия «Информирование клиента» (упрощённый)")
+    public void notifyClientSimplified() {
+        log.info("Стадия «Информирование клиента» (упрощённый)");
+        new ClientNotificationStageFlow()
+                .completeClientNotification(scenario.getIkok().getDisplayName());
+    }
 
 
     /** Утверждение проекта решения верификатором (STANDARD: КК4). */
@@ -200,7 +235,7 @@ public class RetailRoute {
                 (scenario.getParticipants() != null && !scenario.getParticipants().isEmpty())
                         || (scenario.getCollaterals() != null && !scenario.getCollaterals().isEmpty());
         log.info("Стадия «Подписание» и выдача (договоры обеспечения={})", hasSecuredItems);
-        new SigningStageFlow().issueLoan(hasSecuredItems);
+        new SigningStageFlow().issueLoan(hasSecuredItems, false);
     }
 
 
@@ -313,6 +348,57 @@ public class RetailRoute {
         ikokGoIssuance();
         cashierOperations();
         finishApplication();
+    }
+
+
+    // ══════════════════════════════════════
+    // УРОВЕНЬ 3 — РОЛЕВЫЕ СЕГМЕНТЫ (упрощённый маршрут)
+    // ══════════════════════════════════════
+
+    /**
+     * Розничный менеджер: от создания заявки до информирования включительно —
+     * одна сессия. Без участников и верификатора; обеспечение закрывается
+     * пустым; документы — только заёмщик; рассмотрение авто-переходит на
+     * информирование.
+     */
+    @Step("Сегмент: розничный менеджер — от создания заявки до информирования (упрощённый)")
+    public void managerSimplifiedUpToNotification() {
+        as(scenario.getManager(), Workspace.RETAIL_MANAGER, () -> {
+            createApplication();
+            registration();
+            preliminaryCheck();
+            collateralStageClose();
+            documentCollectionBorrowerOnly();
+            review();
+            notifyClientSimplified();
+        });
+    }
+
+    /** ИКОК: подписание и выдача. Без договоров обеспечения, с проверкой ордеров. */
+    @Step("Сегмент: ИКОК — подписание и выдача (упрощённый)")
+    public void ikokIssuance() {
+        as(scenario.getIkok(), Workspace.IKOK,
+                () -> new SigningStageFlow().issueLoan(false, true));
+    }
+
+    /** ИКОК: завершение заявки (упрощённый маршрут — одна сессия). */
+    @Step("Сегмент: ИКОК — завершение заявки (упрощённый)")
+    public void simplifiedFinish() {
+        as(scenario.getIkok(), Workspace.IKOK,
+                () -> new ApplicationFinishFlow().completeSimplifiedFinish());
+    }
+
+    // ══════════════════════════════════════
+    // СБОРКА — УПРОЩЁННЫЙ МАРШРУТ
+    // ══════════════════════════════════════
+
+    /** Полный упрощённый маршрут: четыре сегмента. */
+    @Step("Упрощённый маршрут — полный E2E")
+    public void runSimplified() {
+        managerSimplifiedUpToNotification();
+        ikokIssuance();
+        cashierOperations();
+        simplifiedFinish();
     }
 
     // ══════════════════════════════════════

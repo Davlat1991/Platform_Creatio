@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.Set;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -29,6 +30,7 @@ public class ApplicationFinishFlow {
 
 
 
+
     private final BasePage                    basePage      = new BasePage();
     private final ButtonsComponent            buttons       = new ButtonsComponent();
     private final DashboardComponent          dashboard     = new DashboardComponent();
@@ -37,6 +39,7 @@ public class ApplicationFinishFlow {
     private final ConsultationPanelPage       consultation  = new ConsultationPanelPage();
     private final ClickService                click         = new ClickService();
     private final ApplicationSearchFlow       searchFlow    = new ApplicationSearchFlow();
+    private final PrintComponent              print         = new PrintComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -227,8 +230,8 @@ public class ApplicationFinishFlow {
                 "Подтвердить получение документа", "Execute"
         );
 
-        $x("//div[@data-item-marker='Result']/input")
-                .setValue("Подтвердить получение документа");
+        menu.openResultDropdown();
+
         menu.clickByName("Подтвердить получение документа");
         click.clickByMarker("SaveEditButton");
     }
@@ -319,9 +322,7 @@ public class ApplicationFinishFlow {
     private void downloadFile(String fileName) {
         log.info("Download file via row link: '{}'", fileName);
 
-        File dir = new File(DriverSetup.getDownloadDir());
-        dir.mkdirs();
-        int before = countReadyFiles(dir); // счётчик ДО клика — загрузка мгновенная
+        Set<String> before = print.snapshotDownloads();
 
         // Клик по ССЫЛКЕ файла в строке грида — инициирует скачивание в downloads.
         // (SaveToDiscButton — это upload-input, он открывает OS-диалог, поэтому не он.)
@@ -330,31 +331,11 @@ public class ApplicationFinishFlow {
                 .scrollIntoView(false)
                 .click();
 
-        waitForNewFile(dir, before);
+        print.waitForNewDownload(before, fileName);
         log.info("File downloaded: '{}'", fileName);
     }
 
-    private int countReadyFiles(File dir) {
-        File[] files = dir.listFiles(
-                f -> f.isFile() && !f.getName().endsWith(".crdownload"));
-        return files == null ? 0 : files.length;
-    }
 
-    /** Ждём появления нового готового файла (не .crdownload). Файловый поллинг —
-     *  тот же приём, что в PrintComponent (Selenide-условий для ФС нет). */
-    private void waitForNewFile(File dir, int before) {
-        for (int i = 0; i < 30; i++) {
-            File[] inProgress = dir.listFiles(f -> f.getName().endsWith(".crdownload"));
-            boolean downloading = inProgress != null && inProgress.length > 0;
-            if (countReadyFiles(dir) > before && !downloading) {
-                log.info("Download completed: было {}, стало {}", before, countReadyFiles(dir));
-                return;
-            }
-            try { Thread.sleep(1000); }
-            catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }
-        }
-        throw new AssertionError("Скачивание не завершилось за 30с, папка: " + dir.getAbsolutePath());
-    }
 
 
 }

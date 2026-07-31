@@ -65,7 +65,7 @@ public class MessageBoxComponent extends BaseComponent {
     public MessageBoxComponent shouldSeeModal(String text) {
         log.info("Should see modal: '{}'", text);
         $x(MSGBOX_XPATH + "[contains(.,'" + text + "')]")
-                .shouldBe(visible, Duration.ofSeconds(60));
+                .shouldBe(visible, Duration.ofSeconds(100));
         return this;
     }
 

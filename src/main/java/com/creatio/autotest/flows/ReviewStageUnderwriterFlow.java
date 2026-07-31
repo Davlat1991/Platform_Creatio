@@ -3,6 +3,7 @@ package com.creatio.autotest.flows;
 import com.codeborne.selenide.Condition;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
+import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.core.services.WaitService;
@@ -23,6 +24,7 @@ public class ReviewStageUnderwriterFlow {
     private final LookupComponent       lookup       = new LookupComponent();
     private final BasePage              basePage     = new BasePage();
     private final ClickService          click        = new ClickService();
+    private final MessageBoxComponent   msgBox       = new MessageBoxComponent();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
     private final WaitService wait = new WaitService();
@@ -100,5 +102,11 @@ public class ReviewStageUnderwriterFlow {
     @Step("Утвердить решение")
     private void approveDecision() {
         click.waitAndClick("ApproveButton");
+
+        // После утверждения появляется модалка завершения процесса — ждём и
+        // подтверждаем. Раньше ожидания не было (наблюдение с прогона).
+        // Паттерн из AgroReviewStageUnderwriterFlow.approveDecision().
+        msgBox.shouldSeeModal("Процесс успешно завершен");
+        click.clickByName("ОК");
     }
 }

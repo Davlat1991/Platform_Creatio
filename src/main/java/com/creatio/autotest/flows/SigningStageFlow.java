@@ -7,7 +7,6 @@ import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
-import com.creatio.autotest.testdata.models.CollateralType;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -25,6 +24,9 @@ public class SigningStageFlow {
 
     private static final String CONTRACT_PAGE_MARKER =
             "BnzContractCreditPageContainer";
+
+    private static final String CONTRACT_OPEN_ACTIVITY =
+            "Создание договора в АБС (печать договоров для встречи)";
 
     private final BasePage              basePage     = new BasePage();
     private final ButtonsComponent      buttons      = new ButtonsComponent();
@@ -47,21 +49,26 @@ public class SigningStageFlow {
 
     @Step("Стадия «Подписание»: выдача кредита")
     public void issueLoan() {
-        issueLoan(false);
+        // Классический вызов: без договоров обеспечения, с проверкой ордеров.
+        // Используется упрощённым маршрутом и отладочными тестами.
+        issueLoan(false, true);
     }
 
     /**
      * @param registerCollateralContracts регистрировать ли договоры обеспечения
-     *        на открытом кредитном договоре. true — для заявок с поручителем
-     *        и/или залогом (стандартный маршрут); false — упрощённый маршрут,
-     *        где деталь «Договоры обеспечения» пуста.
+     *        на открытом кредитном договоре. true — заявки с поручителем и/или
+     *        залогом (стандартный маршрут); false — упрощённый маршрут, где
+     *        деталь «Договоры обеспечения» пуста.
+     * @param verifyOrders проверять ли приходный/расходный ордер после печати
+     *        оферты. true — упрощённый маршрут (настроено и работает); false —
+     *        стандартный маршрут (в текущей конфигурации системы не настроено).
      */
-    @Step("Стадия «Подписание»: выдача кредита (договоры обеспечения={0})")
-    public void issueLoan(boolean registerCollateralContracts) {
+    @Step("Стадия «Подписание»: выдача (обеспечение={0}, проверка ордеров={1})")
+    public void issueLoan(boolean registerCollateralContracts, boolean verifyOrders) {
         String applicationNumber =
                 ScenarioContextProvider.get().getApplicationNumber();
-        log.info("Issue loan: number='{}', договоры обеспечения={}",
-                applicationNumber, registerCollateralContracts);
+        log.info("Issue loan: number='{}', обеспечение={}, проверка ордеров={}",
+                applicationNumber, registerCollateralContracts, verifyOrders);
 
         consultation.closeIfOpened();
 
@@ -80,7 +87,7 @@ public class SigningStageFlow {
         }
 
         signAndCreateOrders();
-        verifyOrdersAndPrint();
+        verifyOrdersAndPrint(verifyOrders);
     }
 
     // ══════════════════════════════════════
@@ -93,7 +100,8 @@ public class SigningStageFlow {
 
         dashboard.clickAndWaitMiniPage("Проверка решения КК", "Execute");
 
-        setFieldByMarker("Result", "Выполнена");
+        menu.openResultDropdown();
+
         menu.clickByName("Выполнена");
         click.clickByMarker("SaveEditButton");
     }
@@ -166,7 +174,13 @@ public class SigningStageFlow {
         log.info("Депозитный счёт '{}' сохранён в контекст", depositAccount);
 
         click.clickByName("Закрыть");
+
         refresh();
+
+        // После закрытия страницы сберегательного счёта refresh() возвращается
+        // до загрузки данных договора — ждём готовности перед привязкой счёта.
+        // Паттерн из AgroSigningStageFlow.waitContractPageReady().
+        waitContractPageReady();
 
         // Привязка счёта: лупа → поиск → выбор
         lookup.selectInLookupByIdWithSearch(
@@ -192,6 +206,24 @@ public class SigningStageFlow {
 
     }
 
+    /**
+     * Ждёт готовности страницы кредитного договора: маркер страницы + активность
+     * договора в дашборде + waitForPage. Нужно после закрытия страницы
+     * сберегательного счёта — refresh() возвращается до загрузки данных.
+     * Паттерн из AgroSigningStageFlow.waitContractPageReady().
+     */
+    private void waitContractPageReady() {
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        $x("//div[.='" + CONTRACT_OPEN_ACTIVITY + "'" +
+                " and not(ancestor::*[contains(@id,'RightSideBarModule')])]")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        basePage.waitForPage();
+        log.info("Страница кредитного договора готова к привязке счёта");
+    }
+
 
     @Step("Подписание и выдача кредита")
     private void signAndCreateOrders() {
@@ -199,7 +231,8 @@ public class SigningStageFlow {
 
         dashboard.clickAndWaitMiniPage("Создание договора в АБС (печать договоров для встречи)","Execute");
 
-        setFieldByMarker("Result", "Выполнена");
+        menu.openResultDropdown();
+
         menu.clickByName("Выполнена");
         click.clickByMarker("SaveEditButton");
 
@@ -252,8 +285,8 @@ public class SigningStageFlow {
     }
 
     @Step("Проверка ордеров и печать")
-    private void verifyOrdersAndPrint() {
-        log.info("Verify orders and print");
+    private void verifyOrdersAndPrint(boolean verifyOrders) {
+        log.info("Verify orders and print (verifyOrders={})", verifyOrders);
 
         // Сохраняем номер финального кредитного договора из заголовка страницы.
         // input поля пустой — номер только в label заголовка (data-item-marker='Кредитный').
@@ -269,84 +302,24 @@ public class SigningStageFlow {
 
         print.selectPrintOption("Чек лист маълумотнома(оферта)");
 
-      /*  openDecisionTab();
+        // Проверка приходного/расходного ордера на стороне ИКОК-ГО. Нужна
+        // упрощённому маршруту; для стандартного в текущей конфигурации системы
+        // не настроена — выполняется только при verifyOrders=true.
+        if (verifyOrders) {
+            openDecisionTab();
 
-        buttons.doubleClickByName("Приходный");
-        basePage.checkPage("BnzOrderPageContainer");
-        click.clickByName("Закрыть");
+            buttons.doubleClickByName("Приходный");
+            basePage.checkPage("BnzOrderPageContainer");
+            click.clickByName("Закрыть");
 
-        buttons.doubleClickByName("Расходный");
-        basePage.checkPage("BnzOrderPageContainer");
-        click.clickByName("Закрыть");
-
-       */
-    }
-
-    // ══════════════════════════════════════
-    // COLLATERAL
-    // ══════════════════════════════════════
-
-    @Step("Обработка залога: {type}")
-    public void processCollateral(CollateralType type) {
-        openCollateralByName(type.getUiName());
-        createCollateralContract();
-
-        if (type.hasPrintForm()) {
-            printCollateralContract(type.getPrintForm());
-            waitForConfidantGrid();
-            selectConfidantByPosition("Сардор дар Идораи амалиёт");
+            buttons.doubleClickByName("Расходный");
+            basePage.checkPage("BnzOrderPageContainer");
+            click.clickByName("Закрыть");
         }
-
-        saveAndCloseCollateral();
     }
 
-    private void openCollateralByName(String name) {
-        SelenideElement row = $x(
-                "//span[@grid-data-type='text'" +
-                        " and normalize-space()='" + name + "']"
-        ).shouldBe(visible);
-        actions().doubleClick(row).perform();
-    }
 
-    private void createCollateralContract() {
-        click.clickByName("Действия");
-        menu.clickByName("Создание договора обеспечения");
-        msgBox.shouldSeeModal("Договор успешно создан");
-        click.clickByName("ОК");
-    }
 
-    private void printCollateralContract(String formName) {
-        click.clickByName("Печать");
-        $x("//ul[@data-item-marker='PrintButton']" +
-                "//li[normalize-space()='" + formName + "']")
-                .shouldBe(visible)
-                .click();
-    }
-
-    private void waitForConfidantGrid() {
-        $("[data-item-marker='Должностные лица']")
-                .shouldBe(visible);
-    }
-
-    private void selectConfidantByPosition(String position) {
-        $x("//span[@grid-data-type='text'" +
-                " and normalize-space()='" + position + "']")
-                .shouldBe(visible)
-                .click();
-        $x("//span[text()='Выбрать']")
-                .shouldBe(visible)
-                .click();
-    }
-
-    private void saveAndCloseCollateral() {
-        click.clickByMarkerIfVisible("SaveButton");
-        click.clickByMarkerIfVisible("SaveButton");
-    }
-
-    private void setFieldByMarker(String marker, String value) {
-        $x("//div[@data-item-marker='" + marker + "']/input")
-                .setValue(value);
-    }
 
     @Step("Открыть вкладку 'Решение по заявке'")
     private void openDecisionTab() {
