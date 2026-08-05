@@ -6,6 +6,8 @@ import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static groovyjarjarantlr4.v4.misc.Utils.select;
+
 /**
  * Флоу «Общая информация» стадии «Оформление» для продуктов сегмента «Микро»
  * (первый продукт — «Агро»).
@@ -28,13 +30,14 @@ public class AgroRegistrationGeneralInfoFlow {
      *                       розничную {@link RegistrationData})
      */
     @Step("Заполнение общей информации регистрации (Агро/Микро)")
-    public void fillGeneralInfo(RegistrationData data, String economicSector) {
+    public void fillGeneralInfo(RegistrationData data, String economicSector, String OKONH) {
         log.info("Fill general info (Agro/Micro): region='{}' source='{}' sector='{}'",
                 data.getRegion(), data.getInfoSource(), economicSector);
 
         lookup
-                .select("Регион использования кредита", data.getRegion())
+                .select("Регион использования кредита",  data.getRegion())
                 .select("Источник информации",           data.getInfoSource())
-                .select("Сектор экономики",              economicSector);
+                .select("Сектор экономики",              economicSector)
+                .select("ОКОНХ",                         OKONH);
     }
 }

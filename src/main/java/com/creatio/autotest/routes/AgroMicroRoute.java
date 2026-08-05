@@ -253,7 +253,8 @@ public class AgroMicroRoute {
         new AgroRegistrationGeneralInfoFlow()
                 .fillGeneralInfo(
                         scenario.getRegistration(),
-                        AgroScenarioFactory.agroEconomicSector());
+                        AgroScenarioFactory.agroEconomicSector(),
+                        AgroScenarioFactory.OKONH());
 
         // Добавление заёмщика открывает его анкету.
         new AgroRegistrationParticipantsFlow()

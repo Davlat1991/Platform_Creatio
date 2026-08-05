@@ -81,8 +81,8 @@ public final class AgroScenarioFactory {
     public static AgroProductData agroMicroProduct() {
         return AgroProductData.builder()
                 .productType("Агро кредиты")   // Тип продукта
-                .productKind("Агро кредиты")   // Вид продукта
-                .creditPurpose("Барои кишти пахта ва картошка")
+                .productKind("Агро кредиты")   // Вид продукта :  Агро Животноводство
+                .creditPurpose("Барои кишти пахта ва картошка") //Цель кредитования: Барои зиёд намудани воситахои асоси
                 .amount("40000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")
@@ -113,10 +113,21 @@ public final class AgroScenarioFactory {
      * Передаётся отдельно (не через RegistrationData), чтобы не тащить
      * Агро-специфику в розничную модель.
 
-     *  Животноводство
+     *  Выращивание картофеля и посадочного материала
      */
     public static String agroEconomicSector() {
         return "Выращивание картофеля и посадочного материала";
+    }
+
+    /**
+     * Значение обязательного поля «Сектор экономики» в общей информации Агро.
+     * Передаётся отдельно (не через RegistrationData), чтобы не тащить
+     * Агро-специфику в розничную модель.
+
+     *  Выращивание картофеля и посадочного материала
+     */
+    public static String OKONH() {
+        return "1.1.5. Картофелеводство";
     }
 
     /**

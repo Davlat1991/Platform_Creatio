@@ -78,11 +78,25 @@ public class ContactData {
      * может создавать заявки на продукты линейки Микро (в т.ч. Агро).
      * из тестовой системы.
      */
-    public static ContactData microContact() {
+    public static ContactData microContact1() {
         return ContactData.builder()
                 .firstName("Собирчон")
                 .lastName("Абдуллоев")
                 .middleName("Абдучабборович")
+                .segment(ClientSegment.MICRO)
+                .build();
+    }
+
+    /**
+     * Клиент сегмента «Микро» — физ.лицо, под которое кредитный эксперт
+     * может создавать заявки на продукты линейки Микро (в т.ч. Агро).
+     * из тестовой системы.
+     */
+    public static ContactData microContact() {
+        return ContactData.builder()
+                .firstName("Исроилхуча")
+                .lastName("Абдурахмонов")
+                .middleName("Исмоилхучаевич")
                 .segment(ClientSegment.MICRO)
                 .build();
     }

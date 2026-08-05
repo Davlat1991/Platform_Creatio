@@ -5,6 +5,7 @@ import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.CheckboxComponent;
 import com.creatio.autotest.components.LookupComponent;
+import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.DetailPage;
@@ -41,12 +42,13 @@ public class AgroRegistrationIncomeExpensesFlow {
     private static final String INCOME_CONTAINER  = "BnzAppIncomesDetailDetailContainer";
     private static final String EXPENSE_CONTAINER = "BnzAppExpensesDetailDetailContainer";
 
-    private final DetailPage        detailPage = new DetailPage();
-    private final CheckboxComponent checkbox   = new CheckboxComponent();
-    private final LookupComponent   lookup     = new LookupComponent();
-    private final ButtonsComponent  buttons    = new ButtonsComponent();
-    private final BasePage          basePage   = new BasePage();
-    private final ClickService      click      = new ClickService();
+    private final DetailPage          detailPage = new DetailPage();
+    private final CheckboxComponent   checkbox   = new CheckboxComponent();
+    private final LookupComponent     lookup     = new LookupComponent();
+    private final ButtonsComponent    buttons    = new ButtonsComponent();
+    private final BasePage            basePage   = new BasePage();
+    private final ClickService        click      = new ClickService();
+    private final MessageBoxComponent msgBox     = new MessageBoxComponent();
 
     // ══════════════════════════════════════
     // PUBLIC API
@@ -70,13 +72,10 @@ public class AgroRegistrationIncomeExpensesFlow {
         // здесь (клик идемпотентен — вкладка остаётся активной).
         buttons.clickTabByName("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ");
 
-        // Если деятельность уже добавлена — дубль не создаём.
-        if (detailPage.detailHasRecord("Деятельность физ.лица")) {
-            log.info("Individual activity already exists — skip adding");
-            return;
-        }
-
         detailPage.clickAddRecord("Деятельность физ.лица");
+
+        // диалог смены типа занятости (может появиться)
+        msgBox.confirmIfPresent("Да", "При изменении типа занятости");
 
         lookup.selectCascadeByMarker(ActivityField.SECTOR.marker,      activity.getSector());
         lookup.selectCascadeByMarker(ActivityField.SEGMENT.marker,     activity.getSegment());

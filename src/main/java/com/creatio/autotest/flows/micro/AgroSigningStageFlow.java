@@ -60,9 +60,14 @@ public class AgroSigningStageFlow {
             "Создание договора в АБС (печать договоров для встречи)";
     private static final String CONTRACT_PAGE_MARKER = "BnzContractCreditPageContainer";
 
+    /** Внутренний рейтинг заёмщика — окно рейтинга при создании договора (Агро/Микро). */
+    private static final String BORROWER_RATING = "A";
+    /** Уровень ЭиС риска — то же окно. */
+    private static final String EIS_RISK_LEVEL = "Низкий";
     /** Вид планирования — значение продуктовой линейки Агро/Микро. */
     private static final String PLANNING_TYPE       = "Кредиты_агро_008_аннуитет";
     private static final String CREDIT_RECEIPT_TYPE = "Получает сегодня";
+
 
     private static final String DEPOSIT_CREATE_BUTTON_ID =
             "BnzContractCreditPageBnzCreateSavingAcountContractButtonButton-imageEl";
@@ -70,7 +75,7 @@ public class AgroSigningStageFlow {
             "BnzContractCreditPageBnzCreditBankAccountLookupEdit";
 
     /** ← ПОДСТАВЬ точное название печатной формы оферты из меню «Печать». */
-    private static final String OFFER_PRINT_FORM = "Шартномаи кредити АГРО - СИ бо генерали";
+    private static final String OFFER_PRINT_FORM = "Шартномаи кредити АГРО - СИ  без ген- комиссия";  //Шартномаи кредити АГРО - СИ бо генерали
     private static final String ORDER_PAGE_MARKER = "BnzOrderPageContainer";
 
     private final BasePage                basePage            = new BasePage();
@@ -193,6 +198,13 @@ public class AgroSigningStageFlow {
         log.info("Agro: create ABS contract");
         click.clickByName("Действия");
         menu.clickByName("Создание договора");
+
+        // Окно «Выбрать рейтинг кредитоспособности и уровень ЭиС риска»
+        // (появилось после настройки справочников): два обязательных lookup-поля,
+        // затем «Утвердить». До него «Вид планирования» ещё не отрисован.
+        lookup.selectByMarker("Внутренний рейтинг заёмщика", BORROWER_RATING);
+        lookup.selectByMarker("Уровень ЭиС риска", EIS_RISK_LEVEL);
+        click.clickByMarker("Утвердить");
 
         lookup.select("Вид планирования", PLANNING_TYPE);
         lookup.selectComboboxByMarker("LoadCreditType", CREDIT_RECEIPT_TYPE);
