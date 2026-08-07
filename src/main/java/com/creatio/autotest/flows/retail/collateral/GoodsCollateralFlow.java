@@ -1,25 +1,28 @@
-package com.creatio.autotest.flows.collateral;
+package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.SimpleObjectData;
 import io.qameta.allure.Step;
 
-public class CashDepositCollateralFlow extends BaseCollateralFlow {
+public class GoodsCollateralFlow extends BaseCollateralFlow {
 
     private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
     private final CollateralGridComponent      grid      = new CollateralGridComponent();
     private final CollateralFormComponent      form      = new CollateralFormComponent();
+    private final CollateralAddressComponent   address   = new CollateralAddressComponent();
     private final CollateralValuationComponent valuation = new CollateralValuationComponent();
     private final ClickService click    = new ClickService();
 
     @Override
-    @Step("Залог: Денежный вклад")
+    @Step("Залог: Товары в обороте")
     public void fill(CollateralData data) {
-        log.info("Fill cash deposit collateral");
+        log.info("Fill goods collateral");
 
         CollateralType type = data.getType();
+        SimpleObjectData object = (SimpleObjectData) data.getSpecificData();
 
         tabs.openCollateralTab();
         grid.addCollateral();
@@ -29,16 +32,16 @@ public class CashDepositCollateralFlow extends BaseCollateralFlow {
         form.selectSubType(type.getSubType());
         form.setName(type.getUiName());
         form.selectOwnership(type.getOwnership());
-        // TODO: залогодатель сейчас захардкожен, параметризация отложена
-        form.selectPledger("Хамидов Азизходжа Азамходжаевич");
 
-        valuation.fillCashDeposit(
-                data.getMarketValue(),
-                data.getCurrency()
+        valuation.fillObjects(
+                object.getName(),
+                object.getSum(),
+                data.getCurrency(),
+                object.getAmount(),
+                object.getDescription()
         );
 
-        form.save();
-        click.doubleClickByMarker("Залоговая стоимость");
+        address.fillPropertyAddress();
         form.close();
         click.doubleClickByMarker("Обеспечение.Подтип");
     }

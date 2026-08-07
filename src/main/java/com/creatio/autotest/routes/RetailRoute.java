@@ -1,7 +1,7 @@
 package com.creatio.autotest.routes;
 
 
-import com.creatio.autotest.flows.collateral.CollateralStageFlow;
+import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.flows.retail.*;

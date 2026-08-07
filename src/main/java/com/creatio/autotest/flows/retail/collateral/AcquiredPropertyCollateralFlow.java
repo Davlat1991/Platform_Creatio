@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.collateral;
+package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
@@ -7,7 +7,7 @@ import com.creatio.autotest.testdata.models.CollateralType;
 import com.creatio.autotest.testdata.models.SimpleObjectData;
 import io.qameta.allure.Step;
 
-public class FutureHarvestCollateralFlow extends BaseCollateralFlow {
+public class AcquiredPropertyCollateralFlow extends BaseCollateralFlow {
 
     private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
     private final CollateralGridComponent      grid      = new CollateralGridComponent();
@@ -17,9 +17,9 @@ public class FutureHarvestCollateralFlow extends BaseCollateralFlow {
     private final ClickService click    = new ClickService();
 
     @Override
-    @Step("Залог: Будущий урожай")
+    @Step("Залог: Приобретённое имущество")
     public void fill(CollateralData data) {
-        log.info("Fill future harvest collateral");
+        log.info("Fill acquired property collateral");
 
         CollateralType type = data.getType();
         SimpleObjectData object = (SimpleObjectData) data.getSpecificData();

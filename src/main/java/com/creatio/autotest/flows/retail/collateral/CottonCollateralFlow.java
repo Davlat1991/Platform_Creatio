@@ -1,28 +1,27 @@
-package com.creatio.autotest.flows.collateral;
+package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
-import com.creatio.autotest.testdata.models.SimpleObjectData;
 import io.qameta.allure.Step;
 
-public class MovablePropertyCollateralFlow extends BaseCollateralFlow {
+public class CottonCollateralFlow extends BaseCollateralFlow {
 
     private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
     private final CollateralGridComponent      grid      = new CollateralGridComponent();
     private final CollateralFormComponent      form      = new CollateralFormComponent();
+    private final CottonCharacteristicsComponent cotton  = new CottonCharacteristicsComponent();
     private final CollateralAddressComponent   address   = new CollateralAddressComponent();
     private final CollateralValuationComponent valuation = new CollateralValuationComponent();
     private final ClickService click    = new ClickService();
 
     @Override
-    @Step("Залог: Движимое имущество")
+    @Step("Залог: Хлопок")
     public void fill(CollateralData data) {
-        log.info("Fill movable property collateral");
+        log.info("Fill cotton collateral");
 
         CollateralType type = data.getType();
-        SimpleObjectData object = (SimpleObjectData) data.getSpecificData();
 
         tabs.openCollateralTab();
         grid.addCollateral();
@@ -33,15 +32,16 @@ public class MovablePropertyCollateralFlow extends BaseCollateralFlow {
         form.setName(type.getUiName());
         form.selectOwnership(type.getOwnership());
 
-        valuation.fillObjects(
-                object.getName(),
-                object.getSum(),
-                data.getCurrency(),
-                object.getAmount(),
-                object.getDescription()
+        cotton.fillTechnicalData();
+        address.fillPropertyAddress();
+
+        valuation.fillValuation(
+                data.getLiquidationValue(),
+                data.getMarketValue(),
+                data.getCurrency()
         );
 
-        address.fillPropertyAddress();
+        form.save();
         form.close();
         click.doubleClickByMarker("Обеспечение.Подтип");
     }

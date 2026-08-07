@@ -1,30 +1,31 @@
-package com.creatio.autotest.flows.collateral;
+package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.RealEstateData;
 import io.qameta.allure.Step;
 
-public class VehicleCollateralFlow extends BaseCollateralFlow {
+public class RealEstateCollateralFlow extends BaseCollateralFlow {
 
-    private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
-    private final CollateralGridComponent      grid      = new CollateralGridComponent();
-    private final CollateralFormComponent      form      = new CollateralFormComponent();
-    private final VehicleCharacteristicsComponent vehicle = new VehicleCharacteristicsComponent();
-    private final CollateralAddressComponent   address   = new CollateralAddressComponent();
-    private final CollateralValuationComponent valuation = new CollateralValuationComponent();
+    private final CollateralTabsComponent         tabs      = new CollateralTabsComponent();
+    private final CollateralGridComponent         grid      = new CollateralGridComponent();
+    private final CollateralFormComponent         form      = new CollateralFormComponent();
+    private final RealEstateCharacteristicsComponent chars  = new RealEstateCharacteristicsComponent();
+    private final CollateralAddressComponent      address   = new CollateralAddressComponent();
+    private final CollateralValuationComponent    valuation = new CollateralValuationComponent();
     private final ClickService click    = new ClickService();
 
     @Override
-    @Step("Залог: Транспортное средство")
+    @Step("Залог: Недвижимость")
     public void fill(CollateralData data) {
-        log.info("Fill vehicle collateral");
+        log.info("Fill real estate collateral");
 
         CollateralType type = data.getType();
+        RealEstateData realEstate = (RealEstateData) data.getSpecificData();
 
         tabs.openCollateralTab();
-
         grid.addCollateral();
         grid.openPropertyLookup();
 
@@ -41,7 +42,15 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
         // TODO: залогодатель сейчас захардкожен, параметризация отложена
         form.selectPledger("Садуллоев Сафарали Нусратович");
 
-        vehicle.fillTechnicalData();
+        chars.fillCharacteristics(
+                realEstate.getLivingArea(),
+                realEstate.getBuildYear(),
+                realEstate.getRooms(),
+                realEstate.getDescription(),
+                realEstate.getPropertyType(),
+                realEstate.getTotalArea()
+        );
+
         address.fillPropertyAddress();
 
         valuation.fillValuation(

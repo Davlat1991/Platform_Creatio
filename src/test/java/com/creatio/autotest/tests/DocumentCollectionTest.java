@@ -5,6 +5,7 @@ import com.creatio.autotest.flows.common.*;
 import com.creatio.autotest.flows.retail.DocumentCollectionStageFlow;
 import com.creatio.autotest.flows.common.NavigationFlow;
 import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
+import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
@@ -98,7 +99,7 @@ public class DocumentCollectionTest extends BaseTest {
                         scenario.getRegistration().getIncomeExpenses()
                 );
 
-        new com.creatio.autotest.flows.collateral.CollateralStageFlow()
+        new CollateralStageFlow()
                 .completeCollateralStage(scenario.getCollaterals());
 
         DocumentCollectionStageFlow docs = new DocumentCollectionStageFlow();

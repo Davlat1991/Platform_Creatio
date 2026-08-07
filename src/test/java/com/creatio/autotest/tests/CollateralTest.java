@@ -3,7 +3,7 @@ package com.creatio.autotest.tests;
 import com.creatio.autotest.base.BaseTest;
 import com.creatio.autotest.flows.common.*;
 import com.creatio.autotest.flows.common.NavigationFlow;
-import com.creatio.autotest.flows.collateral.CollateralStageFlow;
+import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;

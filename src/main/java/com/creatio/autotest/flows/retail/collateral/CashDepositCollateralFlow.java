@@ -1,13 +1,12 @@
-package com.creatio.autotest.flows.collateral;
+package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
-import com.creatio.autotest.testdata.models.GoldData;
 import io.qameta.allure.Step;
 
-public class GoldCollateralFlow extends BaseCollateralFlow {
+public class CashDepositCollateralFlow extends BaseCollateralFlow {
 
     private final CollateralTabsComponent      tabs      = new CollateralTabsComponent();
     private final CollateralGridComponent      grid      = new CollateralGridComponent();
@@ -16,12 +15,11 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
     private final ClickService click    = new ClickService();
 
     @Override
-    @Step("Залог: Золотые изделия")
+    @Step("Залог: Денежный вклад")
     public void fill(CollateralData data) {
-        log.info("Fill gold collateral");
+        log.info("Fill cash deposit collateral");
 
         CollateralType type = data.getType();
-        GoldData gold = (GoldData) data.getSpecificData();
 
         tabs.openCollateralTab();
         grid.addCollateral();
@@ -31,16 +29,16 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
         form.selectSubType(type.getSubType());
         form.setName(type.getUiName());
         form.selectOwnership(type.getOwnership());
+        // TODO: залогодатель сейчас захардкожен, параметризация отложена
+        form.selectPledger("Хамидов Азизходжа Азамходжаевич");
 
-        valuation.fillGold(
-                gold.getName(),
-                gold.getPurity(),
-                gold.getWeight(),
-                gold.getWeightWithoutStones(),
-                gold.getAmount(),
+        valuation.fillCashDeposit(
+                data.getMarketValue(),
                 data.getCurrency()
         );
 
+        form.save();
+        click.doubleClickByMarker("Залоговая стоимость");
         form.close();
         click.doubleClickByMarker("Обеспечение.Подтип");
     }

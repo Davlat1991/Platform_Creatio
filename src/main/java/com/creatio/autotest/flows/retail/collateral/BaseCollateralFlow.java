@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.collateral;
+package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
