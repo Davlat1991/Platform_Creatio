@@ -1,6 +1,6 @@
 package com.creatio.autotest.routes;
 
-import com.creatio.autotest.core.config.Config;
+
 import com.creatio.autotest.flows.*;
 import com.creatio.autotest.flows.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
@@ -10,8 +10,6 @@ import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.UserCredentials;
 import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Step;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.flows.registration.client.ClientFlowFactory;
 
@@ -35,69 +33,21 @@ import com.creatio.autotest.flows.registration.client.ClientFlowFactory;
  * поэтому параллельный запуск не ломается (драйвер и {@code ScenarioContext}
  * остаются ThreadLocal).
  */
-public class RetailRoute {
-
-    private static final Logger log        = LoggerFactory.getLogger(RetailRoute.class);
-
-    private final Config        config     = Config.getInstance();
-    private final AuthFlow      auth       = new AuthFlow();
-    private final WorkspaceFlow workspace  = new WorkspaceFlow();
-
-    private final TestScenario scenario;
+public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
 
     public RetailRoute(TestScenario scenario) {
-        this.scenario = scenario;
+        super(scenario);
     }
 
-    // ══════════════════════════════════════
-    // УРОВЕНЬ 2 — СЕССИЯ ПОД РОЛЬЮ
-    // ══════════════════════════════════════
-
-    /**
-     * Выполняет тело под указанной учётной записью и рабочим местом.
-     * Логаут вызывается всегда. На упавшем сегменте логаут «тихий», чтобы его
-     * собственное падение не подменило исходную причину в отчёте.
-     */
-    @Step("Сессия под ролью {0}, рабочее место {1}")
-    public void as(UserCredentials user, Workspace ws, Runnable body) {
-        log.info("── Сегмент: {} / рабочее место «{}» ──", user, ws.getUiName());
-
-        auth.login(user);
-        workspace.select(ws);
-        body.run();
-
-        // Логаут только при штатном завершении сегмента. При падении логаут НЕ
-        // делаем: браузер остаётся на экране ошибки для ручного разбора и для
-        // скриншота в отчёте. Драйвер закрывается в teardown BaseTest.
-        auth.logout();
+    @Override
+    protected RetailRoute self() {
+        return this;
     }
-
 
 
     // ══════════════════════════════════════
     // УРОВЕНЬ 1 — СТАДИИ (без логина)
     // ══════════════════════════════════════
-
-    /** Поиск клиента, консультация, подбор продукта, создание заявки. */
-    @Step("Стадия: поиск клиента → консультация → подбор продукта → создание заявки")
-    public void createApplication() {
-        log.info("Стадия «Создание заявки»");
-
-        new ClientSearchFlow().searchClient(
-                scenario.getContact().getLastName(),
-                scenario.getContact().getFirstName(),
-                scenario.getContact().getMiddleName()
-        );
-
-        new ConsultationStartFlow()
-                .startConsultation(config.getConsultationTheme("retail"));
-
-        new ProductSelectionFlow()
-                .selectProduct(scenario.getProduct());
-
-        new ApplicationCreationFlow()
-                .createApplication(scenario.getProduct());
-    }
 
     /**
      * Стадия «Оформление». Идёт через двухаргументную перегрузку с клиентским
@@ -401,29 +351,5 @@ public class RetailRoute {
         simplifiedFinish();
     }
 
-    // ══════════════════════════════════════
-    // ТОЧКИ ВХОДА В СЕРЕДИНУ МАРШРУТА
-    // ══════════════════════════════════════
 
-    /**
-     * Засев номера заявки в контекст — вход в сегменты, которым нужна уже
-     * созданная заявка (информирование, подписание).
-     */
-    @Step("Контекст: номер заявки = {0}")
-    public RetailRoute resumeAt(String applicationNumber) {
-        ScenarioContextProvider.get().setApplicationNumber(applicationNumber);
-        log.info("Контекст засеян номером заявки: {}", applicationNumber);
-        return this;
-    }
-
-    /**
-     * Засев номера кредитного договора — вход в сегменты, которым нужен уже
-     * созданный договор (касса, завершение заявки).
-     */
-    @Step("Контекст: номер кредитного договора = {0}")
-    public RetailRoute resumeWithContract(String contractNumber) {
-        ScenarioContextProvider.get().setCreditContractNumber(contractNumber);
-        log.info("Контекст засеян номером договора: {}", contractNumber);
-        return this;
-    }
 }

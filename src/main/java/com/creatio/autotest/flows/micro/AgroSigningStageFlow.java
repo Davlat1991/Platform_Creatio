@@ -74,8 +74,11 @@ public class AgroSigningStageFlow {
     private static final String CREDIT_ACCOUNT_LOOKUP_ID =
             "BnzContractCreditPageBnzCreditBankAccountLookupEdit";
 
-    /** ← ПОДСТАВЬ точное название печатной формы оферты из меню «Печать». */
-    private static final String OFFER_PRINT_FORM = "Шартномаи кредити АГРО - СИ  без ген- комиссия";  //Шартномаи кредити АГРО - СИ бо генерали
+    // Точное имя из меню «Печать» (live DOM 06.08.2026): одинарный пробел «СИ без».
+    // normalize-space() схлопывает пробелы только у элемента — литерал должен быть уже нормализован.
+    // Альтернативная форма: «Шартномаи кредити АГРО - СИ бо генерали».
+    private static final String OFFER_PRINT_FORM = "Шартномаи кредити АГРО - СИ без ген- комиссия";
+
     private static final String ORDER_PAGE_MARKER = "BnzOrderPageContainer";
 
     private final BasePage                basePage            = new BasePage();
@@ -542,6 +545,17 @@ public class AgroSigningStageFlow {
         buttons.clickTabByName("Операции по договору");
         openAndCloseOrder("Приходный");
         openAndCloseOrder("Расходный");
+    }
+
+    @Step("DEBUG: печать оферты по договору {contractNumber}")
+    public void debugPrintOffer(String contractNumber) {
+        consultation.closeIfOpened();
+        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
+
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+
+        printOffer();
     }
 
 

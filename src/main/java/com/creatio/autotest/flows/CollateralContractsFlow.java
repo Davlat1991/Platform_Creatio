@@ -100,6 +100,7 @@ public class CollateralContractsFlow {
     @Step("Регистрация договоров обеспечения в АБС")
     public void processAllCollateralContracts() {
         int processed = 0;
+        boolean allRegistered = false;
 
         for (int i = 0; i < MAX_CONTRACTS; i++) {
             openParametersTab();
@@ -108,6 +109,7 @@ public class CollateralContractsFlow {
             log.info("Осталось зарегистрировать: {} → {}", pending.size(), pending);
 
             if (pending.isEmpty()) {
+                allRegistered = true;
                 break;
             }
 
@@ -125,9 +127,20 @@ public class CollateralContractsFlow {
                     "Деталь «Договоры обеспечения» пуста — нечего регистрировать");
         }
 
+        // Цикл мог завершиться двумя путями: деталь опустела (все договоры
+        // зарегистрированы) ИЛИ исчерпан предохранитель MAX_CONTRACTS. Второй путь
+        // раньше молча логировался как успех — теперь это явная ошибка: договоров
+        // в заявке больше предела, часть осталась незарегистрированной.
+        if (!allRegistered) {
+            throw new IllegalStateException(
+                    "Достигнут предел MAX_CONTRACTS=" + MAX_CONTRACTS +
+                            " (обработано " + processed + "), а деталь «Договоры обеспечения» " +
+                            "не опустела — часть договоров не зарегистрирована. " +
+                            "Увеличьте предел, если договоров в заявке заведомо больше.");
+        }
+
         log.info("Все договоры обеспечения зарегистрированы: {}", processed);
     }
-
     // ══════════════════════════════════════
     // COLLECT
     // ══════════════════════════════════════

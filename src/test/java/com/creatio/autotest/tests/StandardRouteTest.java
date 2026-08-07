@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 @Owner("Davlat")
 public class StandardRouteTest extends BaseTest {
 
-    @Test(groups = "regression", enabled = false)
+    @Test(groups = "regression", enabled = true)
     @Story("Стандартный маршрут — полный путь с верификатором и комитетом")
     @Description("Стандартный маршрут — полный happy path с верификатором и комитетом (КК4)")
     @Severity(SeverityLevel.BLOCKER)
@@ -46,7 +46,7 @@ public class StandardRouteTest extends BaseTest {
      * обеспечения + поручитель и 2 залогодателя. Цель прогона — регистрация
      * договоров обеспечения и печатные формы через CollateralContractsFlow.
      */
-    @Test(groups = "regression", enabled = true)
+    @Test(groups = "regression", enabled = false)
     @Story("Стандартный маршрут — все 10 типов залога в одном прогоне")
     @Description("Стандартный маршрут на сценарии allCollaterals: 10 типов обеспечения "
             + "+ поручитель и 2 залогодателя; проверка регистрации договоров "

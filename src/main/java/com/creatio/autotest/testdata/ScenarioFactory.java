@@ -370,7 +370,7 @@ public final class ScenarioFactory {
 
     private static ProductData simpleProduct() {
         return ProductData.builder()
-                .productType("Карзхои гуногунмаксад")
+                .productKind("Карзхои гуногунмаксад")
                 .creditPurpose("Барои эхтиёчоти оилави")
                 .amount("5000")
                 .term("12")
@@ -383,7 +383,7 @@ public final class ScenarioFactory {
 
     private static ProductData defaultProduct() {
         return ProductData.builder()
-                .productType("Карзхои гуногунмаксад")
+                .productKind("Карзхои гуногунмаксад")
                 .creditPurpose("Барои эхтиёчоти оилави")
                 .amount("50000")
                 .term("36")
@@ -396,7 +396,7 @@ public final class ScenarioFactory {
 
     private static ProductData highAmountProduct() {
         return ProductData.builder()
-                .productType("Карзхои гуногунмаксад")
+                .productKind("Карзхои гуногунмаксад")
                 .creditPurpose("Барои эхтиёчоти оилави")
                 .amount("100000")
                 .term("48")

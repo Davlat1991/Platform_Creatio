@@ -1,18 +1,12 @@
 package com.creatio.autotest.routes;
 
-import com.creatio.autotest.core.config.Config;
-import com.creatio.autotest.flows.ApplicationCreationFlow;
-import com.creatio.autotest.flows.AuthFlow;
-import com.creatio.autotest.flows.ClientSearchFlow;
-import com.creatio.autotest.flows.ConsultationStartFlow;
-import com.creatio.autotest.flows.WorkspaceFlow;
+
 import com.creatio.autotest.flows.micro.AgroApplicationFinishFlow;
 import com.creatio.autotest.flows.micro.AgroCashierFlow;
 import com.creatio.autotest.flows.micro.AgroClientNotificationStageFlow;
 import com.creatio.autotest.flows.micro.AgroDocumentCollectionStageFlow;
 import com.creatio.autotest.flows.micro.AgroMiddleControllerDocumentsFlow;
 import com.creatio.autotest.flows.micro.AgroPreliminaryCheckFlow;
-import com.creatio.autotest.flows.micro.AgroProductSelectionFlow;
 import com.creatio.autotest.flows.micro.AgroReviewStageFlow;
 import com.creatio.autotest.flows.micro.AgroReviewStageUnderwriterFlow;
 import com.creatio.autotest.flows.micro.AgroSigningStageFlow;
@@ -28,14 +22,12 @@ import com.creatio.autotest.flows.micro.registration.AgroRegistrationPrintFlow;
 import com.creatio.autotest.flows.micro.registration.AgroRegistrationScoringConfirmationFlow;
 import com.creatio.autotest.flows.micro.registration.client.MicroClientFlowFactory;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
-import com.creatio.autotest.testdata.ScenarioContextProvider;
-import com.creatio.autotest.testdata.models.AgroProductData;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.UserCredentials;
 import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Step;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
 
 /**
  * Сборочный слой маршрута «Агро» (сегмент «Микро»).
@@ -75,69 +67,17 @@ import org.slf4j.LoggerFactory;
  * войти отдельно, предварительно засеяв контекст через {@link #resumeAt(String)}
  * или {@link #resumeWithContract(String)}.
  */
-public class AgroMicroRoute {
+public class AgroMicroRoute extends CreditApplicationRoute<AgroMicroRoute> {
 
-    private static final Logger log = LoggerFactory.getLogger(AgroMicroRoute.class);
-
-    private final Config        config    = Config.getInstance();
-    private final AuthFlow      auth      = new AuthFlow();
-    private final WorkspaceFlow workspace = new WorkspaceFlow();
-
-    private final TestScenario   scenario;
-    private final AgroProductData product;
-
-    public AgroMicroRoute(TestScenario scenario, AgroProductData product) {
-        this.scenario = scenario;
-        this.product  = product;
+    public AgroMicroRoute(TestScenario scenario) {
+        super(scenario);
     }
 
-    // ══════════════════════════════════════
-    // УРОВЕНЬ 2 — СЕССИЯ ПОД РОЛЬЮ
-    // ══════════════════════════════════════
-
-    /**
-     * Выполняет тело под указанной учётной записью и рабочим местом.
-     * Логаут вызывается всегда.
-     * <p>
-     * Если сегмент упал, логаут выполняется «тихо»: иначе его собственное
-     * падение подменило бы исходную причину в отчёте. На зелёном пути логаут
-     * падает громко — молчаливых логаутов быть не должно.
-     */
-    @Step("Сессия под ролью {0}, рабочее место {1}")
-    public void as(UserCredentials user, Workspace ws, Runnable body) {
-        log.info("── Сегмент: {} / рабочее место «{}» ──", user, ws.getUiName());
-
-        auth.login(user);
-        boolean failed = false;
-        try {
-            workspace.select(ws);
-            body.run();
-        } catch (Throwable t) {
-            failed = true;
-            throw t;
-        } finally {
-            if (failed) {
-                logoutQuietly();
-            } else {
-                auth.logout();
-            }
-        }
+    @Override
+    protected AgroMicroRoute self() {
+        return this;
     }
 
-    /**
-     * Логаут на уже падающем сегменте.
-     * <p>
-     * Ловится {@code Throwable}, а не {@code Exception}: Selenide бросает
-     * наследников {@code AssertionError}, и {@code catch (Exception)} их
-     * пропустил бы мимо.
-     */
-    private void logoutQuietly() {
-        try {
-            auth.logout();
-        } catch (Throwable t) {
-            log.warn("Логаут после падения сегмента не выполнен: {}", t.toString());
-        }
-    }
 
     // ══════════════════════════════════════
     // УРОВЕНЬ 3 — РОЛЕВЫЕ СЕГМЕНТЫ
@@ -219,30 +159,6 @@ public class AgroMicroRoute {
     // ══════════════════════════════════════
     // УРОВЕНЬ 1 — СТАДИИ (без логина)
     // ══════════════════════════════════════
-
-    /** Поиск клиента, консультация, подбор продукта, создание заявки. */
-    @Step("Стадия: поиск клиента → консультация → подбор продукта → создание заявки")
-    public void createApplication() {
-        new ClientSearchFlow().searchClient(
-                scenario.getContact().getLastName(),
-                scenario.getContact().getFirstName(),
-                scenario.getContact().getMiddleName()
-        );
-
-        // ВРЕМЕННО: проверка сегмента клиента отключена (неактуальна сейчас),
-        // поэтому консультация выполняется монолитно — как в рознице.
-        // Отдельной плитки продукта у Агро нет: marker темы тот же, что у розницы.
-        new ConsultationStartFlow()
-                .startConsultation(config.getConsultationTheme("retail"));
-
-        new AgroProductSelectionFlow()
-                .selectProduct(product);
-
-        // ApplicationCreationFlow типизирован под розничный ProductData —
-        // стыковка через AgroProductData.toProductData().
-        new ApplicationCreationFlow()
-                .createApplication(product.toProductData());
-    }
 
     /**
      * Стадия «Оформление» целиком: общая информация, анкета заёмщика,
@@ -403,29 +319,12 @@ public class AgroMicroRoute {
                 .completeApplicationViaConsultation();
     }
 
-    // ══════════════════════════════════════
-    // ТОЧКИ ВХОДА В СЕРЕДИНУ МАРШРУТА
-    // ══════════════════════════════════════
 
-    /**
-     * Засев номера заявки в контекст — вход в сегменты, которым нужна уже
-     * созданная заявка (документы мидл-контролера, подписание).
-     */
-    @Step("Контекст: номер заявки = {0}")
-    public AgroMicroRoute resumeAt(String applicationNumber) {
-        ScenarioContextProvider.get().setApplicationNumber(applicationNumber);
-        log.info("Контекст засеян номером заявки: {}", applicationNumber);
-        return this;
-    }
 
-    /**
-     * Засев номера кредитного договора — вход в сегменты, которым нужен уже
-     * созданный договор (кассовые операции, завершение заявки).
-     */
-    @Step("Контекст: номер кредитного договора = {0}")
-    public AgroMicroRoute resumeWithContract(String contractNumber) {
-        ScenarioContextProvider.get().setCreditContractNumber(contractNumber);
-        log.info("Контекст засеян номером договора: {}", contractNumber);
-        return this;
+    /** DEBUG: печать оферты по номеру договора под ИКОК-ГО (проверка OFFER_PRINT_FORM). */
+    @Step("DEBUG: ИКОК-ГО — печать оферты по договору {0}")
+    public void ikokGoPrintOffer(String contractNumber) {
+        as(scenario.getIkokGo(), Workspace.IKOK_GO,
+                () -> new AgroSigningStageFlow().debugPrintOffer(contractNumber));
     }
 }

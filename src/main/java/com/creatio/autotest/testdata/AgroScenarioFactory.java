@@ -30,16 +30,16 @@ public final class AgroScenarioFactory {
     // ══════════════════════════════════════
     // СЦЕНАРИЙ — Агро / Микро, Happy Path
     // ──────────────────────────────────────
-    // Примечание: AgroProductData НЕ хранится в TestScenario.product
-    // (тот типизирован под базовый ProductData). Для флоу подбора продукта
-    // Агро (AgroProductSelectionFlow, Sprint 1 / подзадача 4) AgroProductData
-    // передаётся отдельным параметром, полученным через agroMicroProduct().
+    // Продукт хранится в TestScenario.product (единая модель ProductData,
+    // после NEW6·А+Б). Маршрут берёт его через scenario.getProduct() — как
+    // розница; отдельный параметр продукта в конструкторе больше не нужен.
     // ══════════════════════════════════════
 
     public static TestScenario agroMicroHappyPath() {
         return baseBuilder()
                 .route(CreditRoute.STANDARD)
                 .expectedScoringDecision(ScoringDecision.APPROVE)
+                .product(agroMicroProduct())
                 .participants(List.of(
                         ParticipantData.guarantor(false),
                         ParticipantData.pledger(false)
@@ -63,6 +63,7 @@ public final class AgroScenarioFactory {
         return baseBuilder()
                 .route(CreditRoute.STANDARD)
                 .expectedScoringDecision(ScoringDecision.APPROVE)
+                .product(agroMicroProduct())
                 .participants(List.of(
                         ParticipantData.guarantor(false)
                 ))
@@ -78,11 +79,11 @@ public final class AgroScenarioFactory {
     // AGRO PRODUCT DATA
     // ══════════════════════════════════════
 
-    public static AgroProductData agroMicroProduct() {
-        return AgroProductData.builder()
-                .productType("Агро кредиты")   // Тип продукта
-                .productKind("Агро кредиты")   // Вид продукта :  Агро Животноводство
-                .creditPurpose("Барои кишти пахта ва картошка") //Цель кредитования: Барои зиёд намудани воситахои асоси
+    public static ProductData agroMicroProduct() {
+        return ProductData.builder()
+                .productType("Агро кредиты")   // «Тип продукта»
+                .productKind("Агро кредиты")   // «Вид продукта»
+                .creditPurpose("Барои кишти пахта ва картошка") // «Цель кредитования»
                 .amount("40000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")

@@ -3,8 +3,8 @@ package com.creatio.autotest.tests;
 import com.creatio.autotest.base.BaseTest;
 import com.creatio.autotest.routes.AgroMicroRoute;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
-import com.creatio.autotest.testdata.models.AgroProductData;
 import com.creatio.autotest.testdata.models.TestScenario;
+import com.creatio.autotest.testdata.models.ProductData;
 import com.creatio.autotest.testdata.models.Workspace;
 import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
@@ -44,7 +44,7 @@ public class AgroCreditApplicationTest extends BaseTest {
     // Номер заявки для debug-прогонов. Переопределяется через -Dapp=NNNNN.
     private static final String RESUME_APPLICATION_NUMBER = "392008";
     // Номер кредитного договора для debug-прогонов. Переопределяется через -Dcontract=...
-    private static final String RESUME_CONTRACT_NUMBER = "02-008-033533";
+    private static final String RESUME_CONTRACT_NUMBER = "02-008-033680";
 
     // ══════════════════════════════════════
     // ОСНОВНОЙ E2E-ПРОГОН
@@ -200,8 +200,7 @@ public class AgroCreditApplicationTest extends BaseTest {
      * в тест-классе нет, параллельный запуск не ломается.
      */
     private AgroMicroRoute route(TestScenario scenario) {
-        AgroProductData product = AgroScenarioFactory.agroMicroProduct();
-        return new AgroMicroRoute(scenario, product);
+        return new AgroMicroRoute(scenario);
     }
 
     private String applicationNumber() {
@@ -210,5 +209,15 @@ public class AgroCreditApplicationTest extends BaseTest {
 
     private String contractNumber() {
         return System.getProperty("contract", RESUME_CONTRACT_NUMBER);
+    }
+
+    @Test(groups = "resume", enabled = false)
+    @Story("Агро/Микро — DEBUG: печать оферты по номеру договора")
+    @Description("Логин ИКОК-ГО, открытие кредитного договора по номеру, печать оферты. " +
+            "Быстрая проверка правки OFFER_PRINT_FORM без повторного подписания и выдачи.")
+    @Severity(SeverityLevel.NORMAL)
+    public void agroMicroResumePrintOffer() {
+        route(AgroScenarioFactory.agroMicroHappyPath())
+                .ikokGoPrintOffer(contractNumber());
     }
 }
