@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.registration.client;
+package com.creatio.autotest.flows.retail.registration.client;
 
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import org.slf4j.Logger;

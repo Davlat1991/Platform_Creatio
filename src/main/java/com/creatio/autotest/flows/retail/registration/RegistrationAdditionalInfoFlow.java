@@ -1,11 +1,10 @@
-package com.creatio.autotest.flows.registration;
+package com.creatio.autotest.flows.retail.registration;
 
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.testdata.models.BaseScoringData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import com.creatio.autotest.testdata.models.registration.EducationCareerData;
 import com.creatio.autotest.testdata.models.registration.fields.EducationCareerField;
-import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.registration;
+package com.creatio.autotest.flows.retail.registration;
 
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
@@ -10,8 +10,6 @@ import com.creatio.autotest.testdata.models.registration.fields.CareerField;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.codeborne.selenide.Selenide.$x;
 
 public class RegistrationParticipantsFlow {
 

@@ -6,6 +6,7 @@ import com.creatio.autotest.flows.common.NavigationFlow;
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
+import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
@@ -153,7 +154,7 @@ public class CollateralTest extends BaseTest {
         new ApplicationCreationFlow()
                 .createApplication(scenario.getProduct());
 
-        new com.creatio.autotest.flows.registration.RegistrationStageFlow()
+        new RegistrationStageFlow()
                 .completeRegistrationStage(scenario.getRegistration());
 
         new PreliminaryCheckStageFlow()

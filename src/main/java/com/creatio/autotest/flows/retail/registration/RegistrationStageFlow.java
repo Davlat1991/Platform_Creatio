@@ -1,8 +1,7 @@
-package com.creatio.autotest.flows.registration;
+package com.creatio.autotest.flows.retail.registration;
 
-import com.codeborne.selenide.Selenide;
 import com.creatio.autotest.core.base.BasePage;
-import com.creatio.autotest.flows.registration.client.BaseClientFlow;
+import com.creatio.autotest.flows.retail.registration.client.BaseClientFlow;
 import com.creatio.autotest.testdata.models.RegistrationData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;

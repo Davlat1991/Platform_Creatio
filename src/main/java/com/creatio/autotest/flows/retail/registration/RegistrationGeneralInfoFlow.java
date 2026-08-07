@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.registration;
+package com.creatio.autotest.flows.retail.registration;
 
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.testdata.models.RegistrationData;

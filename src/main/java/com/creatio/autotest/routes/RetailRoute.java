@@ -3,7 +3,7 @@ package com.creatio.autotest.routes;
 
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
-import com.creatio.autotest.flows.registration.RegistrationStageFlow;
+import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
 import com.creatio.autotest.flows.retail.*;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
@@ -11,7 +11,7 @@ import com.creatio.autotest.testdata.models.UserCredentials;
 import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Step;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
-import com.creatio.autotest.flows.registration.client.ClientFlowFactory;
+import com.creatio.autotest.flows.retail.registration.client.ClientFlowFactory;
 
 /**
  * Сборочный слой розничного маршрута (стандартный и упрощённый).

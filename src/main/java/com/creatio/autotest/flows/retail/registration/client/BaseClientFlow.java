@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.registration.client;
+package com.creatio.autotest.flows.retail.registration.client;
 
 /**
  * Стратегия заполнения анкеты заёмщика в зависимости от типа занятости.

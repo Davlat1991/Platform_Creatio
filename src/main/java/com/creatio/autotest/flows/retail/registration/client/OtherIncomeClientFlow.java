@@ -1,6 +1,6 @@
-package com.creatio.autotest.flows.registration.client;
+package com.creatio.autotest.flows.retail.registration.client;
 
-import com.creatio.autotest.flows.registration.RegistrationAdditionalInfoFlow;
+import com.creatio.autotest.flows.retail.registration.RegistrationAdditionalInfoFlow;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
