@@ -1,10 +1,12 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
+import com.creatio.autotest.flows.common.CollateralContractsFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.utils.FieldUtils;

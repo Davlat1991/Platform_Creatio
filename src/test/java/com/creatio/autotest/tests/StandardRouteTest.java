@@ -1,7 +1,7 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.SigningStageFlow;
+import com.creatio.autotest.flows.retail.SigningStageFlow;
 import com.creatio.autotest.routes.RetailRoute;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;

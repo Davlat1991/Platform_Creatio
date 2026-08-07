@@ -1,7 +1,7 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.*;
+import com.creatio.autotest.flows.common.*;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;

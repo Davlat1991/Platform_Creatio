@@ -1,12 +1,12 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.AuthFlow;
-import com.creatio.autotest.flows.ClientSearchFlow;
-import com.creatio.autotest.flows.ConsultationStartFlow;
-import com.creatio.autotest.flows.ProductSelectionFlow;
-import com.creatio.autotest.flows.ApplicationCreationFlow;
-import com.creatio.autotest.flows.WorkspaceFlow;
+import com.creatio.autotest.flows.common.AuthFlow;
+import com.creatio.autotest.flows.common.ClientSearchFlow;
+import com.creatio.autotest.flows.common.ConsultationStartFlow;
+import com.creatio.autotest.flows.common.ProductSelectionFlow;
+import com.creatio.autotest.flows.common.ApplicationCreationFlow;
+import com.creatio.autotest.flows.common.WorkspaceFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.flows.registration.client.ClientFlowFactory;
 import com.creatio.autotest.testdata.ScenarioFactory;
@@ -14,7 +14,6 @@ import com.creatio.autotest.testdata.models.ProductData;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
 import com.creatio.autotest.utils.AllureTags;
-import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;

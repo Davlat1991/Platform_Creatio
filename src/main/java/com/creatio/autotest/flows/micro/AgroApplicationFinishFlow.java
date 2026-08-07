@@ -5,7 +5,7 @@ import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.PrintComponent;
 import com.creatio.autotest.core.base.BasePage;
-import com.creatio.autotest.flows.ApplicationSearchFlow;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;

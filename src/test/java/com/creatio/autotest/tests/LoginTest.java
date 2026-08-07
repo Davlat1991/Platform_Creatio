@@ -1,7 +1,7 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.AuthFlow;
+import com.creatio.autotest.flows.common.AuthFlow;
 import com.creatio.autotest.testdata.Users;
 import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;

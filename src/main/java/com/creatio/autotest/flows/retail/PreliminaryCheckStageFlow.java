@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;

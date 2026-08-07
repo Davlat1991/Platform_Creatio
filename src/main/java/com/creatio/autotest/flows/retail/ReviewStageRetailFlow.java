@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.DashboardComponent;

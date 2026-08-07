@@ -3,7 +3,7 @@ package com.creatio.autotest.flows.micro;
 import com.creatio.autotest.core.api.files.DocumentUploadMap;
 import com.creatio.autotest.core.api.files.FileUploadApiHelper;
 import com.creatio.autotest.core.base.BasePage;
-import com.creatio.autotest.flows.ApplicationSearchFlow;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;

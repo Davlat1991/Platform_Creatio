@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.codeborne.selenide.Condition;
 import com.creatio.autotest.components.ButtonsComponent;
@@ -7,6 +7,7 @@ import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.core.services.WaitService;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;

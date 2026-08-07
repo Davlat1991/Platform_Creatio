@@ -6,7 +6,7 @@ import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.components.PrintComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
-import com.creatio.autotest.flows.ApplicationSearchFlow;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.codeborne.selenide.Condition;

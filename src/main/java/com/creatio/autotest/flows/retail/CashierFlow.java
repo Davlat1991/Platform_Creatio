@@ -1,8 +1,9 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;
@@ -21,7 +22,7 @@ public class CashierFlow {
     private final CreditApplicationAssertions assertions  = new CreditApplicationAssertions();
     private final FieldAssertions          fieldAssert    = new FieldAssertions();
     private final ConsultationPanelPage    consultation   = new ConsultationPanelPage();
-    private final ApplicationSearchFlow    searchFlow     = new ApplicationSearchFlow();
+    private final ApplicationSearchFlow searchFlow     = new ApplicationSearchFlow();
     private final ClickService click    = new ClickService();
 
     private String contractNumber;

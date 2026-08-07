@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.common;
 
 import com.creatio.autotest.components.FiltersComponent;
 import com.creatio.autotest.components.GridComponent;

@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.common;
 
 import com.creatio.autotest.core.base.BasePage;
 import io.qameta.allure.Step;

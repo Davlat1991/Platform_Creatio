@@ -1,10 +1,11 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.Step;

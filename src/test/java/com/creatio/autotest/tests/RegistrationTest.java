@@ -1,9 +1,8 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.AuthFlow;
-import com.creatio.autotest.flows.NavigationFlow;
-import com.creatio.autotest.flows.WorkspaceFlow;
+import com.creatio.autotest.flows.common.*;
+import com.creatio.autotest.flows.common.NavigationFlow;
 import com.creatio.autotest.flows.registration.RegistrationStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
@@ -66,19 +65,19 @@ public class RegistrationTest extends BaseTest {
         auth.login(scenario.getManager());
         new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
 
-        new com.creatio.autotest.flows.ClientSearchFlow().searchClient(
+        new ClientSearchFlow().searchClient(
                 scenario.getContact().getLastName(),
                 scenario.getContact().getFirstName(),
                 scenario.getContact().getMiddleName()
         );
 
-        new com.creatio.autotest.flows.ConsultationStartFlow()
+        new ConsultationStartFlow()
                 .startConsultation(config.getConsultationTheme("retail"));
 
-        new com.creatio.autotest.flows.ProductSelectionFlow()
+        new ProductSelectionFlow()
                 .selectProduct(scenario.getProduct());
 
-        new com.creatio.autotest.flows.ApplicationCreationFlow()
+        new ApplicationCreationFlow()
                 .createApplication(scenario.getProduct());
 
         new RegistrationStageFlow()

@@ -1,16 +1,14 @@
-package com.creatio.autotest.flows;
+package com.creatio.autotest.flows.retail;
 
 import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
-import com.creatio.autotest.core.driver.DriverSetup;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
-import com.creatio.autotest.utils.AllureAttachments;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,7 @@ public class ApplicationFinishFlow {
     private final CreditApplicationAssertions assertions    = new CreditApplicationAssertions();
     private final ConsultationPanelPage       consultation  = new ConsultationPanelPage();
     private final ClickService                click         = new ClickService();
-    private final ApplicationSearchFlow       searchFlow    = new ApplicationSearchFlow();
+    private final ApplicationSearchFlow searchFlow    = new ApplicationSearchFlow();
     private final PrintComponent              print         = new PrintComponent();
 
     // ══════════════════════════════════════

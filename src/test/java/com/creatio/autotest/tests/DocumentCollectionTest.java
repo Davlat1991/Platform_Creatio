@@ -1,11 +1,10 @@
 package com.creatio.autotest.tests;
 
-import com.codeborne.selenide.Selenide;
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.flows.AuthFlow;
-import com.creatio.autotest.flows.DocumentCollectionStageFlow;
-import com.creatio.autotest.flows.NavigationFlow;
-import com.creatio.autotest.flows.WorkspaceFlow;
+import com.creatio.autotest.flows.common.*;
+import com.creatio.autotest.flows.retail.DocumentCollectionStageFlow;
+import com.creatio.autotest.flows.common.NavigationFlow;
+import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
@@ -17,7 +16,6 @@ import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
-import org.openqa.selenium.support.ui.Select;
 import org.testng.annotations.Test;
 
 @Epic(AllureTags.Epics.RETAIL)
@@ -74,24 +72,24 @@ public class DocumentCollectionTest extends BaseTest {
 
         AuthFlow auth = new AuthFlow();
         auth.login(scenario.getManager());
-        new com.creatio.autotest.flows.WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
+        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
 
-        new com.creatio.autotest.flows.ClientSearchFlow().searchClient(
+        new ClientSearchFlow().searchClient(
                 scenario.getContact().getLastName(),
                 scenario.getContact().getFirstName(),
                 scenario.getContact().getMiddleName()
         );
-        new com.creatio.autotest.flows.ConsultationStartFlow()
+        new ConsultationStartFlow()
                 .startConsultation(config.getConsultationTheme("retail"));
-        new com.creatio.autotest.flows.ProductSelectionFlow()
+        new ProductSelectionFlow()
                 .selectProduct(scenario.getProduct());
-        new com.creatio.autotest.flows.ApplicationCreationFlow()
+        new ApplicationCreationFlow()
                 .createApplication(scenario.getProduct());
 
         new com.creatio.autotest.flows.registration.RegistrationStageFlow()
                 .completeRegistrationStage(scenario.getRegistration());
 
-        new com.creatio.autotest.flows.PreliminaryCheckStageFlow()
+        new PreliminaryCheckStageFlow()
                 .completePreliminaryCheckStage();
 
         new com.creatio.autotest.flows.participants.ParticipantsStageFlow()
