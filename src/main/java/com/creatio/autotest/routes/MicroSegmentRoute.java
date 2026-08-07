@@ -67,14 +67,14 @@ import io.qameta.allure.Step;
  * войти отдельно, предварительно засеяв контекст через {@link #resumeAt(String)}
  * или {@link #resumeWithContract(String)}.
  */
-public class AgroMicroRoute extends CreditApplicationRoute<AgroMicroRoute> {
+public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute> {
 
-    public AgroMicroRoute(TestScenario scenario) {
+    public MicroSegmentRoute(TestScenario scenario) {
         super(scenario);
     }
 
     @Override
-    protected AgroMicroRoute self() {
+    protected MicroSegmentRoute self() {
         return this;
     }
 

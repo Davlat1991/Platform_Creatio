@@ -1,10 +1,9 @@
 package com.creatio.autotest.tests;
 
 import com.creatio.autotest.base.BaseTest;
-import com.creatio.autotest.routes.AgroMicroRoute;
+import com.creatio.autotest.routes.MicroSegmentRoute;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
-import com.creatio.autotest.testdata.models.ProductData;
 import com.creatio.autotest.testdata.models.Workspace;
 import com.creatio.autotest.utils.AllureTags;
 import io.qameta.allure.Description;
@@ -20,7 +19,7 @@ import org.testng.annotations.Test;
  * E2E-маршруты продукта «Агро» (сегмент «Микро»).
  * <p>
  * Тест — сборка, а не последовательность. Вся оркестрация вынесена в
- * {@link AgroMicroRoute}: полный маршрут собирается из семи ролевых сегментов,
+ * {@link MicroSegmentRoute}: полный маршрут собирается из семи ролевых сегментов,
  * сокращённый — из тех же сегментов с другим сценарием, debug-входы — из
  * отдельных сегментов с засеянным контекстом. Дублирования между сценариями
  * нет: различается только состав вызовов.
@@ -62,7 +61,7 @@ public class AgroCreditApplicationTest extends BaseTest {
     @Severity(SeverityLevel.BLOCKER)
     public void agroMicroFullRoute() {
 
-        AgroMicroRoute route = route(AgroScenarioFactory.agroMicroHappyPath());
+        MicroSegmentRoute route = route(AgroScenarioFactory.agroMicroHappyPath());
 
         route.creditExpertUpToReview();
         route.underwriterApprove();
@@ -95,7 +94,7 @@ public class AgroCreditApplicationTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     public void agroMicroRegressionRoute() {
 
-        AgroMicroRoute route = route(AgroScenarioFactory.agroMicroRegression());
+        MicroSegmentRoute route = route(AgroScenarioFactory.agroMicroRegression());
 
         route.creditExpertUpToReview();
         route.underwriterApprove();
@@ -174,7 +173,7 @@ public class AgroCreditApplicationTest extends BaseTest {
      * DEBUG: только регистрация — стоп сразу после стадии «Оформление».
      * <p>
      * Демонстрация собираемости маршрута: сегмент собирается из сессии под
-     * ролью и двух стадий, новых методов в {@link AgroMicroRoute} не требуется.
+     * ролью и двух стадий, новых методов в {@link MicroSegmentRoute} не требуется.
      */
     @Test(groups = "resume", enabled = false)
     @Story("Агро/Микро — DEBUG: только создание заявки и регистрация")
@@ -183,7 +182,7 @@ public class AgroCreditApplicationTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     public void agroMicroRegistrationOnly() {
         TestScenario scenario = AgroScenarioFactory.agroMicroHappyPath();
-        AgroMicroRoute route = route(scenario);
+        MicroSegmentRoute route = route(scenario);
 
         route.as(scenario.getCreditExpert(), Workspace.CREDIT_EXPERT, () -> {
             route.createApplication();
@@ -199,8 +198,8 @@ public class AgroCreditApplicationTest extends BaseTest {
      * Маршрут создаётся локально в каждом тест-методе — полей с состоянием
      * в тест-классе нет, параллельный запуск не ломается.
      */
-    private AgroMicroRoute route(TestScenario scenario) {
-        return new AgroMicroRoute(scenario);
+    private MicroSegmentRoute route(TestScenario scenario) {
+        return new MicroSegmentRoute(scenario);
     }
 
     private String applicationNumber() {
