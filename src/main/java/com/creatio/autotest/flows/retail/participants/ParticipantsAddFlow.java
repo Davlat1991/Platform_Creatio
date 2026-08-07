@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.participants;
+package com.creatio.autotest.flows.retail.participants;
 
 import com.codeborne.selenide.Condition;
 import com.creatio.autotest.components.ButtonsComponent;

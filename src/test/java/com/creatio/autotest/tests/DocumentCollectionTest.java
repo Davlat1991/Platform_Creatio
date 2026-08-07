@@ -6,6 +6,7 @@ import com.creatio.autotest.flows.retail.DocumentCollectionStageFlow;
 import com.creatio.autotest.flows.common.NavigationFlow;
 import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
+import com.creatio.autotest.flows.retail.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
@@ -94,7 +95,7 @@ public class DocumentCollectionTest extends BaseTest {
         new PreliminaryCheckStageFlow()
                 .completePreliminaryCheckStage();
 
-        new com.creatio.autotest.flows.participants.ParticipantsStageFlow()
+        new ParticipantsStageFlow()
                 .completeParticipantsStage(
                         scenario.getParticipants(),
                         scenario.getRegistration().getIncomeExpenses()

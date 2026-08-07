@@ -1,4 +1,4 @@
-package com.creatio.autotest.flows.participants;
+package com.creatio.autotest.flows.retail.participants;
 
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.testdata.models.ParticipantData;

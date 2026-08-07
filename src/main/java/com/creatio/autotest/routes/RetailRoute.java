@@ -2,7 +2,7 @@ package com.creatio.autotest.routes;
 
 
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
-import com.creatio.autotest.flows.participants.ParticipantsStageFlow;
+import com.creatio.autotest.flows.retail.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
 import com.creatio.autotest.flows.retail.*;
 import com.creatio.autotest.testdata.ScenarioFactory;
