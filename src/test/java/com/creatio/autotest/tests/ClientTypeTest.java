@@ -77,7 +77,7 @@ public class ClientTypeTest extends BaseTest {
         runClientType(ScenarioFactory.employeePath());
     }
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Тип клиента: Самозанятый")
     @Severity(SeverityLevel.NORMAL)
     public void selfEmployedFullPath() {

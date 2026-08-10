@@ -548,17 +548,6 @@ public class AgroSigningStageFlow {
         openAndCloseOrder("Расходный");
     }
 
-    @Step("DEBUG: печать оферты по договору {contractNumber}")
-    public void debugPrintOffer(String contractNumber) {
-        consultation.closeIfOpened();
-        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
-
-        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
-
-        printOffer();
-    }
-
 
 
 }

@@ -210,13 +210,4 @@ public class AgroCreditApplicationTest extends BaseTest {
         return System.getProperty("contract", RESUME_CONTRACT_NUMBER);
     }
 
-    @Test(groups = "resume", enabled = false)
-    @Story("Агро/Микро — DEBUG: печать оферты по номеру договора")
-    @Description("Логин ИКОК-ГО, открытие кредитного договора по номеру, печать оферты. " +
-            "Быстрая проверка правки OFFER_PRINT_FORM без повторного подписания и выдачи.")
-    @Severity(SeverityLevel.NORMAL)
-    public void agroMicroResumePrintOffer() {
-        route(AgroScenarioFactory.agroMicroHappyPath())
-                .ikokGoPrintOffer(contractNumber());
-    }
 }

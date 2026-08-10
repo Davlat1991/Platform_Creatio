@@ -66,7 +66,7 @@ public class DocumentCollectionTest extends BaseTest {
     }
 
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Description("Полный путь до стадии Сбор документов (с поручителем и залогодателем)")
     @Story("Debug — довести заявку с участниками до стадии документов")
     @Severity(SeverityLevel.NORMAL)

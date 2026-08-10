@@ -24,7 +24,7 @@ public class CreditApplicationTest extends BaseTest {
     // Заявка уже на стадии "Рассмотрение"
     // ══════════════════════════════════════
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Description("Debug — открыть заявку на стадии Рассмотрение и сохранить номер в контекст")
     public void debugSaveApplicationNumber() {
         TestScenario scenario = ScenarioFactory.happyPath();

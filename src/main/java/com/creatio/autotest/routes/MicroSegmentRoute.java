@@ -321,10 +321,4 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
 
 
 
-    /** DEBUG: печать оферты по номеру договора под ИКОК-ГО (проверка OFFER_PRINT_FORM). */
-    @Step("DEBUG: ИКОК-ГО — печать оферты по договору {0}")
-    public void ikokGoPrintOffer(String contractNumber) {
-        as(scenario.getIkokGo(), Workspace.IKOK_GO,
-                () -> new AgroSigningStageFlow().debugPrintOffer(contractNumber));
-    }
 }

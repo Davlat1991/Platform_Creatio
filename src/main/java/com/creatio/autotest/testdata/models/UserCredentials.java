@@ -14,6 +14,6 @@ public class UserCredentials {
 
     @Override
     public String toString() {
-        return role.name() + "(" + login + ")";
+        return displayName + " [" + role.name() + "]";
     }
 }

@@ -62,7 +62,7 @@ public class CollateralTest extends BaseTest {
     // Участники уже добавлены
     // ══════════════════════════════════════
 
-    @Test(groups = "debug", enabled = true)
+    @Test(groups = "debug", enabled = false)
     @Story("Debug — только залоговые обеспечения")
     @Description("Открываем заявку по UUID, добавляем залоги")
     @Severity(SeverityLevel.NORMAL)
