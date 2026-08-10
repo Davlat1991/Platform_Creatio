@@ -9,6 +9,7 @@ import com.creatio.autotest.core.services.ClickService;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.creatio.autotest.testdata.models.ActivityResult;
 
 import java.time.Duration;
 
@@ -53,7 +54,7 @@ public class PreliminaryCheckStageFlow {
         clickExecuteButton("Добавьте и заполните анкеты участников заявки");
 
         // Выбираем результат в попапе
-        selectResult("Result", "Выполнена");
+        selectResult("Result", ActivityResult.COMPLETED.getUiText());
 
         // Сохраняем попап
         clickSaveEditButton();

@@ -10,6 +10,7 @@ import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.creatio.autotest.testdata.models.ActivityResult;
 
 import java.time.Duration;
 import java.util.List;
@@ -43,7 +44,7 @@ public class AgroDocumentCollectionStageFlow {
     /** Активность стадии «Сбор документов». */
     private static final String DOCUMENTS_ACTIVITY = "Вложить документы и отправить на рассмотрение";
     /** Результат выполнения активности (happy-path). */
-    private static final String ACTIVITY_RESULT    = "Выполнена";
+    private static final String ACTIVITY_RESULT    = ActivityResult.COMPLETED.getUiText();
 
     private final BasePage   basePage   = new BasePage();
     private final DetailPage detailPage = new DetailPage();

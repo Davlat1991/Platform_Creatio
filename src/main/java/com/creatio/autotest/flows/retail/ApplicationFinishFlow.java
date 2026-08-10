@@ -9,6 +9,7 @@ import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.testdata.models.ActivityResult;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +126,7 @@ public class ApplicationFinishFlow {
         buttons.clickTabByName("Файлы и примечания");
         attachFile("Расходный кассовый ордер.docx");
 
-        completeActivity("Прикрепите документы для завершения заявки", "Выполнена");
+        completeActivity("Прикрепите документы для завершения заявки", ActivityResult.COMPLETED.getUiText());
     }
 
 

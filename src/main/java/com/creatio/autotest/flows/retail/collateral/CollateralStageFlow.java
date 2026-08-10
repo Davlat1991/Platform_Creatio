@@ -9,6 +9,7 @@ import com.creatio.autotest.testdata.models.CollateralType;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.creatio.autotest.testdata.models.ActivityResult;
 
 import java.util.List;
 
@@ -133,7 +134,7 @@ public class CollateralStageFlow {
         // Открываем дропдаун результата кликом по полю — setValue(Result)
         // не запускает onChange, и список пунктов не появляется в DOM.
         menu.openResultDropdown();
-        menu.clickByName("Выполнена");
+        menu.clickByName(ActivityResult.COMPLETED.getUiText());
         click.clickByMarker("SaveEditButton");
 
         // Сохранение активности асинхронное: мини-страница держит overlay, пока

@@ -15,6 +15,7 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.function.Supplier;
+import com.creatio.autotest.testdata.models.ActivityResult;
 
 
 import java.time.Duration;
@@ -52,8 +53,8 @@ public class AgroSigningStageFlow {
             LoggerFactory.getLogger(AgroSigningStageFlow.class);
 
     private static final String KK_DECISION_ACTIVITY     = "Проверка решения КК";
-    private static final String ACTIVITY_RESULT          = "Выполнена";
-    private static final String CONTRACT_ACTIVITY_RESULT = "Выполнена";
+    private static final String ACTIVITY_RESULT          = ActivityResult.COMPLETED.getUiText();
+    private static final String CONTRACT_ACTIVITY_RESULT = ActivityResult.COMPLETED.getUiText();
 
     /** Активность, открывающая мини-панель «Связи» со ссылкой на временный договор. */
     private static final String CONTRACT_OPEN_ACTIVITY =

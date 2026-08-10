@@ -8,6 +8,7 @@ import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.testdata.models.ActivityResult;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class AgroApplicationFinishFlow {
     private static final String ORDER_FILE = "Расходный кассовый ордер.docx";
 
     private static final String ATTACH_ACTIVITY  = "Прикрепите документы для завершения заявки";
-    private static final String ATTACH_RESULT    = "Выполнена";
+    private static final String ATTACH_RESULT    = ActivityResult.COMPLETED.getUiText();
     private static final String CONFIRM_ACTIVITY = "Подтвердить получение документа";
     private static final String CONFIRM_RESULT   = "Подтвердить получение документа";
 

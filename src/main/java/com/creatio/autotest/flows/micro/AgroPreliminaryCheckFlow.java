@@ -9,6 +9,7 @@ import com.creatio.autotest.core.services.ClickService;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.creatio.autotest.testdata.models.ActivityResult;
 
 import java.time.Duration;
 
@@ -38,7 +39,7 @@ public class AgroPreliminaryCheckFlow {
     /** Активность стадии «Оформление», завершение которой открывает «Предварительную проверку». */
     private static final String REGISTRATION_ACTIVITY = "Добавьте и заполните анкеты участников заявки";
     /** Результат выполнения активности (happy-path). */
-    private static final String ACTIVITY_RESULT       = "Выполнена";
+    private static final String ACTIVITY_RESULT       = ActivityResult.COMPLETED.getUiText();
     /** Задача стадии «Предварительная проверка». */
     private static final String CLIENT_CHECK_ACTIVITY = "Проверка клиента";
     /** Маркер кнопки одобрения на задаче проверки клиента. */

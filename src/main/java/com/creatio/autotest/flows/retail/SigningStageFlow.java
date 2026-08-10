@@ -9,6 +9,7 @@ import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.flows.common.CollateralContractsFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -104,7 +105,7 @@ public class SigningStageFlow {
 
         menu.openResultDropdown();
 
-        menu.clickByName("Выполнена");
+        menu.clickByName(ActivityResult.COMPLETED.getUiText());
         click.clickByMarker("SaveEditButton");
     }
 
@@ -235,7 +236,7 @@ public class SigningStageFlow {
 
         menu.openResultDropdown();
 
-        menu.clickByName("Выполнена");
+        menu.clickByName(ActivityResult.COMPLETED.getUiText());
         click.clickByMarker("SaveEditButton");
 
         click.clickByName("Действия");
