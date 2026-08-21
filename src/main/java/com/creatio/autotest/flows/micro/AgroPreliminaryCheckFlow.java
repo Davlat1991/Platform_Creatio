@@ -38,12 +38,16 @@ public class AgroPreliminaryCheckFlow {
 
     /** Активность стадии «Оформление», завершение которой открывает «Предварительную проверку». */
     private static final String REGISTRATION_ACTIVITY = "Добавьте и заполните анкеты участников заявки";
+
     /** Результат выполнения активности (happy-path). */
-    private static final String ACTIVITY_RESULT       = ActivityResult.COMPLETED.getUiText();
+    private static final String ACTIVITY_RESULT = ActivityResult.COMPLETED.getUiText();
+
     /** Задача стадии «Предварительная проверка». */
     private static final String CLIENT_CHECK_ACTIVITY = "Проверка клиента";
+
     /** Маркер кнопки одобрения на задаче проверки клиента. */
     private static final String CLIENT_CHECK_APPROVE  = "Approve";
+
     /** Якорь — активность, появляющаяся только на стадии «Обеспечение». */
     private static final String COLLATERAL_STAGE_ANCHOR = "Заполните данные обеспечения и поручительства";
 

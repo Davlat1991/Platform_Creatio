@@ -42,7 +42,7 @@ public class AgroRegistrationScoringConfirmationFlow {
         buttons.clickTabByName("ОЦЕНКА ИНФОРМАЦИИ");
 
         lookup
-                .select("Тип собственности на недвижимость", data.getPropertyOwnershipType())
+                .select("Тип собственности на недвижимость",  data.getPropertyOwnershipType())
                 .select("Тип владения автомобилем",           data.getVehicleOwnershipType());
 
         checkbox.ensureCheckedBKI("IsConsentBKIProcessing");

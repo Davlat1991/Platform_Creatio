@@ -30,10 +30,8 @@ public class GuarantorFlow {
     // ── Контейнеры деталей — такие же как у заёмщика ──
     // Поручитель открывается в отдельной карточке,
     // поэтому маркеры контейнеров те же самые
-    private static final String INCOME_CONTAINER  =
-            "BnzAppIncomesDetailDetailContainer";
-    private static final String EXPENSE_CONTAINER =
-            "BnzAppExpensesDetailDetailContainer";
+    private static final String INCOME_CONTAINER  = "BnzAppIncomesDetailDetailContainer";
+    private static final String EXPENSE_CONTAINER = "BnzAppExpensesDetailDetailContainer";
 
     private final LookupComponent   lookup   = new LookupComponent();
     private final ButtonsComponent  buttons  = new ButtonsComponent();

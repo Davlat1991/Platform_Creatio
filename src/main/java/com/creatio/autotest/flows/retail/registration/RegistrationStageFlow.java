@@ -62,7 +62,6 @@ public class RegistrationStageFlow {
         // 8. Печать
         printFlow.printApplication();
 
-       // Selenide.refresh();
         basePage.waitForPage();
 
         log.info("Registration stage completed");

@@ -61,5 +61,31 @@ public class RegistrationParticipantsFlow {
         click.clickByName("Сохранить");
     }
 
+    @Step("Заполнение карьеры заемщика (Самозанятый)")
+    public void fillCareerDetailsSelfEmployed(CareerData career) {
+        log.info("Fill career details (SelfEmployed)");
+
+        buttons.clickByNameContains("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ");
+        detailPage.clickAddRecord("Карьера");
+
+        lookup.selectByMarkerWithSoftValidation(
+                CareerField.EMPLOYMENT_TYPE.marker, career.getEmploymentType());
+        lookup.setTextByMarker(
+                CareerField.ORGANIZATION_NAME.marker, career.getOrganizationName());
+        lookup.selectByMarkerWithSoftValidation(
+                CareerField.POSITION.marker, career.getPosition());
+        lookup.setTextByMarker(
+                CareerField.START_DATE.marker, career.getStartDate());
+        lookup.selectByMarkerWithSoftValidation(
+                CareerField.EMPLOYER.marker, career.getEmployer());
+        lookup.setTextByMarker(
+                CareerField.POSITION_FULL_NAME.marker, career.getPositionFullName());
+        lookup.setTextByMarker(
+                CareerField.DUE_DATE.marker, career.getDueDate());
+
+        click.clickByName("Сохранить");
+    }
+
+
 
 }

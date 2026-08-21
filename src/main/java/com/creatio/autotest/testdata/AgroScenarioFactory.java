@@ -1,7 +1,6 @@
 package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
-
 import com.creatio.autotest.testdata.models.documents.DocumentData;
 import com.creatio.autotest.testdata.models.documents.DocumentOwner;
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
@@ -10,7 +9,6 @@ import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import com.creatio.autotest.testdata.models.registration.EducationCareerData;
 import com.creatio.autotest.testdata.models.registration.WorkAddressData;
 import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
-
 
 import java.util.List;
 

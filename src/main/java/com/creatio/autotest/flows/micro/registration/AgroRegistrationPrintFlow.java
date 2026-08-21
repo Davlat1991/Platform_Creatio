@@ -4,7 +4,6 @@ import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.MenuComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.components.PrintComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.DetailPage;
 import io.qameta.allure.Step;
@@ -28,7 +27,6 @@ public class AgroRegistrationPrintFlow {
 
     private final ButtonsComponent    buttons    = new ButtonsComponent();
     private final MenuComponent       menu       = new MenuComponent();
-    private final BasePage            basePage   = new BasePage();
     private final DetailPage          detailPage = new DetailPage();
     private final ClickService        click      = new ClickService();
     private final MessageBoxComponent msgBox     = new MessageBoxComponent();

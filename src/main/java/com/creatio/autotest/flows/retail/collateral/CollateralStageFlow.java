@@ -2,14 +2,13 @@ package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.MenuComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.creatio.autotest.testdata.models.ActivityResult;
 
 import java.util.List;
 
@@ -22,7 +21,6 @@ public class CollateralStageFlow {
 
     private final DashboardComponent dashboard = new DashboardComponent();
     private final MenuComponent      menu      = new MenuComponent();
-    private final BasePage           basePage  = new BasePage();
     private final ClickService       click     = new ClickService();
 
     // ══════════════════════════════════════
@@ -89,33 +87,6 @@ public class CollateralStageFlow {
     // ══════════════════════════════════════
     // COMPLETE TASK
     // ══════════════════════════════════════
-
-    /*@Step("Завершение задачи по залогу и поручительству")
-    private void completeCollateralTask(boolean hasCollateral) {
-        log.info("Complete collateral task (hasCollateral={})", hasCollateral);
-
-        // Двойной клик по подтипу — только при наличии хотя бы одного залога.
-        if (hasCollateral) {
-            click.doubleClickByMarker("Обеспечение.Подтип");
-        }
-
-        dashboard.clickAndWaitMiniPage(
-                "Заполните данные обеспечения и поручительства",
-                "Execute"
-        );
-
-        // Открываем дропдаун результата кликом по полю — setValue(Result)
-        // не запускает onChange, и список пунктов не появляется в DOM.
-        menu.openResultDropdown();
-        menu.clickByName("Выполнена");
-        click.clickByMarker("SaveEditButton");
-
-        // Ждём перехода на этап документов
-        $x("//label[normalize-space()=" +
-                "'Вложить документы и отправить на рассмотрение']")
-                .shouldBe(com.codeborne.selenide.Condition.visible,
-                        java.time.Duration.ofSeconds(100));
-    }*/
 
     @Step("Завершение задачи по залогу и поручительству")
     private void completeCollateralTask(boolean hasCollateral) {

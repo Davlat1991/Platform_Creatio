@@ -1,18 +1,14 @@
 package com.creatio.autotest.components.collateral;
 
 import com.creatio.autotest.components.LookupComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.base.BaseComponent;
+import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import io.qameta.allure.Step;
-
-import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.executeJavaScript;
 
 public class CollateralAddressComponent extends BaseComponent {
 
     private final LookupComponent lookup   = new LookupComponent();
-    private final BasePage        basePage = new BasePage();
     private final ClickService click    = new ClickService();
 
     @Step("Заполнение адреса имущества")

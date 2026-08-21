@@ -62,47 +62,6 @@ public class CheckboxComponent extends BaseComponent {
         return this;
     }
 
-    @Step("Click checkbox by input id: {id}")
-    public CheckboxComponent clickByInputId(String id) {
-        log.info("Click checkbox by input id: '{}'", id);
-        $x("//input[@id='" + id + "']").click();
-        return this;
-    }
 
-    // ══════════════════════════════════════
-    // BY LABEL
-    // ══════════════════════════════════════
 
-    @Step("Check checkbox by label: {label}")
-    public CheckboxComponent check(String label) {
-        log.info("Check checkbox: '{}'", label);
-        SelenideElement cb = findByLabel(label).shouldBe(visible);
-        if (!cb.getAttribute("class").contains("checked")) {
-            executeJavaScript("arguments[0].click();", cb);
-        }
-        cb.shouldHave(Condition.attributeMatching("class", ".*checked.*"));
-        return this;
-    }
-
-    @Step("Uncheck checkbox by label: {label}")
-    public CheckboxComponent uncheck(String label) {
-        log.info("Uncheck checkbox: '{}'", label);
-        SelenideElement cb = findByLabel(label).shouldBe(visible);
-        if (cb.getAttribute("class").contains("checked")) {
-            executeJavaScript("arguments[0].click();", cb);
-        }
-        cb.shouldNotHave(Condition.attributeMatching("class", ".*checked.*"));
-        return this;
-    }
-
-    // ══════════════════════════════════════
-    // HELPERS
-    // ══════════════════════════════════════
-
-    private SelenideElement findByLabel(String label) {
-        return $x(
-                "//label[normalize-space(.)='" + label + "']" +
-                        "/../..//span[contains(@class,'checkbox')]"
-        );
-    }
 }

@@ -15,22 +15,14 @@ public class CashierFlow {
     private static final Logger log =
             LoggerFactory.getLogger(CashierFlow.class);
 
-    private final BasePage                 basePage       = new BasePage();
-    private final ButtonsComponent         buttons        = new ButtonsComponent();
-    private final MessageBoxComponent      msgBox         = new MessageBoxComponent();
-    private final PrintComponent           print          = new PrintComponent();
-    private final CreditApplicationAssertions assertions  = new CreditApplicationAssertions();
-    private final FieldAssertions          fieldAssert    = new FieldAssertions();
-    private final ConsultationPanelPage    consultation   = new ConsultationPanelPage();
-    private final ApplicationSearchFlow searchFlow     = new ApplicationSearchFlow();
-    private final ClickService click    = new ClickService();
-
-    private String contractNumber;
-
-    public CashierFlow withContractNumber(String number) {
-        this.contractNumber = number;
-        return this;
-    }
+    private final BasePage                    basePage       = new BasePage();
+    private final ButtonsComponent            buttons        = new ButtonsComponent();
+    private final MessageBoxComponent         msgBox         = new MessageBoxComponent();
+    private final PrintComponent              print          = new PrintComponent();
+    private final CreditApplicationAssertions assertions     = new CreditApplicationAssertions();
+    private final ConsultationPanelPage       consultation   = new ConsultationPanelPage();
+    private final ApplicationSearchFlow       searchFlow     = new ApplicationSearchFlow();
+    private final ClickService                click          = new ClickService();
 
     // ══════════════════════════════════════
     // MAIN

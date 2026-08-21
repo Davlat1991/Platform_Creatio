@@ -4,7 +4,6 @@ import com.codeborne.selenide.Condition;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.core.services.WaitService;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
@@ -23,7 +22,6 @@ public class ReviewStageUnderwriterFlow {
 
     private final ButtonsComponent      buttons      = new ButtonsComponent();
     private final LookupComponent       lookup       = new LookupComponent();
-    private final BasePage              basePage     = new BasePage();
     private final ClickService          click        = new ClickService();
     private final MessageBoxComponent   msgBox       = new MessageBoxComponent();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();

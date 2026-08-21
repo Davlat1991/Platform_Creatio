@@ -2,7 +2,6 @@ package com.creatio.autotest.components.collateral;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.core.base.BaseComponent;
 import io.qameta.allure.Step;
 
@@ -10,11 +9,10 @@ import java.time.Duration;
 
 import static com.codeborne.selenide.Selenide.$x;
 import static com.codeborne.selenide.Selenide.executeJavaScript;
-import static com.codeborne.selenide.Selenide.refresh;
 
 public class CollateralTabsComponent extends BaseComponent {
 
-    private final ButtonsComponent buttons = new ButtonsComponent();
+
 
     @Step("Открыть вкладку 'Обеспечение'")
     public void openCollateralTab() {

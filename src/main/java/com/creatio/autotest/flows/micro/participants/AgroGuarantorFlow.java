@@ -128,7 +128,7 @@ public class AgroGuarantorFlow {
     private void fillScoringData(AgroGuarantorData data) {
         log.info("Fill guarantor scoring data");
 
-        lookup.select("Семейное положение",                    data.getMaritalStatus());
+        lookup.select("Семейное положение",                     data.getMaritalStatus());
         lookup.selectByLabel("Количество иждивенцев (строка)",  data.getDependents());
         lookup.selectByLabel("Количество детей",                data.getChildren());
         lookup.selectByLabel("Количество членов семьи",         data.getFamilyMembers());
@@ -183,9 +183,9 @@ public class AgroGuarantorFlow {
                 "//div[@data-item-marker='TsiKind']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        selectInContainer(INCOME_CONTAINER, "TsiKind",          income.getType());
-        selectInContainer(INCOME_CONTAINER, "TsiFrequencyType", income.getFrequency());
-        setNumericInContainer(INCOME_CONTAINER, "TsiAmountBC",  income.getAmount());
+        selectInContainer(INCOME_CONTAINER,     "TsiKind",          income.getType());
+        selectInContainer(INCOME_CONTAINER,     "TsiFrequencyType", income.getFrequency());
+        setNumericInContainer(INCOME_CONTAINER, "TsiAmountBC",      income.getAmount());
 
         saveInlineRow();
     }
@@ -200,9 +200,9 @@ public class AgroGuarantorFlow {
                 "//div[@data-item-marker='TsiKind']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        selectInContainer(EXPENSE_CONTAINER, "TsiKind",          expense.getType());
-        selectInContainer(EXPENSE_CONTAINER, "TsiFrequencyType", expense.getFrequency());
-        setNumericInContainer(EXPENSE_CONTAINER, "TsiAmountBC",  expense.getAmount());
+        selectInContainer(EXPENSE_CONTAINER,     "TsiKind",          expense.getType());
+        selectInContainer(EXPENSE_CONTAINER,     "TsiFrequencyType", expense.getFrequency());
+        setNumericInContainer(EXPENSE_CONTAINER, "TsiAmountBC",      expense.getAmount());
 
         saveInlineRow();
     }

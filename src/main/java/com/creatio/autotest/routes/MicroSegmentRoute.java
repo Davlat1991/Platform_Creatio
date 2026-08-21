@@ -28,7 +28,6 @@ import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Step;
 
 
-
 /**
  * Сборочный слой маршрута «Агро» (сегмент «Микро»).
  * <p>

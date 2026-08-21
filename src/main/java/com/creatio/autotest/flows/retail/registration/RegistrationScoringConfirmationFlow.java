@@ -3,7 +3,6 @@ package com.creatio.autotest.flows.retail.registration;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.CheckboxComponent;
 import com.creatio.autotest.components.LookupComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ScrollService;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -17,8 +16,7 @@ public class RegistrationScoringConfirmationFlow {
     private final ButtonsComponent  buttons  = new ButtonsComponent();
     private final LookupComponent   lookup   = new LookupComponent();
     private final CheckboxComponent checkbox = new CheckboxComponent();
-    private final BasePage          basePage = new BasePage();
-    private final ScrollService scroll = new ScrollService();
+    private final ScrollService     scroll   = new ScrollService();
 
     @Step("Подтверждение этапа оценки информации заемщика")
     public void confirmScoring() {

@@ -1,12 +1,6 @@
 package com.creatio.autotest.testdata;
 
-import com.creatio.autotest.testdata.models.CollateralData;
-import com.creatio.autotest.testdata.models.CollateralType;
-import com.creatio.autotest.testdata.models.CurrencyType;
-import com.creatio.autotest.testdata.models.EquipmentData;
-import com.creatio.autotest.testdata.models.GoldData;
-import com.creatio.autotest.testdata.models.RealEstateData;
-import com.creatio.autotest.testdata.models.SimpleObjectData;
+import com.creatio.autotest.testdata.models.*;
 
 public final class CollateralDataFactory {
 

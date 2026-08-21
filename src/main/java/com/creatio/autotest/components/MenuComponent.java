@@ -27,23 +27,6 @@ public class MenuComponent extends BaseComponent {
         return this;
     }
 
-    public MenuComponent doubleclickButtonByName(String nameButton){
-        $x("//span[.='" + nameButton + "']").doubleClick();
-
-        return this;
-    }
-
-    @Step("Click menu item by marker: {marker}")
-    public MenuComponent clickByMarker(String marker) {
-        log.info("Click menu item marker: '{}'", marker);
-
-        $x("//li[@data-item-marker='" + marker + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(7))
-                .click();
-
-        return this;
-    }
-
     /**
      * Наведение на пункт меню с подменю → клик по пункту подменю.
      * Подменю Creatio раскрывается при hover на родительском li;

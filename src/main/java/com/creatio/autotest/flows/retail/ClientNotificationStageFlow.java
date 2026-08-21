@@ -3,7 +3,6 @@ package com.creatio.autotest.flows.retail;
 import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MenuComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
@@ -22,7 +21,6 @@ public class ClientNotificationStageFlow {
     private final DashboardComponent    dashboard    = new DashboardComponent();
     private final LookupComponent       lookup       = new LookupComponent();
     private final MenuComponent         menu         = new MenuComponent();
-    private final BasePage              basePage     = new BasePage();
     private final ClickService          click        = new ClickService();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow = new ApplicationSearchFlow();

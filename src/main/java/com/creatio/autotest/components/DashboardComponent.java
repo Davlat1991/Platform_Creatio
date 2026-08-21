@@ -1,64 +1,19 @@
 package com.creatio.autotest.components;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
-import com.creatio.autotest.core.services.WaitService;
 import io.qameta.allure.Step;
 
 import java.time.Duration;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.executeJavaScript;
 
 public class DashboardComponent extends BaseComponent {
 
-    // ══════════════════════════════════════
-    // GET DASHBOARD
-    // ══════════════════════════════════════
-
-    private SelenideElement getDashboard() {
-        // Дашборд появляется после догрузки страницы (серый оверлей "Загрузка").
-        // Сначала ждём исчезновения маски Creatio, затем сам дашборд.
-        new WaitService().waitForLoader();
-        return $x("//*[@data-item-marker='Dashboard']")
-                .shouldBe(visible, Duration.ofSeconds(60));
-    }
-
-    // ══════════════════════════════════════
-    // WAIT
-    // ══════════════════════════════════════
-
-    @Step("Wait process block: {blockName}")
-    public DashboardComponent waitProcessBlock(String blockName) {
-        log.info("Wait dashboard block: '{}'", blockName);
-        getDashboard()
-                .$x(".//*[contains(text(),'" + blockName + "')]")
-                .shouldBe(visible, Duration.ofSeconds(60));
-        return this;
-    }
 
     // ══════════════════════════════════════
     // CLICK ACTION
     // ══════════════════════════════════════
-
-    @Step("Click action '{action}' in block '{blockName}'")
-    public DashboardComponent clickAction(String blockName, String action) {
-        log.info("Dashboard click: block='{}' action='{}'", blockName, action);
-
-        SelenideElement block = getDashboard().$x(
-                ".//*[contains(text(),'" + blockName + "')]" +
-                        "/ancestor::*[contains(@class,'controlgroup')]"
-        ).shouldBe(visible);
-
-        SelenideElement button = block.$x(
-                ".//span[contains(text(),'" + action + "')]"
-        ).shouldBe(visible, enabled);
-
-        executeJavaScript("arguments[0].click();", button);
-        return this;
-    }
 
     @Step("Click dashboard '{name}' marker '{marker}' wait minipage")
     public DashboardComponent clickAndWaitMiniPage(String name, String marker) {

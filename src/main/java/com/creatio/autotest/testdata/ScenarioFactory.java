@@ -4,11 +4,7 @@ import com.creatio.autotest.testdata.models.*;
 import com.creatio.autotest.testdata.models.documents.DocumentData;
 import com.creatio.autotest.testdata.models.documents.DocumentOwner;
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
-import com.creatio.autotest.testdata.models.registration.ActivityData;
-import com.creatio.autotest.testdata.models.registration.CareerData;
-import com.creatio.autotest.testdata.models.registration.ClientProfileData;
-import com.creatio.autotest.testdata.models.registration.EducationCareerData;
-import com.creatio.autotest.testdata.models.registration.WorkAddressData;
+import com.creatio.autotest.testdata.models.registration.*;
 import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 
 import java.util.Collections;
@@ -371,7 +367,7 @@ public final class ScenarioFactory {
     private static ProductData simpleProduct() {
         return ProductData.builder()
                 .productKind("Карзхои гуногунмаксад")
-                .creditPurpose("Барои эхтиёчоти оилави")
+                .creditPurpose("Барои эхтиёчоти оилави") // Барои эхтиёчоти шахси
                 .amount("5000")
                 .term("12")
                 .currency("Сомони Чумхурии Точикистон")
@@ -384,7 +380,7 @@ public final class ScenarioFactory {
     private static ProductData defaultProduct() {
         return ProductData.builder()
                 .productKind("Карзхои гуногунмаксад")
-                .creditPurpose("Барои эхтиёчоти оилави")
+                .creditPurpose("Барои эхтиёчоти оилави") // Барои эхтиёчоти шахси
                 .amount("50000")
                 .term("36")
                 .currency("Сомони Чумхурии Точикистон")

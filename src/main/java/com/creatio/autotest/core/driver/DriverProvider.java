@@ -18,16 +18,6 @@ public final class DriverProvider {
     // GET / SET / REMOVE
     // ══════════════════════════════════════
 
-    public static WebDriver get() {
-        WebDriver driver = driverHolder.get();
-        if (driver == null) {
-            throw new IllegalStateException(
-                    "WebDriver not initialized. Call DriverSetup.init() first."
-            );
-        }
-        return driver;
-    }
-
     public static void set(WebDriver driver) {
         driverHolder.set(driver);
         WebDriverRunner.setWebDriver(driver);
@@ -48,7 +38,4 @@ public final class DriverProvider {
         }
     }
 
-    public static boolean isInitialized() {
-        return driverHolder.get() != null;
-    }
 }

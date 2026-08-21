@@ -53,7 +53,8 @@ public class AgroClientNotificationStageFlow {
 
     /** Заголовки мастер-страниц — якоря готовности. */
     private static final String IDENTIFICATION_PAGE = "Укажите дату и время идентификации клиента";
-    private static final String SIGNING_PAGE        = "Укажите дату и время подписания договора";
+
+    private static final String SIGNING_PAGE = "Укажите дату и время подписания договора";
 
     /** Инпут поля «Мидл контроллер» на карточке заявки (маркер EshIdentifiedClient). */
     private static final String MIDDLE_CONTROLLER_INPUT =

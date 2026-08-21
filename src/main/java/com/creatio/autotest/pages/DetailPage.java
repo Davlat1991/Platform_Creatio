@@ -16,18 +16,6 @@ public class DetailPage extends BasePage {
     // OPEN DETAIL
     // ══════════════════════════════════════
 
-    @Step("Open detail: {detailName}")
-    public DetailPage openDetail(String detailName) {
-        log.info("Open detail: '{}'", detailName);
-
-        SelenideElement container = $x("//span[.='" + detailName + "']/../..");
-
-        if (container.getAttribute("class").contains("collapsed")) {
-            $x("//span[.='" + detailName + "']").click();
-        }
-        return this;
-    }
-
     @Step("Open detail stable: {name}")
     public DetailPage openDetailStable(String name) {
         log.info("Open detail stable: '{}'", name);
@@ -94,13 +82,6 @@ public class DetailPage extends BasePage {
     // ══════════════════════════════════════
     // VALIDATE
     // ══════════════════════════════════════
-
-    @Step("Assert detail opened: {detailName}")
-    public DetailPage assertDetailOpened(String detailName) {
-        $x("//span[normalize-space()='" + detailName + "']/../..")
-                .shouldNotHave(Condition.attributeMatching("class", ".*collapsed.*"));
-        return this;
-    }
 
     @Step("Detail has record: {detailName}")
     public boolean detailHasRecord(String detailName) {

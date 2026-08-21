@@ -23,20 +23,6 @@ public class BasePage extends BaseComponent {
         waitForPage();
     }
 
-    @Step("Open base URL")
-    public void openBaseUrl() {
-        log.info("Opening base URL: {}", config.getBaseUrl());
-        Selenide.open(config.getBaseUrl());
-        waitForPage();
-    }
-
-    @Step("Refresh page")
-    public void refresh() {
-        log.info("Refreshing page");
-        Selenide.refresh();
-        waitForPage();
-    }
-
     // ══════════════════════════════════════
     // WAIT FOR PAGE
     // ══════════════════════════════════════
@@ -98,31 +84,6 @@ public class BasePage extends BaseComponent {
         return this;
     }
 
-    public boolean isVisible(String xpath) {
-        try {
-            return $x(xpath).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
-    // ══════════════════════════════════════
-    // RETRY
-    // ══════════════════════════════════════
 
-    protected <T> T retry(java.util.concurrent.Callable<T> callable,
-                          int attempts, long sleepMs) {
-        Throwable last = null;
-        for (int i = 1; i <= attempts; i++) {
-            try {
-                return callable.call();
-            } catch (Throwable e) {
-                last = e;
-                if (i < attempts) Selenide.sleep(sleepMs);
-            }
-        }
-        throw new RuntimeException(
-                "Retry failed after " + attempts + " attempts", last
-        );
-    }
 }

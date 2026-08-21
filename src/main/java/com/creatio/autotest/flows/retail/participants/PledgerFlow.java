@@ -1,7 +1,6 @@
 package com.creatio.autotest.flows.retail.participants;
 
 import com.creatio.autotest.components.ButtonsComponent;
-import com.creatio.autotest.components.CheckboxComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
@@ -19,9 +18,8 @@ public class PledgerFlow {
 
     private final LookupComponent   lookup   = new LookupComponent();
     private final ButtonsComponent  buttons  = new ButtonsComponent();
-    private final CheckboxComponent checkbox = new CheckboxComponent();
     private final BasePage          basePage = new BasePage();
-    private final ClickService click    = new ClickService();
+    private final ClickService      click    = new ClickService();
 
     @Step("Заполнение анкеты залогодателя")
     public void fill(ParticipantData participant,

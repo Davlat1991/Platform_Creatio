@@ -41,10 +41,6 @@ public final class AllureAttachments {
         }
     }
 
-    public static void attachScreenshot() {
-        attachScreenshot("Screenshot");
-    }
-
     // ══════════════════════════════════════
     // PAGE SOURCE
     // ══════════════════════════════════════

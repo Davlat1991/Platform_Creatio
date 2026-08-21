@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ContactData {
-    private String firstName;
     private String lastName;
+    private String firstName;
     private String middleName;
 
     /**
@@ -20,8 +20,8 @@ public class ContactData {
 
     public static ContactData defaultContact() {
         return ContactData.builder()
-                .firstName("Фарангис")
                 .lastName("Ашурова")
+                .firstName("Фарангис")
                 .middleName("Шарифовна")
                 .segment(ClientSegment.RETAIL)
                 .build();
@@ -29,8 +29,8 @@ public class ContactData {
 
     public static ContactData defaultContact2() {
         return ContactData.builder()
-                .firstName("Шукрона")
                 .lastName("Ашурова")
+                .firstName("Шукрона")
                 .middleName("Махсудовна")
                 .segment(ClientSegment.RETAIL)
                 .build();
@@ -38,8 +38,8 @@ public class ContactData {
 
     public static ContactData selfemployeeContact() {
         return ContactData.builder()
-                .firstName("Сафарали")
                 .lastName("Садуллоев")
+                .firstName("Сафарали")
                 .middleName("Нусратович")
                 .segment(ClientSegment.RETAIL)
                 .build();
@@ -47,8 +47,8 @@ public class ContactData {
 
     public static ContactData selfemployeeContact1() {
         return ContactData.builder()
-                .firstName("Давлатахмад")
                 .lastName("Одинаев")
+                .firstName("Давлатахмад")
                 .middleName("Сангахмадович")
                 .segment(ClientSegment.RETAIL)
                 .build();
@@ -56,8 +56,8 @@ public class ContactData {
 
     public static ContactData selfemployeeContact2() {
         return ContactData.builder()
-                .firstName("Фарангис")
                 .lastName("Ашурова")
+                .firstName("Фарангис")
                 .middleName("Шарифовна")
                 .segment(ClientSegment.RETAIL)
                 .build();
@@ -66,8 +66,8 @@ public class ContactData {
 
     public static ContactData selfemployeeContact3() {
         return ContactData.builder()
-                .firstName("Фарангис")
                 .lastName("Ашурова")
+                .firstName("Фарангис")
                 .middleName("Шарифовна")
                 .segment(ClientSegment.RETAIL)
                 .build();
@@ -80,8 +80,8 @@ public class ContactData {
      */
     public static ContactData microContact1() {
         return ContactData.builder()
-                .firstName("Собирчон")
                 .lastName("Абдуллоев")
+                .firstName("Собирчон")
                 .middleName("Абдучабборович")
                 .segment(ClientSegment.MICRO)
                 .build();
@@ -94,8 +94,8 @@ public class ContactData {
      */
     public static ContactData microContact() {
         return ContactData.builder()
-                .firstName("Исроилхуча")
                 .lastName("Абдурахмонов")
+                .firstName("Исроилхуча")
                 .middleName("Исмоилхучаевич")
                 .segment(ClientSegment.MICRO)
                 .build();

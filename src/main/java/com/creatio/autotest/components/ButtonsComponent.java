@@ -1,6 +1,5 @@
 package com.creatio.autotest.components;
 
-import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
@@ -26,24 +25,6 @@ public class ButtonsComponent extends BaseComponent {
     public ButtonsComponent clickByNameContains(String name) {
         log.info("Click button contains: '{}'", name);
         SelenideElement btn = $x("//span[contains(text(),'" + name + "')]")
-                .shouldBe(visible, enabled);
-        executeJavaScript("arguments[0].click();", btn);
-        return this;
-    }
-
-    @Step("Click button by marker: {marker}")
-    public ButtonsComponent clickByMarker(String marker) {
-        log.info("Click button marker: '{}'", marker);
-        SelenideElement btn = $x("//span[@data-item-marker='" + marker + "']")
-                .shouldBe(visible, enabled);
-        executeJavaScript("arguments[0].click();", btn);
-        return this;
-    }
-
-    @Step("Click button by id: {id}")
-    public ButtonsComponent clickById(String id) {
-        log.info("Click button id: '{}'", id);
-        SelenideElement btn = $x("//span[@id='" + id + "']")
                 .shouldBe(visible, enabled);
         executeJavaScript("arguments[0].click();", btn);
         return this;
@@ -100,21 +81,6 @@ public class ButtonsComponent extends BaseComponent {
             }
         }
         throw new RuntimeException("Failed to click tab: " + value);
-    }
-
-
-    public ButtonsComponent clickButtonByContainName(String Value) {
-        SelenideElement element = $x("//span[contains(text(), '" + Value + "')]")
-                .shouldBe(Condition.visible)
-                .shouldBe(Condition.enabled)
-                .shouldHave(Condition.text(Value));
-
-        element.hover();                    // помогает "активировать" элемент
-        element.shouldBe(Condition.interactable); // теперь interactable безопасен
-
-        element.click();
-
-        return this;
     }
 
 

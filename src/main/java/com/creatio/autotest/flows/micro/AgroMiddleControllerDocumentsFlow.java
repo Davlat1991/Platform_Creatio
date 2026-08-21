@@ -39,11 +39,11 @@ public class AgroMiddleControllerDocumentsFlow {
     /** Единственная деталь заёмщика, где лежит документ (Шиносномаи ЧТ). */
     private static final String BORROWER_DOSSIER_DETAIL = "Досье клиента";
 
-    private final ConsultationPanelPage          consultation = new ConsultationPanelPage();
-    private final ApplicationSearchFlow          searchFlow   = new ApplicationSearchFlow();
-    private final AgroDocumentCollectionStageFlow documents   = new AgroDocumentCollectionStageFlow();
-    private final DetailPage                      detailPage   = new DetailPage();
-    private final BasePage                        basePage     = new BasePage();
+    private final ConsultationPanelPage            consultation  = new ConsultationPanelPage();
+    private final ApplicationSearchFlow            searchFlow    = new ApplicationSearchFlow();
+    private final AgroDocumentCollectionStageFlow  documents     = new AgroDocumentCollectionStageFlow();
+    private final DetailPage                       detailPage    = new DetailPage();
+    private final BasePage                         basePage      = new BasePage();
 
     @Step("Агро: мидл-контролер — вложение документов заёмщика")
     public void attachBorrowerDocuments(DocumentOwnerData ownerData) {

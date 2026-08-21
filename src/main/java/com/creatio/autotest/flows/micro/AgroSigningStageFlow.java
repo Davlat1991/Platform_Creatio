@@ -57,14 +57,15 @@ public class AgroSigningStageFlow {
     private static final String CONTRACT_ACTIVITY_RESULT = ActivityResult.COMPLETED.getUiText();
 
     /** Активность, открывающая мини-панель «Связи» со ссылкой на временный договор. */
-    private static final String CONTRACT_OPEN_ACTIVITY =
-            "Создание договора в АБС (печать договоров для встречи)";
+    private static final String CONTRACT_OPEN_ACTIVITY = "Создание договора в АБС (печать договоров для встречи)";
     private static final String CONTRACT_PAGE_MARKER = "BnzContractCreditPageContainer";
 
     /** Внутренний рейтинг заёмщика — окно рейтинга при создании договора (Агро/Микро). */
     private static final String BORROWER_RATING = "A";
+
     /** Уровень ЭиС риска — то же окно. */
     private static final String EIS_RISK_LEVEL = "Низкий";
+
     /** Вид планирования — значение продуктовой линейки Агро/Микро. */
     private static final String PLANNING_TYPE       = "Кредиты_агро_008_аннуитет";
     private static final String CREDIT_RECEIPT_TYPE = "Получает сегодня";
@@ -139,27 +140,6 @@ public class AgroSigningStageFlow {
         log.info("Agro signing (pass A) completed");
     }
 
-    // ══════════════════════════════════════
-    // RESUME — договоры обеспечения отдельным входом
-    // ══════════════════════════════════════
-
-    /**
-     * Отдельный вход в регистрацию договоров обеспечения по номеру заявки:
-     * используется, когда проход А уже выполнен в предыдущем прогоне.
-     * В сквозном сценарии вызывается {@link #completeSigningStage()}.
-     */
-    @Step("Агро: регистрация договоров обеспечения")
-    public void processCollateralContracts() {
-        String applicationNumber =
-                ScenarioContextProvider.get().getApplicationNumber();
-
-        consultation.closeIfOpened();
-        searchFlow.withApplicationNumber(applicationNumber).openByNumber();
-        openContract();
-
-        collateralContracts.processAllCollateralContracts();
-        completeContractCreationActivity();
-    }
 
     // ══════════════════════════════════════
     // STEPS
@@ -395,24 +375,6 @@ public class AgroSigningStageFlow {
     // DEBUG (временное — удалить после закрытия подзадачи 6)
     // ══════════════════════════════════════
 
-    /**
-     * ВРЕМЕННЫЙ отладочный вход: заход сразу по номеру кредитного договора,
-     * печать форм по уже зарегистрированным договорам обеспечения без
-     * повторного создания их в АБС.
-     */
-    @Step("DEBUG: печать форм по договору {contractNumber}")
-    public void debugPrintCollateralContracts(String contractNumber) {
-        consultation.closeIfOpened();
-        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
-
-        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
-
-        collateralContracts.debugPrintExistingContracts();
-
-        completeContractCreationActivity();
-    }
-
     // ══════════════════════════════════════
     // MAIN — часть 2 (подписание, ордера, оферта)
     // ══════════════════════════════════════
@@ -523,17 +485,6 @@ public class AgroSigningStageFlow {
         basePage.checkPage(ORDER_PAGE_MARKER);
         click.clickByMarker("CloseButton");
         basePage.waitForPage();
-    }
-
-    @Step("DEBUG: подписание и выдача по договору {contractNumber}")
-    public void debugSignAndIssue(String contractNumber) {
-        consultation.closeIfOpened();
-        searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
-
-        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
-
-        signAndIssueCredit();
     }
 
     /**

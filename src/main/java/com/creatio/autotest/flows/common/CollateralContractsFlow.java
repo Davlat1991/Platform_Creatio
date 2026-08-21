@@ -91,7 +91,7 @@ public class CollateralContractsFlow {
     private final MenuComponent       menu     = new MenuComponent();
     private final MessageBoxComponent msgBox   = new MessageBoxComponent();
     private final ClickService        click    = new ClickService();
-    private final PrintComponent print = new PrintComponent();
+    private final PrintComponent      print    = new PrintComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -408,55 +408,4 @@ public class CollateralContractsFlow {
     }
 
 
-    /**
-     * ВРЕМЕННЫЙ отладочный проход: договоры обеспечения уже зарегистрированы
-     * (номера Z-001-…), создание в АБС пропускается. Нужен, чтобы проверять
-     * печать и закрытие карточки, не заводя заявку заново. Удалить после
-     * зелёного основного прогона.
-     */
-    @Step("DEBUG: печать форм по уже созданным договорам обеспечения")
-    public void debugPrintExistingContracts() {
-        buttons.clickTabByName(PARAMETERS_TAB);
-
-        List<String> rows = collectAllRowMarkers();
-        log.info("Строк в детали: {} → {}", rows.size(), rows);
-
-        for (String number : rows) {
-            openTempContract(number);
-
-            String contractType = readContractType();
-            log.info("Тип договора '{}': '{}'", number, contractType);
-
-            if (TYPE_GUARANTEE.equalsIgnoreCase(contractType)) {
-                printContract(GUARANTEE_PRINT_FORM);
-            } else {
-                CollateralType type = resolveCollateralType();
-                if (type.hasPrintForm()) {
-                    printContract(type.getPrintForm());
-                } else {
-                    log.info("'{}' — {}: печатной формы нет", number, type);
-                }
-            }
-
-            closeTempContract();
-        }
-
-        log.info("DEBUG-проход завершён: обработано {}", rows.size());
-    }
-
-    /** Все строки детали, включая уже зарегистрированные (Z-001-…). */
-    private List<String> collectAllRowMarkers() {
-        ElementsCollection rows = $$(PLEDGE_DETAIL + ROW)
-                .shouldHave(com.codeborne.selenide.CollectionCondition.sizeGreaterThan(0),
-                        Duration.ofSeconds(30));
-
-        Set<String> numbers = new LinkedHashSet<>();
-        for (SelenideElement row : rows) {
-            String marker = row.getAttribute("data-item-marker");
-            if (marker != null && !marker.isBlank()) {
-                numbers.add(marker.trim());
-            }
-        }
-        return new ArrayList<>(numbers);
-    }
 }

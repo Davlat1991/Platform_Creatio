@@ -36,9 +36,4 @@ public class AuthFlow {
         headerPage.logout();
     }
 
-    @Step("Перелогиниться как: {user}")
-    public void relogin(UserCredentials user) {
-        logout();
-        login(user);
-    }
 }

@@ -19,9 +19,8 @@ public class ConsultationPanelPage extends BasePage {
 
     private static final String RIGHT_PANEL    = "//div[@id='rightPanel']";
     private static final String TOGGLE_BUTTON  = "//span[@id='view-button-OBSW-imageEl']";
-    private static final String MESSAGE_BOX_OK = "//span[@data-item-marker='ОК']";
-    private static final String COMPLETE_PANEL_BUTTON ="//*[@data-item-marker='CompleteConsultationButton']";
-    private static final String COMPLETE_MODAL_BUTTON ="//*[@data-item-marker='CompleteButton']";
+    private static final String COMPLETE_PANEL_BUTTON = "//*[@data-item-marker='CompleteConsultationButton']";
+    private static final String COMPLETE_MODAL_BUTTON = "//*[@data-item-marker='CompleteButton']";
 
     // ══════════════════════════════════════
     // PANEL CONTROL
@@ -73,41 +72,10 @@ public class ConsultationPanelPage extends BasePage {
         log.info("Clicked 'Завершить' in modal — consultation completed");
     }
 
-    // ══════════════════════════════════════
-    // MESSAGE BOX
-    // ══════════════════════════════════════
-
-    @Step("Close message box if exists")
-    public ConsultationPanelPage closeMessageBoxIfExists() {
-        SelenideElement msg = $x("//div[contains(@class,'messagebox-caption')]");
-        if (msg.exists() && msg.isDisplayed()) {
-            log.info("Closing message box");
-            $x(MESSAGE_BOX_OK)
-                    .shouldBe(Condition.visible)
-                    .click();
-        }
-        return this;
-    }
 
     // ══════════════════════════════════════
     // REGISTER PRODUCT
     // ══════════════════════════════════════
-
-    @Step("Register product by DIM: {dim}")
-    public ConsultationPanelPage registerProductByDIM(String dim) {
-        log.info("Register product by DIM: {}", dim);
-
-        SelenideElement product = $x("//label[@data-item-marker='" + dim + "']")
-                .shouldBe(Condition.visible, Condition.enabled);
-
-        executeJavaScript("arguments[0].click();", product);
-
-        // Ждём открытия страницы заявки
-        $x("//*[contains(@id,'FinApplicationPage')]")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15));
-
-        return this;
-    }
 
     @Step("Close consultation panel after page reload")
     public ConsultationPanelPage closeAfterReload() {

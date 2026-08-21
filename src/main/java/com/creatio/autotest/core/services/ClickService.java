@@ -1,10 +1,7 @@
 package com.creatio.autotest.core.services;
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
-import org.openqa.selenium.interactions.Actions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +17,6 @@ public class ClickService {
     // ══════════════════════════════════════
     // BASIC CLICK
     // ══════════════════════════════════════
-
-    @Step("Click: {element}")
-    public void click(SelenideElement element) {
-        log.debug("Click on element");
-        element.shouldBe(visible).shouldBe(enabled).click();
-    }
 
     @Step("JS Click: {element}")
     public void jsClick(SelenideElement element) {
@@ -93,15 +84,6 @@ public class ClickService {
         SelenideElement el = $x("//" + tag + "[@data-item-marker='" + marker + "']")
                 .shouldBe(visible);
         executeJavaScript("arguments[0].click();", el);
-    }
-
-    @Step("Click if visible: {marker}")
-    public void clickByMarkerIfVisible(String marker) {
-        SelenideElement el = $x("//*[@data-item-marker='" + marker + "']")
-                .should(exist, Duration.ofSeconds(5));
-        if (el.is(visible)) {
-            executeJavaScript("arguments[0].click();", el);
-        }
     }
 
     // ══════════════════════════════════════
@@ -176,26 +158,6 @@ public class ClickService {
                 .shouldBe(visible, enabled);
         try {
             el.doubleClick();
-        } catch (Throwable e) {
-            executeJavaScript(
-                    "arguments[0].dispatchEvent(" +
-                            "new MouseEvent('dblclick',{bubbles:true,cancelable:true}))",
-                    el
-            );
-        }
-    }
-
-    @Step("Double click by text: {text}")
-    public void doubleClickByText(String text) {
-        log.info("doubleClick by text: {}", text);
-        SelenideElement el = $x(
-                "//div[contains(@class,'grid-row')]" +
-                        "[.//*[contains(normalize-space(.),'" + text + "')]]"
-        ).shouldBe(visible).scrollIntoView(true);
-
-        try {
-            new Actions(com.codeborne.selenide.WebDriverRunner.getWebDriver())
-                    .doubleClick(el).perform();
         } catch (Throwable e) {
             executeJavaScript(
                     "arguments[0].dispatchEvent(" +

@@ -2,8 +2,6 @@ package com.creatio.autotest.utils;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.ex.ElementNotFound;
-import com.codeborne.selenide.ex.ElementShould;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,39 +75,4 @@ public final class FieldUtils {
     // GET VALUE BY LABEL
     // ══════════════════════════════════════
 
-    public static String getValueByLabel(String label) {
-        log.info("Get value by label: '{}'", label);
-
-        // По label → input
-        try {
-            SelenideElement input = $x(
-                    "//label[normalize-space()='" + label + "']" +
-                            "/following::input[1]"
-            ).shouldBe(exist, TIMEOUT);
-
-            String value = input.getValue();
-            if (value != null && !value.trim().isEmpty()) return value;
-        } catch (ElementNotFound | ElementShould e) {
-            log.debug("Value by label '{}': input branch miss ({})",
-                    label, e.getMessage());
-        }
-
-        // По label → span/div
-        try {
-            SelenideElement el = $x(
-                    "//label[normalize-space()='" + label + "']" +
-                            "/following::*[self::span or self::div][1]"
-            ).shouldBe(exist, TIMEOUT);
-
-            String text = el.getText();
-            if (text != null && !text.isBlank()) return text.trim();
-        } catch (ElementNotFound | ElementShould e) {
-            log.debug("Value by label '{}': span/div branch miss ({})",
-                    label, e.getMessage());
-        }
-
-        throw new RuntimeException(
-                "Cannot get value for label='" + label + "'"
-        );
-    }
 }

@@ -43,6 +43,7 @@ public class AgroDocumentCollectionStageFlow {
 
     /** Активность стадии «Сбор документов». */
     private static final String DOCUMENTS_ACTIVITY = "Вложить документы и отправить на рассмотрение";
+
     /** Результат выполнения активности (happy-path). */
     private static final String ACTIVITY_RESULT    = ActivityResult.COMPLETED.getUiText();
 

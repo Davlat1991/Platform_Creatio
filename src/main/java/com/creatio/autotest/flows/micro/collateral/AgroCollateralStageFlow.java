@@ -35,15 +35,17 @@ public class AgroCollateralStageFlow {
 
     /** Активность стадии «Обеспечение». */
     private static final String COLLATERAL_ACTIVITY = "Заполните данные обеспечения и поручительства";
+
     /** Результат выполнения активности (happy-path). */
     private static final String ACTIVITY_RESULT     = ActivityResult.COMPLETED.getUiText();
+
     /** Якорь — активность, появляющаяся только на стадии «Сбор документов». */
     private static final String DOCUMENTS_STAGE_ANCHOR = "Вложить документы и отправить на рассмотрение";
 
-    private final DashboardComponent dashboard = new DashboardComponent();
-    private final MenuComponent      menu      = new MenuComponent();
-    private final ClickService       click     = new ClickService();
-    private final CollateralTabsComponent tabs = new CollateralTabsComponent();
+    private final DashboardComponent        dashboard  = new DashboardComponent();
+    private final MenuComponent             menu       = new MenuComponent();
+    private final ClickService              click      = new ClickService();
+    private final CollateralTabsComponent   tabs       = new CollateralTabsComponent();
 
     // ══════════════════════════════════════
     // MAIN — заполнение + завершение стадии

@@ -42,13 +42,13 @@ public class AgroRegistrationIncomeExpensesFlow {
     private static final String INCOME_CONTAINER  = "BnzAppIncomesDetailDetailContainer";
     private static final String EXPENSE_CONTAINER = "BnzAppExpensesDetailDetailContainer";
 
-    private final DetailPage          detailPage = new DetailPage();
-    private final CheckboxComponent   checkbox   = new CheckboxComponent();
-    private final LookupComponent     lookup     = new LookupComponent();
-    private final ButtonsComponent    buttons    = new ButtonsComponent();
-    private final BasePage            basePage   = new BasePage();
-    private final ClickService        click      = new ClickService();
-    private final MessageBoxComponent msgBox     = new MessageBoxComponent();
+    private final DetailPage           detailPage = new DetailPage();
+    private final CheckboxComponent    checkbox   = new CheckboxComponent();
+    private final LookupComponent      lookup     = new LookupComponent();
+    private final ButtonsComponent     buttons    = new ButtonsComponent();
+    private final BasePage             basePage   = new BasePage();
+    private final ClickService         click      = new ClickService();
+    private final MessageBoxComponent  msgBox     = new MessageBoxComponent();
 
     // ══════════════════════════════════════
     // PUBLIC API
@@ -117,9 +117,9 @@ public class AgroRegistrationIncomeExpensesFlow {
                 "//div[@data-item-marker='TsiKind']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        selectInContainer(INCOME_CONTAINER, "TsiKind",          income.getType());
-        selectInContainer(INCOME_CONTAINER, "TsiFrequencyType", income.getFrequency());
-        setNumericInContainer(INCOME_CONTAINER, "TsiAmountBC",  income.getAmount());
+        selectInContainer(INCOME_CONTAINER,     "TsiKind",          income.getType());
+        selectInContainer(INCOME_CONTAINER,     "TsiFrequencyType", income.getFrequency());
+        setNumericInContainer(INCOME_CONTAINER, "TsiAmountBC",      income.getAmount());
 
         saveInlineRow();
     }
@@ -135,9 +135,9 @@ public class AgroRegistrationIncomeExpensesFlow {
                 "//div[@data-item-marker='TsiKind']//input")
                 .shouldBe(Condition.visible, Duration.ofSeconds(10));
 
-        selectInContainer(EXPENSE_CONTAINER, "TsiKind",          expense.getType());
-        selectInContainer(EXPENSE_CONTAINER, "TsiFrequencyType", expense.getFrequency());
-        setNumericInContainer(EXPENSE_CONTAINER, "TsiAmountBC",  expense.getAmount());
+        selectInContainer(EXPENSE_CONTAINER,     "TsiKind",          expense.getType());
+        selectInContainer(EXPENSE_CONTAINER,     "TsiFrequencyType", expense.getFrequency());
+        setNumericInContainer(EXPENSE_CONTAINER, "TsiAmountBC",      expense.getAmount());
 
         saveInlineRow();
     }

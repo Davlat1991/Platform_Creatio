@@ -201,7 +201,6 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
         log.info("Стадия «Касса»: договор='{}'", contractNumber);
 
         new CashierFlow()
-                .withContractNumber(contractNumber)
                 .completeCashOperations();
     }
 
@@ -246,6 +245,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
             collateralStage();
             documentCollection();
             review();
+
+
         });
     }
 
@@ -298,6 +299,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
         ikokGoIssuance();
         cashierOperations();
         finishApplication();
+
+
     }
 
 
@@ -321,6 +324,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
             documentCollectionBorrowerOnly();
             review();
             notifyClientSimplified();
+
+
         });
     }
 
@@ -349,6 +354,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
         ikokIssuance();
         cashierOperations();
         simplifiedFinish();
+
+
     }
 
 

@@ -48,6 +48,8 @@ public class ApplicationCreationFlow {
         calculateAndCreate();
         confirmNoDebt();
         waitForApplicationCreated();
+
+
     }
 
     // ══════════════════════════════════════

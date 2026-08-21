@@ -6,8 +6,6 @@ import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static groovyjarjarantlr4.v4.misc.Utils.select;
-
 /**
  * Флоу «Общая информация» стадии «Оформление» для продуктов сегмента «Микро»
  * (первый продукт — «Агро»).

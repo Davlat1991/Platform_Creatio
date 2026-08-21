@@ -8,8 +8,9 @@ import lombok.Getter;
 public class ParticipantData {
 
     private ParticipantRole role;
-    private String          firstName;
+
     private String          lastName;
+    private String          firstName;
     private String          middleName;
     private boolean         pzlRelation;
 
@@ -20,8 +21,8 @@ public class ParticipantData {
     public static ParticipantData guarantor(boolean pzl) {
         return ParticipantData.builder()
                 .role(ParticipantRole.GUARANTOR)
-                .firstName("Шукрона")
                 .lastName("Ашурова")
+                .firstName("Шукрона")
                 .middleName("Махсудовна")
                 .pzlRelation(pzl)
                 .build();
@@ -30,8 +31,8 @@ public class ParticipantData {
     public static ParticipantData pledger(boolean pzl) {
         return ParticipantData.builder()
                 .role(ParticipantRole.PLEDGER)
-                .firstName("Сафарали")
                 .lastName("Садуллоев")
+                .firstName("Сафарали")
                 .middleName("Нусратович")
                 .pzlRelation(pzl)
                 .build();
@@ -40,8 +41,8 @@ public class ParticipantData {
     public static ParticipantData pledger1(boolean pzl) {
         return ParticipantData.builder()
                 .role(ParticipantRole.PLEDGER)
-                .firstName("Азизходжа")
                 .lastName("Хамидов")
+                .firstName("Азизходжа")
                 .middleName("Азамходжаевич")
                 .pzlRelation(pzl)
                 .build();

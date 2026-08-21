@@ -1,7 +1,6 @@
 package com.creatio.autotest.flows.common;
 
 import com.codeborne.selenide.Condition;
-import com.creatio.autotest.core.base.BasePage;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ public class ClientSearchFlow {
     private static final Logger log =
             LoggerFactory.getLogger(ClientSearchFlow.class);
 
-    private final BasePage basePage = new BasePage();
 
     @Step("Поиск клиента: {lastName} {firstName} {middleName}")
     public void searchClient(String lastName,

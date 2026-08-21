@@ -1,7 +1,6 @@
 package com.creatio.autotest.flows.retail;
 
 import com.creatio.autotest.components.ButtonsComponent;
-import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.GridAssertions;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
@@ -25,7 +24,6 @@ public class ReviewStageRetailFlow {
 
     private final ButtonsComponent      buttons        = new ButtonsComponent();
     private final GridAssertions        gridAssertions = new GridAssertions();
-    private final DashboardComponent    dashboard      = new DashboardComponent();
     private final ConsultationPanelPage consultation   = new ConsultationPanelPage();
 
     // ══════════════════════════════════════
@@ -120,10 +118,6 @@ public class ReviewStageRetailFlow {
         buttons.clickTabByName("Решение по заявке");
     }
 
-    @Step("Проверить комитет КК4")
-    private void verifyCommittee() {
-        gridAssertions.waitForValueInGridColumn("Комитет", "КК4");
-    }
 
     @Step("Сохранить номер заявки в контекст")
     private void saveApplicationNumber() {

@@ -38,14 +38,14 @@ public class AgroRegistrationAdditionalInfoFlow {
 
         lookup.select("Семейное положение", data.getMaritalStatus());
 
-        setField("Количество иждивенцев (строка)", data.getDependentsCount());
-        setField("Количество детей",               data.getChildrensCount());
+        setField("Количество иждивенцев (строка)",  data.getDependentsCount());
+        setField("Количество детей",                data.getChildrensCount());
         setField("Количество членов семьи",         data.getFamilyCount());
-        setField("Общий стаж",                     data.getTotalExperience());
-        setField("Общий стаж, лет",                data.getTotalExperienceYears());
-        setField("Общий стаж, мес",                data.getTotalExperienceMonths());
-        setField("Стаж на последнем месте, лет",   data.getLastJobExperienceYears());
-        setField("Стаж на последнем месте, мес",   data.getLastJobExperienceMonths());
+        setField("Общий стаж",                      data.getTotalExperience());
+        setField("Общий стаж, лет",                 data.getTotalExperienceYears());
+        setField("Общий стаж, мес",                 data.getTotalExperienceMonths());
+        setField("Стаж на последнем месте, лет",    data.getLastJobExperienceYears());
+        setField("Стаж на последнем месте, мес",    data.getLastJobExperienceMonths());
     }
 
     private void setField(String label, String value) {

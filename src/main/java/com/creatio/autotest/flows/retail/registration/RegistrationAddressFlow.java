@@ -22,12 +22,12 @@ public class RegistrationAddressFlow {
     private static final Logger log =
             LoggerFactory.getLogger(RegistrationAddressFlow.class);
 
-    private final ButtonsComponent buttons  = new ButtonsComponent();
-    private final LookupComponent  lookup   = new LookupComponent();
-    private final BasePage         basePage = new BasePage();
-    private final ClickService click = new ClickService();
-    private final DetailPage detailPage = new DetailPage();
-    private final MessageBoxComponent msgBox = new MessageBoxComponent();
+    private final ButtonsComponent    buttons    = new ButtonsComponent();
+    private final LookupComponent     lookup     = new LookupComponent();
+    private final BasePage            basePage   = new BasePage();
+    private final ClickService        click      = new ClickService();
+    private final DetailPage          detailPage = new DetailPage();
+    private final MessageBoxComponent msgBox     = new MessageBoxComponent();
 
     @Step("Заполнение адресов")
     public void fillAddresses() {

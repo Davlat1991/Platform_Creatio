@@ -3,8 +3,6 @@ package com.creatio.autotest.components.collateral;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.DomActions;
 import com.creatio.autotest.components.LookupComponent;
-import com.creatio.autotest.components.MenuComponent;
-import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.base.BaseComponent;
 import com.creatio.autotest.core.services.ClickService;
 import io.qameta.allure.Step;
@@ -12,11 +10,9 @@ import io.qameta.allure.Step;
 public class CollateralValuationComponent extends BaseComponent {
 
     private final ButtonsComponent buttons  = new ButtonsComponent();
-    private final BasePage         basePage = new BasePage();
     private final DomActions       dom      = new DomActions();
     private final LookupComponent  lookup   = new LookupComponent();
-    private final MenuComponent    menu     = new MenuComponent();
-    private final ClickService click    = new ClickService();
+    private final ClickService     click    = new ClickService();
 
     // ══════════════════════════════════════
     // VEHICLE / COTTON / REAL ESTATE

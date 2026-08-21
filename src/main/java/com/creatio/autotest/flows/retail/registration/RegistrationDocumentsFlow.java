@@ -1,10 +1,8 @@
 package com.creatio.autotest.flows.retail.registration;
 
-import com.creatio.autotest.components.GridComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
-import com.creatio.autotest.pages.FieldPage;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +13,9 @@ public class RegistrationDocumentsFlow {
             LoggerFactory.getLogger(RegistrationDocumentsFlow.class);
 
     private final LookupComponent lookup   = new LookupComponent();
-    private final GridComponent   grid     = new GridComponent();
     private final BasePage        basePage = new BasePage();
     private final ClickService click = new ClickService();
-    private final FieldPage fieldPage = new FieldPage();
+
 
 
 
