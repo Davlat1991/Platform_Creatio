@@ -9,13 +9,13 @@ import io.qameta.allure.Step;
 
 public class RealEstateCollateralFlow extends BaseCollateralFlow {
 
-    private final CollateralTabsComponent         tabs      = new CollateralTabsComponent();
-    private final CollateralGridComponent         grid      = new CollateralGridComponent();
-    private final CollateralFormComponent         form      = new CollateralFormComponent();
-    private final RealEstateCharacteristicsComponent chars  = new RealEstateCharacteristicsComponent();
-    private final CollateralAddressComponent      address   = new CollateralAddressComponent();
-    private final CollateralValuationComponent    valuation = new CollateralValuationComponent();
-    private final ClickService click    = new ClickService();
+    private final CollateralTabsComponent            tabs      = new CollateralTabsComponent();
+    private final CollateralGridComponent            grid      = new CollateralGridComponent();
+    private final CollateralFormComponent            form      = new CollateralFormComponent();
+    private final RealEstateCharacteristicsComponent chars     = new RealEstateCharacteristicsComponent();
+    private final CollateralAddressComponent         address   = new CollateralAddressComponent();
+    private final CollateralValuationComponent       valuation = new CollateralValuationComponent();
+    private final ClickService                       click     = new ClickService();
 
     @Override
     @Step("Залог: Недвижимость")
@@ -27,7 +27,7 @@ public class RealEstateCollateralFlow extends BaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        grid.openPropertyLookup();
+     // grid.openPropertyLookup();
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());

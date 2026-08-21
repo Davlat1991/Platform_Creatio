@@ -2,7 +2,6 @@ package com.creatio.autotest.flows.micro.collateral;
 
 import com.creatio.autotest.components.collateral.CollateralAddressComponent;
 import com.creatio.autotest.components.collateral.CollateralFormComponent;
-import com.creatio.autotest.components.collateral.CollateralGridComponent;
 import com.creatio.autotest.components.collateral.CollateralTabsComponent;
 import com.creatio.autotest.components.collateral.CollateralValuationComponent;
 import com.creatio.autotest.testdata.models.CollateralData;
@@ -34,7 +33,7 @@ public class AgroFutureHarvestCollateralFlow extends AgroBaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        openPropertyLookupStable();
+    //    openPropertyLookupStable();
 
 
         form.selectType(type.getCategory());

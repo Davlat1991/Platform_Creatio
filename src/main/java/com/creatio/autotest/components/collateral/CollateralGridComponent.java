@@ -19,7 +19,13 @@ public class CollateralGridComponent extends BaseComponent {
         click.clickById(
                 "FinAppPledgeDetailAddRecordButtonButton-imageEl"
         );
-        click.clickByTagAndMarker("div", "PropertyData");
+        // Новый поток: после «+» сразу открывается «Новая запись», промежуточный
+        // выбор PropertyData больше не нужен. Строка сохранена на случай отката.
+        // click.clickByTagAndMarker("div", "PropertyData");
+
+        // Форма грузится асинхронно — ждём флаг готовности записи (EntityLoaded)
+        // перед любым заполнением полей, иначе клики уходят в неготовую форму (гонка).
+        waitForPageLoaded();
     }
 
     @Step("Открыть лупу выбора имущества")
@@ -41,6 +47,6 @@ public class CollateralGridComponent extends BaseComponent {
     @Step("Wait for page loaded")
     public void waitForPageLoaded() {
         $("[data-item-marker='EntityLoaded']")
-                .shouldBe(Condition.visible);
+                .shouldBe(Condition.visible, java.time.Duration.ofSeconds(30));
     }
 }

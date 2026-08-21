@@ -1,11 +1,6 @@
 package com.creatio.autotest.flows.micro.collateral;
 
-import com.creatio.autotest.components.collateral.CollateralAddressComponent;
-import com.creatio.autotest.components.collateral.CollateralFormComponent;
-import com.creatio.autotest.components.collateral.CollateralGridComponent;
-import com.creatio.autotest.components.collateral.CollateralTabsComponent;
-import com.creatio.autotest.components.collateral.CollateralValuationComponent;
-import com.creatio.autotest.components.collateral.CottonCharacteristicsComponent;
+import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
 import com.creatio.autotest.testdata.models.SimpleObjectData;
@@ -38,7 +33,7 @@ public class AgroCottonCollateralFlow extends AgroBaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        openPropertyLookupStable();
+    //    openPropertyLookupStable();
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());

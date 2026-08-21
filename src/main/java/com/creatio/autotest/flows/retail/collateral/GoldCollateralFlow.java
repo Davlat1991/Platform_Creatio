@@ -13,7 +13,7 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
     private final CollateralGridComponent      grid      = new CollateralGridComponent();
     private final CollateralFormComponent      form      = new CollateralFormComponent();
     private final CollateralValuationComponent valuation = new CollateralValuationComponent();
-    private final ClickService click    = new ClickService();
+    private final ClickService                 click     = new ClickService();
 
     @Override
     @Step("Залог: Золотые изделия")
@@ -25,7 +25,7 @@ public class GoldCollateralFlow extends BaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        grid.openPropertyLookup();
+       // grid.openPropertyLookup();
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());

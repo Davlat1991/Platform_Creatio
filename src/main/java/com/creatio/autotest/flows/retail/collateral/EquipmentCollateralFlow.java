@@ -14,7 +14,7 @@ public class EquipmentCollateralFlow extends BaseCollateralFlow {
     private final CollateralFormComponent      form      = new CollateralFormComponent();
     private final CollateralAddressComponent   address   = new CollateralAddressComponent();
     private final CollateralValuationComponent valuation = new CollateralValuationComponent();
-    private final ClickService click    = new ClickService();
+    private final ClickService                 click     = new ClickService();
 
     @Override
     @Step("Залог: Оборудование")
@@ -26,7 +26,7 @@ public class EquipmentCollateralFlow extends BaseCollateralFlow {
 
         tabs.openCollateralTab();
         grid.addCollateral();
-        grid.openPropertyLookup();
+      //  grid.openPropertyLookup();
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());

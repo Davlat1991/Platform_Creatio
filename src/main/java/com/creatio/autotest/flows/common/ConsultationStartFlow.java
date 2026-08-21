@@ -66,6 +66,16 @@ public class ConsultationStartFlow {
         // в следующем шаге (click intercepted). JS-клик курсор не двигает.
         executeJavaScript("arguments[0].click();", startBtn);
 
+
+
+        // Карточка физлица грузится асинхронно после «Начать консультацию».
+        // До её готовности жать «Оформить заявку»/«Кредит» нельзя — клик уходит
+        // в ещё не отрисованную страницу, и подбор продукта падает (гонка).
+        // Якорь — корневой контейнер карточки контакта: появляется только когда
+        // страница физлица отрисована, стабилен, без GUID.
+        $x("//div[@data-item-marker='ContactPageV2Container']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
         basePage.waitForPage();
     }
 
