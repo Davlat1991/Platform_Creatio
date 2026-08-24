@@ -9,18 +9,7 @@ public class CottonCharacteristicsComponent extends BaseComponent {
 
     private final LookupComponent lookup = new LookupComponent();
 
-    // ── Розничная версия — БЕЗ ИЗМЕНЕНИЙ, её зовёт CottonCollateralFlow ──
-    @Step("Характеристики хлопка")
-    public void fillTechnicalData() {
-        log.info("Fill cotton characteristics");
-
-        lookup
-                .selectByLabel("Описание",     "Хороший урожай")
-                .selectByLabel("Наименование", "Урожай 2026")
-                .selectByLabel("Количество",   "500");
-    }
-
-    // ── НОВОЕ: параметризованная версия для Агро/Микро ──
+    // ── НОВОЕ: параметризованная версия для Агро/Микро и Розницы
     /**
      * Параметризованная версия для Агро/Микро: читает значения из тест-данных.
      * No-arg перегрузка выше оставлена для розницы без изменений.

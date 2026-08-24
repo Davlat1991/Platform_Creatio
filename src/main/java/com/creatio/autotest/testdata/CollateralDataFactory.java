@@ -16,6 +16,7 @@ public final class CollateralDataFactory {
                 .liquidationValue("250000")
                 .marketValue("300000")
                 .currency(currency.getUiValue())
+                .pledger(fullName(ParticipantData.pledger(false)))
                 .build();
     }
 
@@ -37,6 +38,7 @@ public final class CollateralDataFactory {
                         .propertyType("Квартира")
                         .totalArea("100")
                         .build())
+                        .pledger(fullName(ParticipantData.pledger(false)))
                 .build();
     }
 
@@ -70,6 +72,7 @@ public final class CollateralDataFactory {
                 .type(CollateralType.CASH_DEPOSIT)
                 .marketValue("1000")
                 .currency(currency.getUiValue())
+                .pledger(fullName(ParticipantData.pledger1(false)))
                 .build();
     }
 
@@ -152,6 +155,12 @@ public final class CollateralDataFactory {
                 .liquidationValue("555000")
                 .marketValue("777000")
                 .currency(currency.getUiValue())
+                .specificData(SimpleObjectData.builder()
+                        .name("Урожай 2026")
+                        .amount("500")
+                        .description("Хороший урожай")
+                     //   .sum("777000")   // не используется на пути хлопка (читаются name/amount/description)
+                        .build())
                 .build();
     }
 
@@ -215,5 +224,9 @@ public final class CollateralDataFactory {
                         .description("Озимая пшеница, площадь 1.5 га")
                         .build())
                 .build();
+    }
+
+    private static String fullName(ParticipantData p) {
+        return p.getLastName() + " " + p.getFirstName() + " " + p.getMiddleName();
     }
 }

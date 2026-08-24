@@ -29,8 +29,10 @@ public class CashDepositCollateralFlow extends BaseCollateralFlow {
         form.selectSubType(type.getSubType());
         form.setName(type.getUiName());
         form.selectOwnership(type.getOwnership());
-        // TODO: залогодатель сейчас захардкожен, параметризация отложена
-        form.selectPledger("Хамидов Азизходжа Азамходжаевич");
+
+        if (data.getPledger() != null && !data.getPledger().isBlank()) {
+            form.selectPledger(data.getPledger());
+        }
 
         valuation.fillCashDeposit(
                 data.getMarketValue(),

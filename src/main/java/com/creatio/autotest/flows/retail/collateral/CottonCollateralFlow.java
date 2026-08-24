@@ -4,6 +4,7 @@ import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.SimpleObjectData;
 import io.qameta.allure.Step;
 
 public class CottonCollateralFlow extends BaseCollateralFlow {
@@ -32,7 +33,7 @@ public class CottonCollateralFlow extends BaseCollateralFlow {
         form.setName(type.getUiName());
         form.selectOwnership(type.getOwnership());
 
-        cotton.fillTechnicalData();
+        cotton.fillTechnicalData((SimpleObjectData) data.getSpecificData());
         address.fillPropertyAddress();
 
         valuation.fillValuation(

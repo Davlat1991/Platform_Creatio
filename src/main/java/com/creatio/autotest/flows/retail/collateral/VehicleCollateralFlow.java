@@ -38,8 +38,10 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
         grid.waitForPageLoaded();
 
         form.setName(type.getUiName());
-        // TODO: залогодатель сейчас захардкожен, параметризация отложена
-        form.selectPledger("Садуллоев Сафарали Нусратович");
+
+        if (data.getPledger() != null && !data.getPledger().isBlank()) {
+            form.selectPledger(data.getPledger());
+        }
 
         vehicle.fillTechnicalData();
         address.fillPropertyAddress();

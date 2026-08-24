@@ -123,5 +123,7 @@ public class CollateralStageFlow {
                 "'Вложить документы и отправить на рассмотрение']")
                 .shouldBe(com.codeborne.selenide.Condition.visible,
                         java.time.Duration.ofSeconds(100));
+
+
     }
 }

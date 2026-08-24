@@ -2,10 +2,12 @@ package com.creatio.autotest.core.services;
 
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
@@ -165,6 +167,23 @@ public class ClickService {
                     el
             );
         }
+    }
+
+
+    @Step("JS click with retry: {what}")
+    public void jsClickWithRetry(Supplier<SelenideElement> locator, String what) {
+        for (int attempt = 1; attempt <= 4; attempt++) {
+            try {
+                SelenideElement el = locator.get()
+                        .shouldBe(visible, Duration.ofSeconds(30));
+                executeJavaScript("arguments[0].click();", el);
+                return;
+            } catch (StaleElementReferenceException | AssertionError e) {
+                log.warn("JS-клик '{}': попытка {}/4 не удалась ({}) — ищем элемент заново",
+                        what, attempt, e.getClass().getSimpleName());
+            }
+        }
+        throw new AssertionError("Не удалось кликнуть '" + what + "' за 4 попытки");
     }
 
 }

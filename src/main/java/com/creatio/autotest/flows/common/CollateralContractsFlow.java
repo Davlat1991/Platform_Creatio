@@ -348,17 +348,7 @@ public class CollateralContractsFlow {
     private void printContract(String formName) {
         log.info("Печатная форма: '{}'", formName);
 
-        Set<String> before = print.snapshotDownloads();
-
-        click.clickByName("Печать");
-        $x("//ul[@data-item-marker='PrintButton']" +
-                "//li[normalize-space()='" + formName + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
-                .click();
-
-        // Модалка должностного лица сейчас не открывается — форма скачивается
-        // сразу. Когда настройки поправят, выбор лица встанет между кликом
-        // и ожиданием файла.
+        Set<String> before = print.openPrintForm(formName);
         selectConfidantIfShown(CONFIDANT_POSITION);
         print.waitForNewDownload(before, formName);
     }

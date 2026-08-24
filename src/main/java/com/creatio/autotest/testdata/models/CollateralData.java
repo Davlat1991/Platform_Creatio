@@ -12,4 +12,5 @@ public class CollateralData {
     private String         marketValue;
     private String         currency;
     private Object         specificData;
+    private String         pledger;
 }

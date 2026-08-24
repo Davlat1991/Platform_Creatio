@@ -111,13 +111,13 @@ public class SigningStageFlow {
         // В детали "Связи" кликаем по номеру временного договора.
         // Скоуп marker='Contract' + href на страницу договора отсекает значок
         // (marker='ContractImage') и соседние ссылки (FinApplication, CreatedBy).
-        SelenideElement contractLink = $x(
-                "//a[@data-item-marker='Contract'" +
-                        " and contains(@href,'BnzContractCreditPage/edit')]"
-        ).shouldBe(visible);
-
-        // JS-клик: нативный клик по ссылке в мини-панели перехватывается значком документа.
-        click.jsClick(contractLink);
+        // JS-клик с ретраем: нативный клик перехватывается значком документа, а
+        // мини-панель "Связи" перерисовывается асинхронно — заранее найденная ссылка
+        // протухает (StaleElementReference). Ищем элемент заново на каждой попытке.
+        click.jsClickWithRetry(() -> $x(
+                        "//a[@data-item-marker='Contract'" +
+                                " and contains(@href,'BnzContractCreditPage/edit')]"),
+                "ссылка на договор");
 
         // Только теперь открывается страница временного договора.
         $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")

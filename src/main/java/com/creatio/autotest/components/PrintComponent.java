@@ -173,4 +173,23 @@ public class PrintComponent extends BaseComponent {
                 && !name.endsWith(".crdownload")
                 && !name.endsWith(".tmp");
     }
+
+    /** Снимок загрузок + «Печать» + выбор формы в меню PrintButton. Возвращает снимок ДО клика. */
+    @Step("Выбор печатной формы: {formName}")
+    public Set<String> openPrintForm(String formName) {
+        Set<String> before = snapshotDownloads();
+        click.clickByName("Печать");
+        $x("//ul[contains(@data-item-marker,'PrintButton')]" +
+                "//li[normalize-space()='" + formName + "']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60))
+                .click();
+        return before;
+    }
+
+    /** Печать формы со скачиванием без должностного лица. */
+    @Step("Печать формы со скачиванием: {formName}")
+    public File printFormAndDownload(String formName) {
+        Set<String> before = openPrintForm(formName);
+        return waitForNewDownload(before, formName);
+    }
 }

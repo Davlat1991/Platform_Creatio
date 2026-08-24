@@ -9,17 +9,15 @@ import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.flows.common.CollateralContractsFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.function.Supplier;
-import com.creatio.autotest.testdata.models.ActivityResult;
-
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -466,16 +464,7 @@ public class AgroSigningStageFlow {
     /** Печать оферты с проверкой факта скачивания (паттерн из CollateralContractsFlow). */
     private void printOffer() {
         log.info("Печатная форма: '{}'", OFFER_PRINT_FORM);
-
-        Set<String> before = print.snapshotDownloads();
-
-        click.clickByName("Печать");
-        $x("//ul[contains(@data-item-marker,'PrintButton')]" +
-                "//li[normalize-space()='" + OFFER_PRINT_FORM + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60))
-                .click();
-
-        print.waitForNewDownload(before, OFFER_PRINT_FORM);
+        print.printFormAndDownload(OFFER_PRINT_FORM);
     }
 
     private void openAndCloseOrder(String orderType) {
