@@ -13,6 +13,8 @@ import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 import static com.codeborne.selenide.Selenide.$x;
 
 public class ReviewStageUnderwriterFlow {
@@ -75,25 +77,16 @@ public class ReviewStageUnderwriterFlow {
     private void takeToWork() {
         click.waitAndClickWithRefresh("TakeToWorkButton");
 
-        // После "Взять в работу" форма перезагружается. Маску ждать ненадёжно
-        // (появляется с задержкой). Ждём РЕЗУЛЬТАТ: вкладка "Решение" открыта,
-        // когда на ней виден инпут поля "Вид кредита для Проекта решения".
-        // Retry: клик вкладки может потеряться, пока страница догружается.
-        String creditTypeInput =
-                "//*[@data-item-marker='Вид кредита для Проекта решения']//input";
+        // Якорь готовности — ApproveButton: появляется только после взятия в
+        // работу, не зависит от пути входа. Прежний якорь (Condition.editable по
+        // маркеру 'Вид кредита для Проекта решения') не срабатывал: реальный
+        // маркер в DOM составной ('BnzTypeCreditProjectSolution Вид кредита...'),
+        // точного совпадения нет, цикл из 5 попыток прогорал как слепая задержка ~4с.
+        // Паттерн из AgroReviewStageUnderwriterFlow.takeToWork().
+        $x("//*[@data-item-marker='ApproveButton']")
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
-        for (int attempt = 1; attempt <= 5; attempt++) {
-            buttons.clickTabByName("Решение");
-
-            // editable = enabled И без readonly. Прямой признак, что поле готово к вводу,
-            // в отличие от visible (инпут виден и заблокированным до взятия в работу).
-            if ($x(creditTypeInput).is(Condition.editable)) {
-                log.info("Поле 'Вид кредита' редактируемо на попытке {}/5", attempt);
-                break;
-            }
-            log.warn("Поле ещё заблокировано на попытке {}/5 — повтор", attempt);
-            wait.waitForLoader();
-        }
+        buttons.clickTabByName("Решение");
         lookup.select("Вид кредита для Проекта решения", "Кредит");
     }
 

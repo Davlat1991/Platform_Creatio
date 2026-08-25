@@ -54,7 +54,7 @@ public class PrintComponent extends BaseComponent {
     // Ждём исчезновения временного .crdownload — признак завершённого скачивания.
     // ══════════════════════════════════════
 
-    @Step("Ожидание завершения скачивания файла")
+  /*  @Step("Ожидание завершения скачивания файла")
     public void waitForDownload() {
         log.info("Waiting for download to complete...");
 
@@ -89,6 +89,32 @@ public class PrintComponent extends BaseComponent {
         }
 
         log.warn("Download НЕ завершился за 60 секунд");
+    }
+
+   */
+
+    @Step("Ожидание завершения скачивания файла")
+    public void waitForDownload() {
+        log.info("Waiting for download to complete...");
+
+        File dir = downloadDir();
+        int before = countReadyFiles(dir);
+
+        try {
+            new org.openqa.selenium.support.ui.FluentWait<>(dir)
+                    .withTimeout(Duration.ofSeconds(60))
+                    .pollingEvery(Duration.ofMillis(500))
+                    .until(d -> {
+                        File[] inProgress = d.listFiles(f ->
+                                f.getName().endsWith(".crdownload")
+                                        || f.getName().endsWith(".tmp"));
+                        boolean downloading = inProgress != null && inProgress.length > 0;
+                        return (!downloading && countReadyFiles(d) > before) ? Boolean.TRUE : null;
+                    });
+            log.info("Download completed");
+        } catch (org.openqa.selenium.TimeoutException e) {
+            log.warn("Download НЕ завершился за 60 секунд");
+        }
     }
 
     private int countReadyFiles(File dir) {

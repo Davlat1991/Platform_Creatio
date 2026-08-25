@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 @Owner("Davlat")
 public class StandardRouteTest extends BaseTest {
 
-    @Test(groups = "regression", enabled = false)
+    @Test(groups = "regression", enabled = true)
     @Story("Стандартный маршрут — полный путь с верификатором и комитетом")
     @Description("Стандартный маршрут — полный happy path с верификатором и комитетом (КК4)")
     @Severity(SeverityLevel.BLOCKER)
@@ -73,5 +73,38 @@ public class StandardRouteTest extends BaseTest {
         // Сессия ИКОК-ГО → открыть договор → дорегистрировать обеспечение:
         route.as(scenario.getIkokGo(), Workspace.IKOK_GO,
                 () -> new SigningStageFlow().debugResumeCollateralContracts());
+    }
+
+    @Test(groups = "debug", enabled = false)
+    @Story("Debug — утверждение решения верификатором (AU1 спот №1)")
+    @Description("Открыть существующую заявку на стадии «Рассмотрение» под верификатором "
+            + "и утвердить проект решения (КК4)")
+    @Severity(SeverityLevel.NORMAL)
+    public void debugUnderwriterApprove() {
+        TestScenario scenario = ScenarioFactory.happyPath();
+        RetailRoute route = new RetailRoute(scenario);
+
+        // Номер заявки, УЖЕ на стадии «Рассмотрение» (проект решения КК4 создан)
+        route.resumeAt("392128");
+
+        route.underwriterApprove();
+    }
+
+    @Test(groups = "debug", enabled = false)
+    @Story("Debug — продолжение с «Информирование клиента» до завершения")
+    @Description("Существующая заявка на «Информирование клиента»: информирование → "
+            + "подписание и выдача → касса → завершение заявки")
+    @Severity(SeverityLevel.NORMAL)
+    public void debugContinueFromNotification() {
+        TestScenario scenario = ScenarioFactory.allCollaterals();
+        RetailRoute route = new RetailRoute(scenario);
+
+        // Номер заявки, УЖЕ на стадии «Информирование клиента»
+        route.resumeAt("392128");
+
+        route.managerNotification();   // информирование (менеджер → цель ИКОК-ГО)
+        route.ikokGoIssuance();        // подписание и выдача (ИКОК-ГО)
+        route.cashierOperations();     // касса
+        route.finishApplication();     // завершение (менеджер + ИКОК-ГО)
     }
 }

@@ -97,7 +97,7 @@ public class CollateralStageFlow {
             click.doubleClickByMarker("Обеспечение.Подтип");
         }
 
-       /* dashboard.clickAndWaitMiniPage(
+        dashboard.clickAndWaitMiniPage(
                 "Заполните данные обеспечения и поручительства",
                 "Execute"
         );
@@ -123,8 +123,6 @@ public class CollateralStageFlow {
                 "'Вложить документы и отправить на рассмотрение']")
                 .shouldBe(com.codeborne.selenide.Condition.visible,
                         java.time.Duration.ofSeconds(100));
-
-        */
 
 
     }
