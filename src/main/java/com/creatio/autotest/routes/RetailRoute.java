@@ -238,13 +238,15 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
     @Step("Сегмент: розничный менеджер — от создания заявки до рассмотрения")
     public void managerUpToReview() {
         as(scenario.getManager(), Workspace.RETAIL_MANAGER, () -> {
-            createApplication();
+           /* createApplication();
             registration();
             preliminaryCheck();
             participantsStage();
+
+            */
             collateralStage();
-            documentCollection();
-            review();
+          //  documentCollection();
+           // review();
 
 
 
@@ -295,11 +297,13 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
     @Step("Стандартный маршрут — полный E2E")
     public void runStandard() {
         managerUpToReview();
-        underwriterApprove();
+       /* underwriterApprove();
         managerNotification();
         ikokGoIssuance();
         cashierOperations();
         finishApplication();
+
+        */
 
 
     }

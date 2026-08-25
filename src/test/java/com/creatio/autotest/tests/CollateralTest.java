@@ -6,7 +6,9 @@ import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.retail.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
+import com.creatio.autotest.testdata.CollateralDataFactory;
 import com.creatio.autotest.testdata.ScenarioFactory;
+import com.creatio.autotest.testdata.models.CurrencyType;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
 import com.creatio.autotest.utils.AllureTags;
@@ -160,6 +162,31 @@ public class CollateralTest extends BaseTest {
 
         new CollateralStageFlow().completeCollateralStage(
                 scenario.getCollaterals()
+        );
+
+        auth.logout();
+    }
+
+    @Test(groups = "debug", enabled = true)
+    @Story("Debug — все залоги (без завершения стадии)")
+    @Description("Открываем заявку по UUID, добавляем все 10 типов залога через fillCollaterals (без завершения стадии)")
+    @Severity(SeverityLevel.NORMAL)
+    public void debugAllCollateralsOnly() {
+        AuthFlow auth = new AuthFlow();
+        auth.login(ScenarioFactory.happyPath().getManager());
+        new WorkspaceFlow().select(Workspace.RETAIL_MANAGER);
+
+        // UUID заявки, УЖЕ на стадии «Обеспечение», с участниками-залогодателями
+        // «Садуллоев» (pledger) и «Хамидов» (pledger1)
+        new NavigationFlow().open(
+                config.getBaseUrl() +
+                        "/0/Nui/ViewModule.aspx#CardModuleV2/" +
+                        "FinApplicationPage/edit/" +
+                        "5f4582e8-52f0-4eb9-b2a9-9698aab682c2"
+        );
+
+        new CollateralStageFlow().fillCollaterals(
+                ScenarioFactory.allCollaterals().getCollaterals()
         );
 
         auth.logout();

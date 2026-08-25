@@ -216,7 +216,7 @@ public class LookupComponent extends BaseComponent {
                 input.sendKeys(value);
                 input.sendKeys(Keys.TAB);
 
-                input.shouldHave(exactValue(value), Duration.ofSeconds(30));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
 
                 log.info("setText: '{}' введено в '{}'", value, label);
                 return this;
@@ -645,6 +645,11 @@ public class LookupComponent extends BaseComponent {
 
         log.info("selectComboboxByMarker: '{}' выбрано", value);
         return this;
+    }
+
+    @Step("Text: прочитать значение поля '{label}'")
+    public String getValueByLabel(String label) {
+        return getInputByLabel(label).getValue();
     }
 
 

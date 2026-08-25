@@ -4,6 +4,7 @@ import com.creatio.autotest.components.collateral.*;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.CollateralData;
 import com.creatio.autotest.testdata.models.CollateralType;
+import com.creatio.autotest.testdata.models.VehicleData;
 import io.qameta.allure.Step;
 
 public class VehicleCollateralFlow extends BaseCollateralFlow {
@@ -26,7 +27,6 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
         tabs.openCollateralTab();
 
         grid.addCollateral();
-      //  grid.openPropertyLookup();
 
         form.selectType(type.getCategory());
         form.selectSubType(type.getSubType());
@@ -43,7 +43,8 @@ public class VehicleCollateralFlow extends BaseCollateralFlow {
             form.selectPledger(data.getPledger());
         }
 
-        vehicle.fillTechnicalData();
+        vehicle.fillTechnicalData((VehicleData) data.getSpecificData());
+
         address.fillPropertyAddress();
 
         valuation.fillValuation(

@@ -39,10 +39,23 @@ public class CollateralFormComponent extends BaseComponent {
 
     @Step("Название: {value}")
     public void setName(String value) {
-        // Простое текстовое поле (readonly-до-фокуса). setText: фокус+клик снимают
-        // readonly, sendKeys + TAB фиксируют значение через onChange. Через setValue
-        // (как было в selectByLabel) на второй карточке значение не закреплялось.
-        lookup.setText("Название", value);
+        // Простое текстовое поле (readonly-до-фокуса). setText вводит значение и
+        // проверяет exactValue сразу после ввода. Но если карточка ещё оседает
+        // (например, после addCollateralValue), следующая асинхронная перерисовка
+        // сбрасывает поле уже ПОСЛЕ успешной проверки — значение видно на миг, но
+        // не закрепляется. Поэтому после ввода ждём оседания, перечитываем поле и,
+        // если сбросилось, вводим заново. По свежей форме — с первой попытки.
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            lookup.setText("Название", value);
+            basePage.waitForPage();
+
+            if (value.equals(lookup.getValueByLabel("Название"))) {
+                log.info("«Название» закреплено: '{}'", value);
+                return;
+            }
+            log.warn("«Название» сбросилось после ввода (попытка {}/3) — повтор", attempt);
+        }
+        throw new AssertionError("«Название» не закрепилось за 3 попытки: " + value);
     }
 
     @Step("Сохранить")

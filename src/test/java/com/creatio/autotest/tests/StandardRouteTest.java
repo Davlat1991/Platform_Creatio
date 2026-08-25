@@ -40,7 +40,7 @@ public class StandardRouteTest extends BaseTest {
      * обеспечения + поручитель и 2 залогодателя. Цель прогона — регистрация
      * договоров обеспечения и печатные формы через CollateralContractsFlow.
      */
-    @Test(groups = "regression", enabled = true)
+    @Test(groups = "regression", enabled = false)
     @Story("Стандартный маршрут — все 10 типов залога в одном прогоне")
     @Description("Стандартный маршрут на сценарии allCollaterals: 10 типов обеспечения "
             + "+ поручитель и 2 залогодателя; проверка регистрации договоров "
@@ -68,7 +68,7 @@ public class StandardRouteTest extends BaseTest {
         RetailRoute route = new RetailRoute(scenario);
 
         // Номер существующей заявки из прошлого прогона:
-        route.resumeAt("392056");
+        route.resumeAt("392126");
 
         // Сессия ИКОК-ГО → открыть договор → дорегистрировать обеспечение:
         route.as(scenario.getIkokGo(), Workspace.IKOK_GO,

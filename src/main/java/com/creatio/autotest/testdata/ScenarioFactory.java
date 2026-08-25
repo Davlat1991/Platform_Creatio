@@ -46,8 +46,8 @@ public final class ScenarioFactory {
                         ParticipantData.pledger(false)
                 ))
                 .collaterals(List.of(
-                        CollateralDataFactory.cotton(CurrencyType.TJS),
-                        CollateralDataFactory.futureHarvest(CurrencyType.TJS)
+                        CollateralDataFactory.vehicle(CurrencyType.TJS)
+
                 ))
                 .build();
     }
@@ -65,7 +65,7 @@ public final class ScenarioFactory {
                         ParticipantData.pledger(false)
                 ))
                 .collaterals(List.of(
-                        CollateralDataFactory.realEstate(CurrencyType.TJS)
+                        CollateralDataFactory.vehicle(CurrencyType.TJS)
                 ))
                 .build();
     }
