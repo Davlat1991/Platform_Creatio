@@ -3,6 +3,7 @@ package com.creatio.autotest.flows.retail;
 import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import com.creatio.autotest.components.ActivityComponent;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.CreditApplicationAssertions;
 import com.creatio.autotest.components.PrintComponent;
@@ -27,6 +28,7 @@ public class ApplicationFinishFlow {
     private static final Logger log = LoggerFactory.getLogger(ApplicationFinishFlow.class);
     private static final String CONTRACT_PAGE_MARKER ="BnzContractCreditPageContainer";
     private static final String FILES_DIR = "src/test/resources/files/";
+    private final ActivityComponent activity = new ActivityComponent();
 
 
 
@@ -93,7 +95,8 @@ public class ApplicationFinishFlow {
         buttons.clickTabByName("Файлы и примечания");
         attachFile("Расходный кассовый ордер.docx");
 
-        completeActivity("Прикрепите документы для завершения заявки", ActivityResult.COMPLETED.getUiText());
+        activity.completeActivityWaitingOverlay("Прикрепите документы для завершения заявки", ActivityResult.COMPLETED.getUiText());
+
     }
 
 
@@ -121,7 +124,8 @@ public class ApplicationFinishFlow {
         //checkConfirmedOutgoingOrder();
 
         // 4. Закрыть активность "Подтвердить получение документа"
-        completeActivity("Подтвердить получение документа", "Подтвердить получение документа");
+
+        activity.completeActivityWaitingOverlay("Подтвердить получение документа", "Подтвердить получение документа");
 
 
     }
@@ -192,39 +196,6 @@ public class ApplicationFinishFlow {
         log.info("File attached and visible: '{}'", fileName);
     }
 
-    @Step("Закрыть активность '{title}' (Result='{result}')")
-    private void completeActivity(String title, String result) {
-        log.info("Close activity '{}' with result '{}'", title, result);
-
-        var row = $x("//div[contains(@class,'dashboard-container-item')]" +
-                "[.//text()[contains(.,'" + title + "')]]")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
-        row.hover(); // Execute виден только при наведении
-
-        var executeBtn = row.$x(".//span[@data-item-marker='Execute']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
-        executeJavaScript("arguments[0].click();", executeBtn);
-
-        $x("//div[@data-item-marker='ActivityMiniPageContainer']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
-
-        $x("//div[@data-item-marker='Result']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60)).click();
-        $x("//div[@data-item-marker='Result']//li[@data-item-marker='" + result + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30)).click();
-
-        executeJavaScript("arguments[0].click();",
-                $x("//span[@data-item-marker='SaveEditButton']")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(60)));
-        // После закрытия активности Creatio показывает оверлей мини-панели + крутилку.
-        // Ждём их исчезновения, иначе следующий клик (логаут) перехватывается оверлеем.
-        $$("#AlignableMiniPageContainer-overlay, .alignable-container-overlay, .ts-loader, .mask")
-                .filter(Condition.visible)
-                .shouldHave(CollectionCondition.size(0), Duration.ofSeconds(30));
-
-        basePage.waitForPage();
-        log.info("Activity closed: '{}'", title);
-    }
 
     @Step("Патч Creatio: нормализовать сервис загрузки (FileApiService → TsiFileApiService)")
     private void patchFileUploadService() {

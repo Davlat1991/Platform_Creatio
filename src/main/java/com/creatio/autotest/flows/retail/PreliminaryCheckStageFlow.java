@@ -2,14 +2,15 @@ package com.creatio.autotest.flows.retail;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import com.creatio.autotest.components.ActivityComponent;
 import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.testdata.models.ActivityResult;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.creatio.autotest.testdata.models.ActivityResult;
 
 import java.time.Duration;
 
@@ -25,6 +26,7 @@ public class PreliminaryCheckStageFlow {
     private final MessageBoxComponent msgBox    = new MessageBoxComponent();
     private final BasePage            basePage  = new BasePage();
     private final ClickService        click     = new ClickService();
+    private final ActivityComponent   activity  = new ActivityComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -46,22 +48,10 @@ public class PreliminaryCheckStageFlow {
     @Step("Заполнение анкет участников")
     private void completeParticipantsQuestionnaire() {
         log.info("Complete participants questionnaire task");
-
-        // Hover на строку активности — кнопка Execute появляется только при наведении
-        hoverActivityRow("Добавьте и заполните анкеты участников заявки");
-
-        // Клик по кнопке Execute — открывается попап
-        clickExecuteButton("Добавьте и заполните анкеты участников заявки");
-
-        // Выбираем результат в попапе
-        selectResult("Result", ActivityResult.COMPLETED.getUiText());
-
-        // Сохраняем попап
-        clickSaveEditButton();
-
-        // Подтверждаем диалоги
+        activity.completeActivity(
+                "Добавьте и заполните анкеты участников заявки",
+                ActivityResult.COMPLETED.getUiText());
         confirmNoDebtMessages();
-
         log.info("Participants questionnaire task completed");
     }
 

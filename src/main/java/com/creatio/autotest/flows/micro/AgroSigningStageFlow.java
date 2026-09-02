@@ -12,12 +12,10 @@ import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.function.Supplier;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -166,7 +164,7 @@ public class AgroSigningStageFlow {
                 .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .click();
 
-        jsClickWithRetry(() -> $x(
+        click.jsClickWithRetry(() -> $x(
                         "//a[@data-item-marker='Contract'" +
                                 " and contains(@href,'BnzContractCreditPage/edit')]"),
                 "ссылка на договор");
@@ -283,7 +281,7 @@ public class AgroSigningStageFlow {
                 .shouldBe(Condition.visible, Duration.ofSeconds(60))
                 .hover();
 
-        jsClickWithRetry(() -> $x(
+        click.jsClickWithRetry(() -> $x(
                 "//div[contains(@class,'dashboard-container-item')]" +
                         "[.//text()[contains(.,'" + activityTitle + "')]]" +
                         "//span[@data-item-marker='Execute']"), "Execute");
@@ -303,7 +301,7 @@ public class AgroSigningStageFlow {
     }
 
     private void clickSaveEditButton() {
-        jsClickWithRetry(() -> $x("//span[@data-item-marker='SaveEditButton']"),
+        click.jsClickWithRetry(() -> $x("//span[@data-item-marker='SaveEditButton']"),
                 "SaveEditButton");
         basePage.waitForPage();
     }
@@ -346,32 +344,6 @@ public class AgroSigningStageFlow {
     }
 
 
-    /**
-     * JS-клик с повторным поиском элемента.
-     * <p>
-     * Creatio перерисовывает дашборд активностей асинхронно, поэтому ссылка,
-     * полученная до клика, может протухнуть (StaleElementReference). Элемент
-     * ищется заново на каждой попытке — переиспользовать найденный нельзя.
-     */
-    private void jsClickWithRetry(Supplier<SelenideElement> locator, String what) {
-        for (int attempt = 1; attempt <= 4; attempt++) {
-            try {
-                SelenideElement el = locator.get()
-                        .shouldBe(Condition.visible, Duration.ofSeconds(30));
-                executeJavaScript("arguments[0].click();", el);
-                return;
-            } catch (StaleElementReferenceException | AssertionError e) {
-                log.warn("JS-клик '{}': попытка {}/4 не удалась ({}) — ищем элемент заново",
-                        what, attempt, e.getClass().getSimpleName());
-                basePage.waitForPage();
-            }
-        }
-        throw new AssertionError("Не удалось кликнуть '" + what + "' за 4 попытки");
-    }
-
-    // ══════════════════════════════════════
-    // DEBUG (временное — удалить после закрытия подзадачи 6)
-    // ══════════════════════════════════════
 
     // ══════════════════════════════════════
     // MAIN — часть 2 (подписание, ордера, оферта)

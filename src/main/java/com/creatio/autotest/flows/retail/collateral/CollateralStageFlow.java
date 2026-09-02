@@ -42,11 +42,6 @@ public class CollateralStageFlow {
     // нужно завершить, иначе процесс не идёт к "Сбор документов".
     // ══════════════════════════════════════
 
-    @Step("Этап залога: завершение стадии без обеспечения")
-    public void completeCollateralStage() {
-        log.info("Complete collateral stage without collaterals");
-        completeCollateralTask(false);
-    }
 
     // ══════════════════════════════════════
     // FILL — только заполнение залогов (без завершения стадии)

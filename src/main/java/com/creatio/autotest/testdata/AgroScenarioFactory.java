@@ -2,7 +2,8 @@ package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
 import com.creatio.autotest.testdata.models.documents.DocumentData;
-import com.creatio.autotest.testdata.models.documents.DocumentOwner;
+import com.creatio.autotest.testdata.models.ParticipantRole;
+
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import com.creatio.autotest.testdata.models.registration.ActivityData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
@@ -360,7 +361,7 @@ public final class AgroScenarioFactory {
      */
     public static DocumentOwnerData agroMiddleControllerDocuments() {
         return DocumentOwnerData.builder()
-                .owner(DocumentOwner.BORROWER)
+                .owner(ParticipantRole.BORROWER)
                 .documents(List.of(
                         DocumentData.builder()
                                 .type("Passport")

@@ -40,10 +40,7 @@ public class CreditApplicationTest extends BaseTest {
                         "7fbf7e9a-2483-49d3-a3b5-cf21d13a83a3"
         );
 
-        new ReviewStageRetailFlow().completeReview(
-                scenario.getRoute(),
-                scenario.getExpectedScoringDecision()
-        );
+        new ReviewStageRetailFlow().completeReview(scenario.getRoute());
 
         auth.logout();
     }

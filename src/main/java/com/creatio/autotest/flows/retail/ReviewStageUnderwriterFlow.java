@@ -22,13 +22,16 @@ public class ReviewStageUnderwriterFlow {
     private static final Logger log =
             LoggerFactory.getLogger(ReviewStageUnderwriterFlow.class);
 
+    /** Вид кредита для проекта решения (розница; в Агро приходит из AgroDecisionData). */
+    private static final String DECISION_CREDIT_TYPE = "Кредит";
+
     private final ButtonsComponent      buttons      = new ButtonsComponent();
     private final LookupComponent       lookup       = new LookupComponent();
     private final ClickService          click        = new ClickService();
     private final MessageBoxComponent   msgBox       = new MessageBoxComponent();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
-    private final WaitService wait = new WaitService();
+    private final WaitService           wait         = new WaitService();
 
     // ══════════════════════════════════════
     // MAIN
@@ -87,7 +90,7 @@ public class ReviewStageUnderwriterFlow {
                 .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         buttons.clickTabByName("Решение");
-        lookup.select("Вид кредита для Проекта решения", "Кредит");
+        lookup.select("Вид кредита для Проекта решения", DECISION_CREDIT_TYPE);
     }
 
 

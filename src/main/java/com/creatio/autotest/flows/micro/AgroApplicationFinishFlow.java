@@ -2,6 +2,7 @@ package com.creatio.autotest.flows.micro;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import com.creatio.autotest.components.ActivityComponent;
 import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.PrintComponent;
 import com.creatio.autotest.core.base.BasePage;
@@ -17,9 +18,7 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Set;
 
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.executeJavaScript;
+import static com.codeborne.selenide.Selenide.*;
 
 /**
  * Завершение заявки Агро/Микро — три финальных шага после кассовых операций:
@@ -61,6 +60,7 @@ public class AgroApplicationFinishFlow {
     private final PrintComponent        print        = new PrintComponent();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
+    private final ActivityComponent     activity     = new ActivityComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -78,7 +78,9 @@ public class AgroApplicationFinishFlow {
         buttons.clickTabByName(FILES_TAB);
         attachFile(ORDER_FILE);
 
-        completeActivity(ATTACH_ACTIVITY, ATTACH_RESULT);
+        activity.completeActivityAwaitingMiniPageClose(ATTACH_ACTIVITY, ATTACH_RESULT);
+
+
         log.info("Agro: order attached, activity completed");
     }
 
@@ -94,7 +96,8 @@ public class AgroApplicationFinishFlow {
         // (то же ограничение, что и в розничном ApplicationFinishFlow).
         log.info("Проверка ордеров пропущена: отображение для ИКОК-ГО не настроено");
 
-        completeActivity(CONFIRM_ACTIVITY, CONFIRM_RESULT);
+        activity.completeActivityAwaitingMiniPageClose(CONFIRM_ACTIVITY, CONFIRM_RESULT);
+
         log.info("Agro: document receipt confirmed");
     }
 
@@ -189,37 +192,4 @@ public class AgroApplicationFinishFlow {
         );
     }
 
-    @Step("Закрыть активность '{title}' с результатом '{result}'")
-    private void completeActivity(String title, String result) {
-        log.info("Close activity '{}' with result '{}'", title, result);
-
-        SelenideElement row = $x("//div[contains(@class,'dashboard-container-item')]" +
-                "[.//text()[contains(.,'" + title + "')]]")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
-        row.hover();
-
-        SelenideElement executeBtn = row.$x(".//span[@data-item-marker='Execute']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
-        executeJavaScript("arguments[0].click();", executeBtn);
-
-        $x("//div[@data-item-marker='ActivityMiniPageContainer']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
-
-        $x("//div[@data-item-marker='Result']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60)).click();
-        $x("//div[@data-item-marker='Result']//li[@data-item-marker='" + result + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30)).click();
-
-        executeJavaScript("arguments[0].click();",
-                $x("//span[@data-item-marker='SaveEditButton']")
-                        .shouldBe(Condition.visible, Duration.ofSeconds(30)));
-
-        $x("//div[@data-item-marker='ActivityMiniPageContainer']")
-                .should(Condition.disappear, Duration.ofSeconds(60));
-        $("div.AlignableMiniPageContainer-overlay")
-                .should(Condition.disappear, Duration.ofSeconds(30));
-        basePage.waitForPage();
-
-        log.info("Activity '{}' completed", title);
-    }
 }

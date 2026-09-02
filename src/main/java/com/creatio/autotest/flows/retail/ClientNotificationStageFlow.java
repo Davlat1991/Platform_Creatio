@@ -56,15 +56,11 @@ public class ClientNotificationStageFlow {
 
         consultation.closeIfOpened();
 
-        // Менеджер зашёл заново — открываем нужную заявку по номеру из контекста.
+        // Менеджер зашёл заново — открываем нужную заявку по номеру из контекста;
+        // дальше тело общее с версией без поиска (дедуп).
         searchFlow.withApplicationNumber(applicationNumber).openByNumber();
 
-        openNotificationMiniPage();
-        setClientAgreement();
-        assignResponsible(responsiblePerson);
-        confirmNotification();
-
-        log.info("Client notification completed");
+        completeClientNotification(responsiblePerson);
     }
 
     // ══════════════════════════════════════

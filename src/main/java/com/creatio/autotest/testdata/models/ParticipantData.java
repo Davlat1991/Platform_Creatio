@@ -4,15 +4,22 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class ParticipantData {
 
     private ParticipantRole role;
 
-    private String          lastName;
-    private String          firstName;
-    private String          middleName;
-    private boolean         pzlRelation;
+    private String  lastName;
+    private String  firstName;
+    private String  middleName;
+    private boolean pzlRelation;
+
+    /**
+     * Грузить ли документы этого участника на стадии «Сбор документов».
+     * Розничный дефолт — true (фабрики). Агро/Микро документы участников не грузит,
+     * поэтому флаг там игнорируется. Явное отключение — {@link #withoutDocuments()}.
+     */
+    private boolean attachDocuments;
 
     // ══════════════════════════════════════
     // FACTORIES
@@ -25,6 +32,7 @@ public class ParticipantData {
                 .firstName("Шукрона")
                 .middleName("Махсудовна")
                 .pzlRelation(pzl)
+                .attachDocuments(true)
                 .build();
     }
 
@@ -35,6 +43,7 @@ public class ParticipantData {
                 .firstName("Сафарали")
                 .middleName("Нусратович")
                 .pzlRelation(pzl)
+                .attachDocuments(true)
                 .build();
     }
 
@@ -45,6 +54,16 @@ public class ParticipantData {
                 .firstName("Азизходжа")
                 .middleName("Азамходжаевич")
                 .pzlRelation(pzl)
+                .attachDocuments(true)
                 .build();
+    }
+
+    // ══════════════════════════════════════
+    // TOGGLES
+    // ══════════════════════════════════════
+
+    /** Копия участника с отключённой загрузкой его документов на «Сборе документов». */
+    public ParticipantData withoutDocuments() {
+        return this.toBuilder().attachDocuments(false).build();
     }
 }

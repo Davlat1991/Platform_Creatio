@@ -1,26 +1,10 @@
 package com.creatio.autotest.routes;
 
 
-import com.creatio.autotest.flows.micro.AgroApplicationFinishFlow;
-import com.creatio.autotest.flows.micro.AgroCashierFlow;
-import com.creatio.autotest.flows.micro.AgroClientNotificationStageFlow;
-import com.creatio.autotest.flows.micro.AgroDocumentCollectionStageFlow;
-import com.creatio.autotest.flows.micro.AgroMiddleControllerDocumentsFlow;
-import com.creatio.autotest.flows.micro.AgroPreliminaryCheckFlow;
-import com.creatio.autotest.flows.micro.AgroReviewStageFlow;
-import com.creatio.autotest.flows.micro.AgroReviewStageUnderwriterFlow;
-import com.creatio.autotest.flows.micro.AgroSigningStageFlow;
+import com.creatio.autotest.flows.micro.*;
 import com.creatio.autotest.flows.micro.collateral.AgroCollateralStageFlow;
 import com.creatio.autotest.flows.micro.participants.AgroParticipantsStageFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationAdditionalInfoFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationAddressFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationDocumentsFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationGeneralInfoFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationIncomeExpensesFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationParticipantsFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationPrintFlow;
-import com.creatio.autotest.flows.micro.registration.AgroRegistrationScoringConfirmationFlow;
-import com.creatio.autotest.flows.micro.registration.client.MicroClientFlowFactory;
+import com.creatio.autotest.flows.micro.registration.AgroRegistrationStageFlow;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.UserCredentials;
@@ -165,45 +149,8 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
      */
     @Step("Стадия «Оформление»")
     public void registration() {
-        new AgroRegistrationGeneralInfoFlow()
-                .fillGeneralInfo(
-                        scenario.getRegistration(),
-                        AgroScenarioFactory.agroEconomicSector(),
-                        AgroScenarioFactory.OKONH());
-
-        // Добавление заёмщика открывает его анкету.
-        new AgroRegistrationParticipantsFlow()
-                .addBorrower();
-
-        // Обязательные поля первой вкладки анкеты — Микро-версии, изолированные
-        // от розницы. Порядок: документы → адрес → доходы/расходы.
-        new AgroRegistrationDocumentsFlow()
-                .fillBorrowerDocuments(AgroScenarioFactory.agroBorrowerDocuments());
-
-        AgroRegistrationAddressFlow addressFlow = new AgroRegistrationAddressFlow();
-        addressFlow.fillAddresses(AgroScenarioFactory.agroAddressBase());
-        addressFlow.setPzlRelation(false);
-
-        new AgroRegistrationIncomeExpensesFlow()
-                .fillIncomeAndExpenses(
-                        scenario.getRegistration().getIncomeExpenses(),
-                        AgroScenarioFactory.agroIncomeExtra());
-
-        // Базовый скоринг — вкладка «Дополнительная информация» анкеты заёмщика.
-        new AgroRegistrationAdditionalInfoFlow()
-                .fillBaseScoringData(scenario.getRegistration().getScoringData());
-
-        // Анкета клиента Микро — стратегия по типу занятости (data-driven).
-        // Для фермера Агро → MicroSelfEmployedClientFlow.
-        MicroClientFlowFactory
-                .from(scenario.getRegistration().getClientProfile())
-                .fill();
-
-        new AgroRegistrationScoringConfirmationFlow()
-                .confirmScoring(AgroScenarioFactory.agroScoringConfirmation());
-
-        new AgroRegistrationPrintFlow()
-                .printApplication();
+        new AgroRegistrationStageFlow()
+                .completeRegistrationStage(scenario.getRegistration());
     }
 
     /** Стадия «Предварительная проверка». */
@@ -316,6 +263,26 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
     public void finishViaConsultation() {
         new AgroApplicationFinishFlow()
                 .completeApplicationViaConsultation();
+    }
+
+    // ══════════════════════════════════════
+    // СБОРКА — ПОЛНЫЙ МАРШРУТ
+    // ══════════════════════════════════════
+
+    /**
+     * Полный маршрут Агро/Микро — семь ролевых сегментов подряд.
+     * Паритет с {@code RetailRoute.runStandard()}: собирает маршрут одной строкой,
+     * тест выбирает только сценарий. Порядок совпадает с E2E в AgroCreditApplicationTest.
+     */
+    @Step("Агро/Микро маршрут — полный E2E")
+    public void runFull() {
+        creditExpertUpToReview();
+        underwriterApprove();
+        clientNotification();
+        middleControllerDocuments();
+        ikokGoSigning();
+        cashierOperations();
+        finishApplication();
     }
 
 

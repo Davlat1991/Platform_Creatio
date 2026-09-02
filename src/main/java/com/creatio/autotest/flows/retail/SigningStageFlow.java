@@ -31,19 +31,23 @@ public class SigningStageFlow {
     private static final String CONTRACT_OPEN_ACTIVITY =
             "Создание договора в АБС (печать договоров для встречи)";
 
-    private final BasePage              basePage     = new BasePage();
-    private final ButtonsComponent      buttons      = new ButtonsComponent();
-    private final DashboardComponent    dashboard    = new DashboardComponent();
-    private final MenuComponent         menu         = new MenuComponent();
-    private final LookupComponent       lookup       = new LookupComponent();
-    private final MessageBoxComponent   msgBox       = new MessageBoxComponent();
-    private final PrintComponent        print        = new PrintComponent();
-    private final ClickService          click        = new ClickService();
-    private final ConsultationPanelPage consultation = new ConsultationPanelPage();
-    private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
-    private final CollateralContractsFlow
-                                 collateralContracts = new CollateralContractsFlow();
+    /** Вид планирования — значение продуктовой линейки розницы. */
+    private static final String PLANNING_TYPE       = "Аннуитетный_005";
 
+    /** Тип получения кредита (combobox marker=LoadCreditType). */
+    private static final String CREDIT_RECEIPT_TYPE = "Получает сегодня";
+
+    private final BasePage                         basePage     = new BasePage();
+    private final ButtonsComponent                 buttons      = new ButtonsComponent();
+    private final DashboardComponent               dashboard    = new DashboardComponent();
+    private final MenuComponent                    menu         = new MenuComponent();
+    private final LookupComponent                  lookup       = new LookupComponent();
+    private final MessageBoxComponent              msgBox       = new MessageBoxComponent();
+    private final PrintComponent                   print        = new PrintComponent();
+    private final ClickService                     click        = new ClickService();
+    private final ConsultationPanelPage            consultation = new ConsultationPanelPage();
+    private final ApplicationSearchFlow            searchFlow   = new ApplicationSearchFlow();
+    private final CollateralContractsFlow   collateralContracts = new CollateralContractsFlow();
 
 
     // ══════════════════════════════════════
@@ -131,10 +135,10 @@ public class SigningStageFlow {
         click.clickByName("Действия");
         menu.clickByName("Создание договора");
 
-        lookup.select("Вид планирования", "Аннуитетный_005");
+        lookup.select("Вид планирования", PLANNING_TYPE);
 
-    // Тип получения кредита — combobox с ul-листвью, marker=LoadCreditType
-        lookup.selectComboboxByMarker("LoadCreditType", "Получает сегодня");
+        // Тип получения кредита — combobox с ul-листвью, marker=LoadCreditType
+        lookup.selectComboboxByMarker("LoadCreditType", CREDIT_RECEIPT_TYPE);
 
         click.clickByName("Выбрать");
 

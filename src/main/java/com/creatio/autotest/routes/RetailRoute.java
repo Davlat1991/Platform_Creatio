@@ -1,17 +1,17 @@
 package com.creatio.autotest.routes;
 
 
+import com.creatio.autotest.flows.retail.*;
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.retail.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
-import com.creatio.autotest.flows.retail.*;
-import com.creatio.autotest.testdata.ScenarioFactory;
+import com.creatio.autotest.flows.retail.registration.client.ClientFlowFactory;
+import com.creatio.autotest.testdata.ParticipantDocuments;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.UserCredentials;
 import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Step;
-import com.creatio.autotest.testdata.ScenarioContextProvider;
-import com.creatio.autotest.flows.retail.registration.client.ClientFlowFactory;
 
 /**
  * Сборочный слой розничного маршрута (стандартный и упрощённый).
@@ -105,7 +105,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
         documents.prepareBorrowerDetails();
         documents.uploadBorrowerDocuments();
 
-        documents.uploadAllParticipantDocuments(ScenarioFactory.documentOwners());
+        documents.uploadAllParticipantDocuments(
+                ParticipantDocuments.forParticipants(scenario.getParticipants()));
 
         documents.completeDocumentsActivity();
     }
@@ -114,36 +115,10 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
     @Step("Стадия «Рассмотрение» (менеджер)")
     public void review() {
         log.info("Стадия «Рассмотрение»");
-        new ReviewStageRetailFlow().completeReview(
-                scenario.getRoute(),
-                scenario.getExpectedScoringDecision()
-        );
+        new ReviewStageRetailFlow().completeReview(scenario.getRoute());
     }
 
-    /**
-     * Стадия «Обеспечение» для упрощённого маршрута: залогов нет, но стадию
-     * обязательно закрыть, иначе процесс не переходит к сбору документов.
-     * No-arg перегрузка CollateralStageFlow — только закрытие стадии.
-     */
-    @Step("Стадия «Обеспечение» (упрощённый — без залогов)")
-    public void collateralStageClose() {
-        log.info("Стадия «Обеспечение» (упрощённый, без залогов)");
-        new CollateralStageFlow().completeCollateralStage();
-    }
 
-    /**
-     * Стадия «Сбор документов» для упрощённого маршрута: только документы
-     * заёмщика (участников нет).
-     */
-    @Step("Стадия «Сбор документов» (упрощённый — только заёмщик)")
-    public void documentCollectionBorrowerOnly() {
-        log.info("Стадия «Сбор документов» (упрощённый, только заёмщик)");
-        DocumentCollectionStageFlow documents = new DocumentCollectionStageFlow();
-        documents.openDocumentsTab();
-        documents.prepareBorrowerDetails();
-        documents.uploadBorrowerDocuments();
-        documents.completeDocumentsActivity();
-    }
 
     /**
      * Стадия «Информирование клиента» для упрощённого маршрута: без поиска,
@@ -312,9 +287,11 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
 
     /**
      * Розничный менеджер: от создания заявки до информирования включительно —
-     * одна сессия. Без участников и верификатора; обеспечение закрывается
-     * пустым; документы — только заёмщик; рассмотрение авто-переходит на
-     * информирование.
+     * одна сессия (упрощённый маршрут). Стадии участников/обеспечения/документов
+     * scenario-driven — теми же блоками, что стандарт: пустой сценарий даёт пустое
+     * прохождение (участники пропускаются, обеспечение закрывается пустым, документы —
+     * только заёмщик). Рассмотрение авто-переходит на информирование; верификатор
+     * не участвует.
      */
     @Step("Сегмент: розничный менеджер — от создания заявки до информирования (упрощённый)")
     public void managerSimplifiedUpToNotification() {
@@ -322,12 +299,11 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
             createApplication();
             registration();
             preliminaryCheck();
-            collateralStageClose();
-            documentCollectionBorrowerOnly();
+            participantsStage();
+            collateralStage();
+            documentCollection();
             review();
             notifyClientSimplified();
-
-
         });
     }
 

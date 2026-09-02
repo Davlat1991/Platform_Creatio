@@ -1,23 +1,22 @@
 package com.creatio.autotest.flows.retail;
 
+import com.creatio.autotest.components.ActivityComponent;
 import com.creatio.autotest.core.api.files.DocumentUploadMap;
 import com.creatio.autotest.core.api.files.FileUploadApiHelper;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.documents.DocumentData;
-import com.creatio.autotest.testdata.models.documents.DocumentOwner;
+import com.creatio.autotest.testdata.models.ParticipantRole;
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.List;
 
 import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$x;
-import static com.codeborne.selenide.Selenide.executeJavaScript;
 
 /**
  * Стадия "Сбор документов".
@@ -30,8 +29,9 @@ public class DocumentCollectionStageFlow {
     private static final Logger log =
             LoggerFactory.getLogger(DocumentCollectionStageFlow.class);
 
-    private final BasePage   basePage   = new BasePage();
-    private final DetailPage detailPage = new DetailPage();
+    private final BasePage            basePage   = new BasePage();
+    private final DetailPage          detailPage = new DetailPage();
+    private final ActivityComponent   activity   = new ActivityComponent();
 
     // ══════════════════════════════════════
     // НАВИГАЦИЯ
@@ -65,8 +65,8 @@ public class DocumentCollectionStageFlow {
     @Step("Подготовка деталей документов заёмщика")
     public void prepareBorrowerDetails() {
         log.info("Prepare borrower document details");
-        openSubTab(DocumentOwner.BORROWER.uiTab);
-        prepareDetails(DocumentOwner.BORROWER);
+        openSubTab(ParticipantRole.BORROWER.uiTab);
+        prepareDetails(ParticipantRole.BORROWER);
     }
 
     @Step("Загрузка документов заёмщика через API")
@@ -74,7 +74,7 @@ public class DocumentCollectionStageFlow {
         log.info("Upload borrower documents via API");
 
         DocumentUploadMap map =
-                new DocumentUploadMap().collect(DocumentOwner.BORROWER.containerId);
+                        new DocumentUploadMap().collect(ParticipantRole.BORROWER.containerId);
 
         log.info("Income   → {}", map.get("Income"));
         log.info("INN      → {}", map.get("INN"));
@@ -96,7 +96,7 @@ public class DocumentCollectionStageFlow {
      */
     @Step("Загрузка документов владельца")
     public void uploadDocuments(DocumentOwnerData ownerData) {
-        DocumentOwner owner = ownerData.getOwner();
+        ParticipantRole owner = ownerData.getOwner();
         log.info("Upload documents for owner: {}", owner);
 
         openSubTab(owner.uiTab);
@@ -127,7 +127,7 @@ public class DocumentCollectionStageFlow {
      *  BORROWER / GUARANTOR — «Финансовое досье» + «Досье клиента».
      *  PLEDGER — «Досье клиента» (⚠ предположение, проверить по DOM #DocPledgerTab).
      */
-    private void prepareDetails(DocumentOwner owner) {
+    private void prepareDetails(ParticipantRole owner) {
         log.info("Prepare details for owner: {}", owner);
         switch (owner) {
             case BORROWER, GUARANTOR -> {
@@ -144,42 +144,10 @@ public class DocumentCollectionStageFlow {
     // Паттерн hover→Execute→Result→Save, проверен в PreliminaryCheckStageFlow.
     // ══════════════════════════════════════
 
+
     @Step("Закрытие активности 'Вложить документы и отправить на рассмотрение'")
     public void completeDocumentsActivity() {
-        log.info("Close documents activity");
-        String title = "Вложить документы и отправить на рассмотрение";
-
-        // hover — кнопка Execute видна только при наведении
-        $x("//div[contains(@class,'dashboard-item-content')]" +
-                "[.//text()[contains(.,'" + title + "')]]")
-                .shouldBe(visible, Duration.ofSeconds(60))
-                .hover();
-
-        var row = $x("//div[contains(@class,'dashboard-container-item')]" +
-                "[.//text()[contains(.,'" + title + "')]]")
-                .shouldBe(visible, Duration.ofSeconds(60));
-        row.hover();
-
-        var executeBtn = row.$x(".//span[@data-item-marker='Execute']")
-                .shouldBe(visible, Duration.ofSeconds(60));
-        executeJavaScript("arguments[0].click();", executeBtn);
-        log.debug("Execute clicked");
-
-        $x("//div[@data-item-marker='ActivityMiniPageContainer']")
-                .shouldBe(visible, Duration.ofSeconds(60));
-
-        $x("//div[@data-item-marker='Result']")
-                .shouldBe(visible, Duration.ofSeconds(60)).click();
-        $x("//div[@data-item-marker='Result']//li[@data-item-marker='Выполнена']")
-                .shouldBe(visible, Duration.ofSeconds(30)).click();
-        log.debug("Result set to 'Выполнена'");
-
-        executeJavaScript("arguments[0].click();",
-                $x("//span[@data-item-marker='SaveEditButton']")
-                        .shouldBe(visible, Duration.ofSeconds(60)));
-
-        basePage.waitForPage();
-        log.info("Documents activity closed");
+        activity.completeActivity("Вложить документы и отправить на рассмотрение", "Выполнена");
     }
 
     // ══════════════════════════════════════

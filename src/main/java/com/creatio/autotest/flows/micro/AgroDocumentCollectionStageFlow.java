@@ -1,11 +1,12 @@
 package com.creatio.autotest.flows.micro;
 
+import com.creatio.autotest.components.ActivityComponent;
 import com.creatio.autotest.core.api.files.DocumentUploadMap;
 import com.creatio.autotest.core.api.files.FileUploadApiHelper;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.documents.DocumentData;
-import com.creatio.autotest.testdata.models.documents.DocumentOwner;
+import com.creatio.autotest.testdata.models.ParticipantRole;
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ import static com.codeborne.selenide.Selenide.executeJavaScript;
  * Изолированная Микро-копия розничного {@code DocumentCollectionStageFlow}.
  * Общие компоненты ({@link DocumentUploadMap}, {@link FileUploadApiHelper},
  * {@link DetailPage}, {@link BasePage}) и нейтральные модели документов
- * ({@link DocumentOwner}, {@link DocumentOwnerData}, {@link DocumentData})
+ * ({@link ParticipantRole}, {@link DocumentOwnerData}, {@link DocumentData})
  * переиспользуются из Core.
  * <p>
  * Отличие от розничного образца: заёмщик обрабатывается тем же универсальным
@@ -47,8 +48,9 @@ public class AgroDocumentCollectionStageFlow {
     /** Результат выполнения активности (happy-path). */
     private static final String ACTIVITY_RESULT    = ActivityResult.COMPLETED.getUiText();
 
-    private final BasePage   basePage   = new BasePage();
-    private final DetailPage detailPage = new DetailPage();
+    private final BasePage          basePage   = new BasePage();
+    private final DetailPage        detailPage = new DetailPage();
+    private final ActivityComponent activity   = new ActivityComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -106,7 +108,7 @@ public class AgroDocumentCollectionStageFlow {
      */
     @Step("Агро: загрузка документов владельца")
     public void uploadDocuments(DocumentOwnerData ownerData) {
-        DocumentOwner owner = ownerData.getOwner();
+        ParticipantRole owner = ownerData.getOwner();
         log.info("Agro: upload documents for owner: {}", owner);
 
         openSubTab(owner.uiTab);
@@ -136,7 +138,7 @@ public class AgroDocumentCollectionStageFlow {
      * BORROWER / GUARANTOR — «Финансовое досье» + «Досье клиента».
      * PLEDGER — «Досье клиента».
      */
-    private void prepareDetails(DocumentOwner owner) {
+    private void prepareDetails(ParticipantRole owner) {
         log.info("Agro: prepare details for owner: {}", owner);
 
         switch (owner) {
@@ -155,7 +157,7 @@ public class AgroDocumentCollectionStageFlow {
     // AgroPreliminaryCheckFlow и AgroCollateralStageFlow).
     // ══════════════════════════════════════
 
-    @Step("Агро: закрытие активности «Вложить документы и отправить на рассмотрение»")
+    /*@Step("Агро: закрытие активности «Вложить документы и отправить на рассмотрение»")
     public void completeDocumentsActivity() {
         log.info("Agro: close documents activity");
 
@@ -197,6 +199,14 @@ public class AgroDocumentCollectionStageFlow {
                 .should(disappear, Duration.ofSeconds(60));
 
         log.info("Agro: documents activity closed");
+    }
+
+     */
+
+
+    @Step("Агро: закрытие активности «Вложить документы и отправить на рассмотрение»")
+    public void completeDocumentsActivity() {
+        activity.completeActivityWaitingOverlayById(DOCUMENTS_ACTIVITY, ACTIVITY_RESULT);
     }
 
     // ══════════════════════════════════════

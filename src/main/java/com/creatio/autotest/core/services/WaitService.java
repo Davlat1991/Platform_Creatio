@@ -19,7 +19,7 @@ public class WaitService {
     public void waitForLoader() {
         try {
             $x("//div[contains(@class,'ts-loader-mask')]")
-                    .should(disappear, Duration.ofSeconds(15));
+                    .should(disappear, Duration.ofSeconds(40));
         } catch (Exception e) {
             log.debug("Loader not found or already hidden");
         }

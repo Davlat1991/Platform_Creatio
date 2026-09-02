@@ -54,16 +54,7 @@ public class AgroCreditApplicationTest extends BaseTest {
             "кассовые операции под кассиром Микро и завершение заявки.")
     @Severity(SeverityLevel.BLOCKER)
     public void agroMicroFullRoute() {
-
-        MicroSegmentRoute route = route(AgroScenarioFactory.agroMicroHappyPath());
-
-        route.creditExpertUpToReview();
-        route.underwriterApprove();
-        route.clientNotification();
-        route.middleControllerDocuments();
-        route.ikokGoSigning();
-        route.cashierOperations();
-        route.finishApplication();
+        route(AgroScenarioFactory.agroMicroHappyPath()).runFull();
     }
 
     // ══════════════════════════════════════

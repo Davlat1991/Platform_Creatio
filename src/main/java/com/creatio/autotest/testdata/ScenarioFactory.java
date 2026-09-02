@@ -1,9 +1,6 @@
 package com.creatio.autotest.testdata;
 
 import com.creatio.autotest.testdata.models.*;
-import com.creatio.autotest.testdata.models.documents.DocumentData;
-import com.creatio.autotest.testdata.models.documents.DocumentOwner;
-import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
 import com.creatio.autotest.testdata.models.registration.*;
 import com.creatio.autotest.testdata.models.registration.fields.EmploymentType;
 
@@ -13,6 +10,15 @@ import java.util.List;
 public final class ScenarioFactory {
 
     private ScenarioFactory() {}
+
+    // ══════════════════════════════════════
+    // СЦЕНАРИЙ 0 — Только авторизация
+    // Без стадий: собрать блок authenticate() под нужной ролью
+    // ══════════════════════════════════════
+
+    public static TestScenario authOnly() {
+        return baseBuilder().build();
+    }
 
     // ══════════════════════════════════════
     // СЦЕНАРИЙ 1 — Упрощённый маршрут
@@ -402,61 +408,6 @@ public final class ScenarioFactory {
                 .scheduleType("Аннуитетный")
                 .build();
     }
-
-
-    // ══════════════════════════════════════
-    // DOCUMENTS
-    // ══════════════════════════════════════
-
-    // В ScenarioFactory — новый статический метод
-    public static List<DocumentOwnerData> documentOwners() {
-        return List.of(
-                // Поручитель: те же 3 документа, что у заёмщика
-                DocumentOwnerData.builder()
-                        .owner(DocumentOwner.GUARANTOR)
-                        .documents(List.of(
-                                DocumentData.builder().type("Income").fileName("Income.pdf").build(),
-                                DocumentData.builder().type("INN").fileName("INN.pdf").build(),
-                                DocumentData.builder().type("Passport").fileName("Passport.pdf").build()
-                        ))
-                        .build(),
-                // Залогодатель: только FATCA
-                DocumentOwnerData.builder()
-                        .owner(DocumentOwner.PLEDGER)
-                        .documents(List.of(
-                                DocumentData.builder().type("FATCA").fileName("FATCA.pdf").build()
-                        ))
-                        .build()
-        );
-    }
-
-    // Только поручитель
-    public static List<DocumentOwnerData> guarantorDocuments() {
-        return List.of(
-                DocumentOwnerData.builder()
-                        .owner(DocumentOwner.GUARANTOR)
-                        .documents(List.of(
-                                DocumentData.builder().type("Income").fileName("Income.pdf").build(),
-                                DocumentData.builder().type("INN").fileName("INN.pdf").build(),
-                                DocumentData.builder().type("Passport").fileName("Passport.pdf").build()
-                        ))
-                        .build()
-        );
-    }
-
-    // Только залогодатель
-    public static List<DocumentOwnerData> pledgerDocuments() {
-        return List.of(
-                DocumentOwnerData.builder()
-                        .owner(DocumentOwner.PLEDGER)
-                        .documents(List.of(
-                                DocumentData.builder().type("FATCA").fileName("FATCA.pdf").build()
-                        ))
-                        .build()
-        );
-    }
-
-
 
 
 }

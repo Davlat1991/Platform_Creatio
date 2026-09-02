@@ -5,7 +5,6 @@ import com.creatio.autotest.components.GridAssertions;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.CreditRoute;
-import com.creatio.autotest.testdata.models.ScoringDecision;
 import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -31,9 +30,8 @@ public class ReviewStageRetailFlow {
     // ══════════════════════════════════════
 
     @Step("Review: Retail Manager — стадия рассмотрения")
-    public void completeReview(CreditRoute route, ScoringDecision expectedDecision) {
-        log.info("Complete retail manager review. Route: {}, expected decision: {}",
-                route, expectedDecision);
+    public void completeReview(CreditRoute route) {
+        log.info("Complete retail manager review. Route: {}", route);
 
         consultation.closeIfOpened();
 

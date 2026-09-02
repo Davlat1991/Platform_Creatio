@@ -7,6 +7,7 @@ import com.creatio.autotest.flows.retail.PreliminaryCheckStageFlow;
 import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.retail.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
+import com.creatio.autotest.testdata.ParticipantDocuments;
 import com.creatio.autotest.testdata.ScenarioFactory;
 import com.creatio.autotest.testdata.models.TestScenario;
 import com.creatio.autotest.testdata.models.Workspace;
@@ -50,7 +51,8 @@ public class DocumentCollectionTest extends BaseTest {
         docs.uploadBorrowerDocuments();
 
         // Поручитель + залогодатель (D4.4)
-        docs.uploadAllParticipantDocuments(ScenarioFactory.documentOwners());
+        docs.uploadAllParticipantDocuments(
+                ParticipantDocuments.forParticipants(scenario.getParticipants()));
 
         // Закрыть активность (D4.5)
         docs.completeDocumentsActivity();
@@ -105,7 +107,8 @@ public class DocumentCollectionTest extends BaseTest {
         docs.uploadBorrowerDocuments();
 
         // Поручитель + залогодатель (D4.4)
-        docs.uploadAllParticipantDocuments(ScenarioFactory.documentOwners());
+        docs.uploadAllParticipantDocuments(
+                ParticipantDocuments.forParticipants(scenario.getParticipants()));
 
         // Закрыть активность (D4.5)
         docs.completeDocumentsActivity();

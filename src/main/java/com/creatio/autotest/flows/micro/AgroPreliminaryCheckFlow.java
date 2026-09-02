@@ -127,7 +127,7 @@ public class AgroPreliminaryCheckFlow {
 
         $x("//div[contains(@class,'dashboard-item-content')]" +
                 "[.//text()[contains(.,'" + activityTitle + "')]]")
-                .shouldBe(Condition.visible, Duration.ofSeconds(60))
+                .shouldBe(Condition.visible, Duration.ofSeconds(80))
                 .hover();
     }
 

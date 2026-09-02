@@ -1,5 +1,6 @@
 package com.creatio.autotest.testdata.models.documents;
 
+import com.creatio.autotest.testdata.models.ParticipantRole;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,6 +16,6 @@ import java.util.List;
 @Builder
 public class DocumentOwnerData {
 
-    private DocumentOwner owner;
+    private ParticipantRole owner;
     private List<DocumentData> documents;
 }

@@ -2,6 +2,7 @@ package com.creatio.autotest.flows.common;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
+import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import io.qameta.allure.Step;
@@ -20,6 +21,7 @@ public class ConsultationStartFlow {
 
     private final BasePage              basePage     = new BasePage();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
+    private final DashboardComponent    dashboard = new DashboardComponent();
 
     @Step("Старт консультации: тема={consultationThemeDim}")
     public void startConsultation(String consultationThemeDim) {
@@ -76,8 +78,10 @@ public class ConsultationStartFlow {
         // в ещё не отрисованную страницу, и подбор продукта падает (гонка).
         // Якорь — корневой контейнер карточки контакта: появляется только когда
         // страница физлица отрисована, стабилен, без GUID.
-        $x("//div[@data-item-marker='tab-content-container-marker']")   //ContactPageV2Container
-                .shouldBe(Condition.visible, Duration.ofSeconds(60));
+     //   $x("//div[@data-item-marker='tab-content-container-marker']")   //ContactPageV2Container
+         //       .shouldBe(Condition.visible, Duration.ofSeconds(60));
+
+        dashboard.waitForActionsDashboardLoaded();
 
         basePage.waitForPage();
     }
