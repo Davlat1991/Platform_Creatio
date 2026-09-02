@@ -1,22 +1,24 @@
 # 🤖 Creatio Autotest Framework
 
-> Фреймворк для автоматизированного тестирования CRM-системы Creatio (7.18 → 8.3)
+> Фреймворк автоматизированного тестирования CRM-системы Creatio 7.18 (банковская конфигурация).
+> Сквозные маршруты кредитных продуктов полного цикла — от логина до выдачи кредита и завершения заявки.
 
 ---
 
 ## 📋 Содержание
 
-- [Общие сведения](#общие-сведения)
-- [Технологический стек](#технологический-стек)
-- [Структура проекта](#структура-проекта)
-- [Архитектурные слои](#архитектурные-слои)
-- [Ключевые компоненты](#ключевые-компоненты)
-- [Конфигурация](#конфигурация)
-- [Запуск тестов](#запуск-тестов)
-- [Логирование](#логирование)
-- [Параллельный запуск](#параллельный-запуск)
-- [Статус реализации](#статус-реализации)
-- [План развития](#план-развития)
+- [Общие сведения](#-общие-сведения)
+- [Технологический стек](#️-технологический-стек)
+- [Структура проекта](#-структура-проекта)
+- [Архитектурные слои](#️-архитектурные-слои)
+- [Ключевые сервисы](#-ключевые-сервисы)
+- [Конфигурация](#️-конфигурация)
+- [Запуск тестов](#-запуск-тестов)
+- [Логирование](#-логирование)
+- [Параллельный запуск](#-параллельный-запуск)
+- [Как собрать сценарий](#-как-собрать-сценарий)
+- [Документация](#-документация)
+- [Статус](#-статус)
 
 ---
 
@@ -24,18 +26,18 @@
 
 | Параметр | Значение |
 |---|---|
-| Название | Creatio Autotest Framework |
-| Версия | 1.0.0 |
-| Язык | Java 17 |
-| Репозиторий | GitHub (Platform_Creatio) |
-| Дата начала | Апрель 2026 |
-| Статус | В разработке |
+| Название | Creatio Autotest Framework (Platform_Creatio) |
+| Координаты | `com.creatio:creatio-autotest:1.0.0` |
+| Язык | Java 17 (Amazon Corretto) |
+| Репозиторий | GitHub — Platform_Creatio |
+| Среды | test / pre-prod (внутренняя сеть банка) |
+| Статус | Полный цикл по обеим линейкам |
 
 **Ключевые принципы:**
-- 🧩 **LEGO-подход** — тесты собираются из переиспользуемых блоков
-- 🔒 **Thread-safe** — поддержка параллельного выполнения
-- ⚙️ **CI/CD-ready** — оптимизирован для Jenkins / GitLab CI
-- 🛡️ **Anti-flaky** — стабильные ожидания без `Thread.sleep`
+- 🧩 **LEGO-подход** — тесты собираются из переиспользуемых блоков (стадии → сессия под ролью → сегменты → маршрут)
+- 🎯 **Scenario-driven** — состав участников/залогов/документов задаётся данными; пустая секция = пустое прохождение
+- 🔒 **Thread-safe** — драйвер и контекст сценария в `ThreadLocal`, состояние не хранится в static-полях
+- 🛡️ **Anti-flaky** — ожидания по условию с таймаутом, без `Thread.sleep`
 
 ---
 
@@ -58,284 +60,199 @@
 
 ## 📁 Структура проекта
 
-creatio-autotest/
-├── pom.xml
-├── README.md
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/creatio/autotest/
-│   │   │       ├── core/
-│   │   │       │   ├── config/
-│   │   │       │   │   └── Config.java
-│   │   │       │   ├── driver/
-│   │   │       │   │   ├── DriverProvider.java
-│   │   │       │   │   └── DriverSetup.java
-│   │   │       │   ├── services/
-│   │   │       │   │   ├── ClickService.java
-│   │   │       │   │   ├── WaitService.java
-│   │   │       │   │   ├── TypeService.java
-│   │   │       │   │   └── ScrollService.java
-│   │   │       │   └── base/
-│   │   │       │       ├── BaseComponent.java
-│   │   │       │       └── BasePage.java
-│   │   │       ├── components/
-│   │   │       ├── pages/
-│   │   │       │   └── LoginPage.java
-│   │   │       ├── flows/
-│   │   │       │   └── LoginFlow.java
-│   │   │       ├── testdata/
-│   │   │       └── utils/
-│   │   │           ├── AllureAttachments.java
-│   │   │           └── JavaScriptUtils.java
-│   │   └── resources/
-│   │       ├── config.properties
-│   │       └── logback.xml
-│   └── test/
-│       ├── java/
-│       │   └── com/creatio/autotest/
-│       │       ├── base/
-│       │       │   ├── BaseTest.java
-│       │       │   └── TestListener.java
-│       │       └── tests/
-│       │           └── LoginTest.java
-│       └── resources/
-│           ├── config.properties
-│           ├── logback.xml
-│           └── suites/
-│               ├── regression.xml
-│               ├── smoke.xml
-│               ├── parallel.xml
-│               └── single.xml
+    src/main/java/com/creatio/autotest/
+    ├── core/          config, driver, services (Click/Wait/Type/Scroll),
+    │                  api (files/session), base (BaseComponent/BasePage)
+    ├── components/    UI-блоки Creatio (гриды, лукапы, модалки, печать, фильтры,
+    │                  активность) + collateral/ (характеристики залогов)
+    ├── pages/         LoginPage, HeaderPage, WorkspacePage, DetailPage, ConsultationPanelPage
+    ├── routes/        CreditApplicationRoute (база), RetailRoute, MicroSegmentRoute
+    ├── flows/         common/ (общие) + retail/ + micro/ (по линейкам) +
+    │                  общие блоки registration/ и participants/
+    ├── testdata/      ScenarioFactory, AgroScenarioFactory, CollateralDataFactory,
+    │                  UserPool, ScenarioContext + models/
+    └── utils/         AllureAttachments, AllureTags, FieldUtils
+
+    src/test/java/com/creatio/autotest/
+    ├── base/          BaseTest, TestListener
+    └── tests/         LoginTest, AuthRouteTest, StandardRouteTest, SimplifiedRouteTest,
+                       CreditApplicationTest, AgroCreditApplicationTest,
+                       CompositionExamplesTest, CollateralTest, DocumentCollectionTest, …
+
+    src/test/resources/suites/   regression.xml, smoke.xml, parallel.xml, single.xml
+
+Полная схема пакетов — на странице Confluence «О проекте Platform_Creatio».
+
 ---
 
 ## 🏗️ Архитектурные слои
 
-┌─────────────────────────────────┐
-│           TESTS                 │  ← сценарии
-├─────────────────────────────────┤
-│           FLOWS                 │  ← бизнес-логика
-├─────────────────────────────────┤
-│           PAGES                 │  ← PageObject
-├─────────────────────────────────┤
-│         COMPONENTS              │  ← UI блоки
-├─────────────────────────────────┤
-│      CORE (base/services)       │  ← фундамент
-└─────────────────────────────────┘
-
+    ┌─────────────────────────────────┐
+    │            TESTS                │  ← выбор сценария и запуск
+    ├─────────────────────────────────┤
+    │            ROUTES               │  ← сессии, стадии, ролевые сегменты
+    ├─────────────────────────────────┤
+    │            FLOWS                │  ← законченные действия (common/retail/micro)
+    ├─────────────────────────────────┤
+    │            PAGES                │  ← PageObject
+    ├─────────────────────────────────┤
+    │          COMPONENTS             │  ← UI-блоки
+    ├─────────────────────────────────┤
+    │       CORE (base/services)      │  ← фундамент
+    └─────────────────────────────────┘
 
 | Слой | Назначение | Пакет |
 |---|---|---|
-| core | Конфигурация, драйвер, сервисы | `core.*` |
+| core | Конфигурация, драйвер, сервисы, API-хелперы | `core.*` |
 | components | Переиспользуемые UI-блоки | `components.*` |
-| pages | PageObject — элементы страниц | `pages.*` |
-| flows | Бизнес-сценарии (композиция) | `flows.*` |
-| testdata | Модели и фабрики данных | `testdata.*` |
+| pages | PageObject — страницы и панели | `pages.*` |
+| routes | Сборка маршрута из стадий и сегментов | `routes.*` |
+| flows | Законченные действия (общие / розница / Микро) | `flows.*` |
+| testdata | Модели, фабрики, пул пользователей | `testdata.*` |
 | utils | Вспомогательные утилиты | `utils.*` |
 | tests | Тестовые сценарии | `tests.*` |
-| base | BaseTest, TestListener | `base.*` |
 
 ---
 
-## 🔧 Ключевые компоненты
-
-### Config.java
-Централизованное управление конфигурацией.
-- Singleton паттерн
-- Читает `config.properties` из classpath
-- Поддерживает переопределение через `-D` параметры
-
-### DriverProvider.java
-Управление WebDriver через `ThreadLocal`.
-
-Thread 1 → DriverProvider → WebDriver_1
-Thread 2 → DriverProvider → WebDriver_2
-Thread 3 → DriverProvider → WebDriver_3
-
-### Services
+## 🔧 Ключевые сервисы
 
 | Сервис | Назначение | Ключевые методы |
 |---|---|---|
-| `ClickService` | Клики | `click()`, `jsClick()`, `safeClick()` |
-| `WaitService` | Ожидания | `waitVisible()`, `waitHidden()`, `waitForLoader()` |
-| `TypeService` | Ввод текста | `type()`, `typeAndTab()`, `typeAndEnter()` |
-| `ScrollService` | Прокрутка | `scrollTo()`, `scrollToCenter()` |
+| `ClickService` | Клики | `clickByMarker()`, `clickByName()`, `jsClick()`, `safeClick()`, `waitAndClick()`, `jsClickWithRetry()` |
+| `WaitService` | Ожидания | `waitForLoader()` |
+| `TypeService` | Ввод текста | `type()`, `safeType()`, `typeAndTab()`, `typeAndEnter()`, `clear()` |
+| `ScrollService` | Прокрутка | `scrollTo()`, `scrollToCenter()`, `scrollToTop()`, `scrollToBottom()` |
 
-### LoginPage — локаторы
-
-| Элемент | Селектор |
-|---|---|
-| Поле логина | `#loginEdit-el` |
-| Поле пароля | `#passwordEdit-el` |
-| Кнопка входа | `[data-item-marker='btnLogin']` |
-| Заголовок | `#left-header-container` |
-| Ошибка | `.base-edit-validation` |
-
-### Utils
-
-**AllureAttachments:**
-
-| Метод | Назначение |
-|---|---|
-| `attachScreenshot(name)` | Скриншот в Allure |
-| `attachPageSource()` | HTML страницы |
-| `attachText(name, content)` | Текст |
-| `attachBrowserLogs()` | Логи браузера |
-| `attachCurrentUrl()` | Текущий URL |
-
-**JavaScriptUtils:**
-
-| Метод | Назначение |
-|---|---|
-| `click(element)` | JS клик |
-| `scrollIntoView(element)` | Прокрутка |
-| `setValue(element, value)` | Установка значения |
-| `fireChangeEvent(element)` | Событие change |
-| `fireBlurEvent(element)` | Событие blur |
-| `fixFileApiService()` | Фикс TsiFileApiService |
+Ввод в поля Creatio — только посимвольный с переходом по табуляции (`typeAndTab()`); прямой `setValue()` не используется, так как не триггерит `onChange`.
 
 ---
 
 ## ⚙️ Конфигурация
 
-Файл: `src/main/resources/config.properties`
-
-```properties
-base.url=http://10.10.202.254
-browser=chrome
-headless=false
-timeout=10
-page.load.timeout=30
-admin.login=Supervisor
-admin.password=Supervisor
-```
+Файл `config.properties` создаётся на основе `config.properties.example` (файл с реальными учётными данными в git не коммитится).
 
 | Параметр | Описание | Пример |
 |---|---|---|
-| `base.url` | URL приложения | `http://10.10.202.254` |
-| `browser` | Браузер | `chrome` / `firefox` |
-| `headless` | Headless режим | `true` / `false` |
+| `base.url` | URL среды | `http://10.10.202.254` (test) / `http://10.10.202.245` (pre-prod) |
+| `browser` | Браузер | `chrome` |
+| `headless` | Headless-режим | `true` / `false` |
 | `timeout` | Таймаут элементов (сек) | `10` |
 | `page.load.timeout` | Таймаут загрузки (сек) | `30` |
-| `admin.login` | Логин администратора | `Supervisor` |
-| `admin.password` | Пароль администратора | `Supervisor` |
+| `user.<role>.<n>.login` / `.password` | Пулы учётных записей по ролям | `user.manager.1.login=…` |
+
+Учётные записи задаются пулами по ролям (менеджер, верификатор, ИКОК, ИКОК-ГО, кассир и т.д.); выдача — round-robin, счётчик отдельный на каждую роль.
 
 ---
 
 ## 🚀 Запуск тестов
 
-### Основные команды
+### Профили Maven
+
+Каждый профиль указывает свой TestNG-сьют; по умолчанию — `regression`.
 
 ```bash
-# Regression (по умолчанию)
-mvn test
-
-# Smoke
-mvn test -P smoke
-
-# Parallel
-mvn test -P parallel
-
-# Single тест
-mvn test -P single
-
-# CI/CD (headless)
-mvn test -P ci
+mvn clean test                # regression (по умолчанию)
+mvn clean test -P smoke       # дымовой набор
+mvn clean test -P parallel    # параллельный прогон (4 потока)
+mvn clean test -P single      # одиночный сьют
+mvn clean test -P ci          # регрессия в headless для CI
 ```
 
 ### Переопределение параметров
 
 ```bash
-# Другой URL
-mvn test -Dbase.url=http://staging.creatio.com
-
-# Headless режим
-mvn test -Dheadless=true
-
-# Другой браузер
-mvn test -Dbrowser=firefox
-
-# Комбинация
-mvn test -P ci -Dbase.url=http://staging.creatio.com -Dheadless=true
+mvn clean test -Dheadless=true
+mvn clean test -Dbrowser=chrome
+mvn test -Dtest=StandardRouteTest      # один класс
 ```
 
-### Allure отчёт
+### Allure-отчёт
 
 ```bash
-# Генерация отчёта
-mvn allure:report
-
-# Открыть отчёт
-mvn allure:serve
+mvn allure:report    # генерация
+mvn allure:serve     # открыть
 ```
 
 ---
 
 ## 📊 Логирование
 
-Конфигурация: `src/main/resources/logback.xml`
+Конфигурация: `logback.xml`.
 
 | Appender | Назначение | Путь |
 |---|---|---|
 | CONSOLE | Вывод в консоль | — |
-| FILE | Все логи | `target/logs/autotest.log` |
-| ERROR_FILE | Только ошибки | `target/logs/errors.log` |
+| FILE | Все логи (rolling) | `target/logs/autotest.log` |
+| ERROR_FILE | Только ошибки (rolling) | `target/logs/errors.log` |
 
-| Пакет | Уровень |
+| Логгер | Уровень |
 |---|---|
 | `com.creatio.autotest` | DEBUG |
 | `com.codeborne.selenide` | INFO |
-| `org.openqa.selenium` | WARN |
 | `io.restassured` | INFO |
+| `org.testng` | INFO |
+| `org.openqa.selenium` | WARN |
+| root | WARN |
+
+Примечание: в Windows-консоли кириллица может отображаться как `?????` — для диагностики используйте файлы логов, а не вывод консоли.
 
 ---
 
 ## ⚡ Параллельный запуск
 
 Настройка в `parallel.xml`:
+
 ```xml
 <suite parallel="methods" thread-count="4">
 ```
 
 **Гарантии изоляции:**
-- `ThreadLocal<WebDriver>` — каждый поток имеет свой браузер
-- `@BeforeMethod` / `@AfterMethod` — инициализация на уровне метода
-- Отсутствие `static` полей с состоянием в Page Object-ах
+- `ThreadLocal<WebDriver>` — у каждого потока свой браузер
+- контекст сценария (`ScenarioContext`) привязан к потоку
+- папки загрузки изолируются по потокам
+- отсутствие `static`-полей с состоянием
+- пул пользователей round-robin со счётчиком отдельно по каждой роли
 
 ---
 
-## ✅ Статус реализации
+## 🧩 Как собрать сценарий
 
-| Этап | Компонент | Статус |
-|---|---|---|
-| 1 | pom.xml + структура проекта | ✅ Завершён |
-| 2 | Config.java | ✅ Завершён |
-| 3 | DriverProvider + DriverSetup | ✅ Завершён |
-| 4 | Services (Click/Wait/Type/Scroll) | ✅ Завершён |
-| 5 | BaseComponent + BasePage | ✅ Завершён |
-| 6 | BaseTest + TestListener | ✅ Завершён |
-| 7 | LoginPage + LoginFlow | ✅ Завершён |
-| 8 | LoginTest | ✅ Завершён |
-| 9 | logback.xml | ✅ Завершён |
-| 10 | AllureAttachments + JavaScriptUtils | ✅ Завершён |
-| 11 | Components (Lookup, Grid, Modal) | 🔄 В плане |
-| 12 | Бизнес-страницы | 🔄 В плане |
-| 13 | TestData (модели + билдеры) | 🔄 В плане |
-| 14 | Бизнес-тесты | 🔄 В плане |
-| 15 | CI/CD (Jenkins/GitLab) | 🔄 В плане |
-| 16 | Docker поддержка | 🔄 В плане |
+Маршрут собирается из данных сценария и блоков:
+
+```java
+// Полный стандартный розничный маршрут — один вызов
+new RetailRoute(ScenarioFactory.happyPath()).runStandard();
+
+// Полный упрощённый
+new RetailRoute(ScenarioFactory.simplePath()).runSimplified();
+
+// Полный Агро/Микро
+new MicroSegmentRoute(AgroScenarioFactory.agroMicroHappyPath()).runFull();
+```
+
+Данные берутся из фабрик (`ScenarioFactory` / `AgroScenarioFactory`), учётные записи — из `UserPool`. Пошаговое руководство по сборке своего сценария с нуля — `claude/how-to-build-a-scenario.md` и живые рецепты в `CompositionExamplesTest`.
 
 ---
 
-## 🗺️ План развития
+## 📚 Документация
 
-Этап 11 → Components (LookupComponent, GridComponent, ModalComponent)
-Этап 12 → Бизнес-страницы (главная, контакты и др.)
-Этап 13 → TestData (модели + Builder pattern)
-Этап 14 → Первые бизнес-тесты
-Этап 15 → CI/CD конфигурация (Jenkins/GitLab)
-Этап 16 → Docker поддержка
+- `claude/how-to-build-a-scenario.md` — как собрать сценарий с нуля
+- `claude/retail-navigation-map.md`, `claude/agro-navigation-map.md` — карты блоков
+- `claude/composability-roadmap.md`, `claude/composability-journal.md` — инициатива Composability
+- `CONTRIBUTING.md` — правила разработки
+- Confluence: «О проекте Platform_Creatio», «Розничный кредит», «Агро/Микро», «Как собрать сценарий», «База знаний Creatio 7.18», «Запуск и среды», «Отчётность»
+
 ---
 
-*Документ актуален на: Апрель 2026*
-*Версия документа: 1.0*
+## ✅ Статус
+
+| Линейка | Состояние |
+|---|---|
+| Розничный кредит | стандартный и упрощённый маршруты — сквозной E2E зелёный |
+| Агро/Микро | полный цикл, эпик закрыт |
+| Инициатива Composability | закрыта; обе линейки на единой композиционной архитектуре |
+| CI/CD | инфраструктура готова; запуск заблокирован доступом к GitLab и связностью с тестовыми средами |
+
+---
+
+*Актуально на: сентябрь 2026*
