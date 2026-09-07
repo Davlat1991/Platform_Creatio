@@ -4,6 +4,7 @@ import com.codeborne.selenide.logevents.SelenideLogger;
 import com.creatio.autotest.core.config.Config;
 import com.creatio.autotest.core.driver.DriverProvider;
 import com.creatio.autotest.core.driver.DriverSetup;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.slf4j.Logger;
@@ -87,6 +88,7 @@ public abstract class BaseTest {
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
         log.info("Tearing down WebDriver...");
+        VerificationCollector.reset();   // снять возможный хвост проверок с потока (parallel-safe)
         ScenarioContextProvider.remove();
         DriverProvider.remove();
 

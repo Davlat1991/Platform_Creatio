@@ -2,6 +2,7 @@ package com.creatio.autotest.components;
 
 import com.codeborne.selenide.Condition;
 import com.creatio.autotest.core.base.BaseComponent;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import io.qameta.allure.Step;
 
 import java.time.Duration;
@@ -33,6 +34,13 @@ public class GridAssertions extends BaseComponent {
                     " and contains(@data-item-marker,'" + committee + "')]"
             ).shouldBe(Condition.visible, timeout);
             log.info("Committee '{}' found in 'Проекты решений'", committee);
+
+            // Успех фиксируем в отчёт верификации (V1). Промежуточные неудачные
+            // попытки НЕ пишем — это ожидаемое "ещё не сформировано", не FAIL.
+            VerificationCollector.checkTrue(
+                    "Проект решения «" + committee + "» сформирован",
+                    true, "найдено в детали «Проекты решений»");
+
             return true;
         } catch (Throwable t) {
             log.warn("Committee '{}' NOT found within {}s",

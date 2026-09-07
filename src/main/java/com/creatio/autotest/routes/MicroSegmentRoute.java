@@ -5,8 +5,11 @@ import com.creatio.autotest.flows.micro.*;
 import com.creatio.autotest.flows.micro.collateral.AgroCollateralStageFlow;
 import com.creatio.autotest.flows.micro.participants.AgroParticipantsStageFlow;
 import com.creatio.autotest.flows.micro.registration.AgroRegistrationStageFlow;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
+import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.TestScenario;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.testdata.models.UserCredentials;
 import com.creatio.autotest.testdata.models.Workspace;
 import io.qameta.allure.Step;
@@ -132,11 +135,15 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
      * здесь вернётся {@code scenario.getCreditExpert()} и
      * {@code Workspace.CREDIT_EXPERT} — правка одной строки, флоу не меняется.
      */
+
     @Step("Сегмент: завершение заявки")
     public void finishApplication() {
         as(scenario.getMiddleController(), Workspace.IKOK, this::attachOrder);
         as(scenario.getIkokGo(), Workspace.IKOK_GO, this::ikokGoConfirm);
         as(scenario.getCreditExpert(), Workspace.CREDIT_EXPERT, this::finishViaConsultation);
+        // Проверок состояния ордера нет: отображение ордеров под ИКОК-ГО не настроено
+        // (AgroApplicationFinishFlow.completeIkokGoConfirm, стр. 95 — R1 blocked).
+        // Верификация терминала — задача V8.
     }
 
     // ══════════════════════════════════════
@@ -185,12 +192,29 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
                 .completeDocumentCollectionStage();
     }
 
+
     /** Стадия «Рассмотрение», сторона кредитного эксперта. Пишет номер заявки в контекст. */
     @Step("Стадия «Рассмотрение» (кредитный эксперт)")
     public void review() {
         new AgroReviewStageFlow()
                 .completeReview();
+        verifyReviewReached();
     }
+
+    /**
+     * STATE-верификация (V1): после «Рассмотрения» проект решения КК сформирован
+     * (пишется в AgroReviewStageFlow) и заявка имеет номер. Свежее чтение поля
+     * «Number» из живого DOM сверяется с номером в ScenarioContext и проверяется
+     * на непустоту. Флоу не трогаем — проверка живёт на маршрутном шве.
+     */
+    private void verifyReviewReached() {
+        String expected = ScenarioContextProvider.get().getApplicationNumber();
+        String actual   = FieldUtils.getValueByMarkerSafe("Number");
+        VerificationCollector.check("Номер заявки (контекст vs DOM)", expected, actual);
+        VerificationCollector.checkNonEmpty("Номер заявки не пустой", actual);
+        VerificationCollector.flush("Рассмотрение");
+    }
+
 
     /** Утверждение проекта решения верификатором. */
     @Step("Утверждение проекта решения")
@@ -242,7 +266,9 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
     public void confirmCashOrders() {
         new AgroCashierFlow()
                 .completeCashOperations();
+        VerificationCollector.flush("Касса");
     }
+
 
     /** Прикрепление расходного кассового ордера и закрытие активности. */
     @Step("Прикрепление расходного кассового ордера")

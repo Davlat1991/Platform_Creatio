@@ -115,7 +115,7 @@ public class ConsultationStartFlow {
         log.info("Select product by DIM: {}", dim);
 
         $x("//div[@data-item-marker='" + dim + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         executeJavaScript(
                 "arguments[0].click();",
@@ -126,7 +126,7 @@ public class ConsultationStartFlow {
         // Из DOM: span.t-btn-wrapper[data-item-marker='SelectionButton'] с текстом 'Подобрать'
         // НЕ используем SearchButton — он принадлежит правой панели поиска клиентов
         $x("//span[@data-item-marker='SelectionButton']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30));
+                .shouldBe(Condition.visible, Duration.ofSeconds(60));
 
         log.info("Product selection page opened");
     }

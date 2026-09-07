@@ -6,6 +6,8 @@ import com.creatio.autotest.flows.retail.collateral.CollateralStageFlow;
 import com.creatio.autotest.flows.retail.participants.ParticipantsStageFlow;
 import com.creatio.autotest.flows.retail.registration.RegistrationStageFlow;
 import com.creatio.autotest.flows.retail.registration.client.ClientFlowFactory;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.testdata.ParticipantDocuments;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.TestScenario;
@@ -72,6 +74,7 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
                 .completePreliminaryCheckStage();
     }
 
+
     /** Стадия «Участники»: состав и доходы/расходы берутся из сценария. */
     @Step("Стадия «Участники»")
     public void participantsStage() {
@@ -116,6 +119,21 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
     public void review() {
         log.info("Стадия «Рассмотрение»");
         new ReviewStageRetailFlow().completeReview(scenario.getRoute());
+        verifyReviewReached();
+    }
+
+    /**
+     * STATE-верификация (V1, первое демо): после «Рассмотрения» заявка имеет номер.
+     * Свежее чтение поля «Number» из живого DOM (safe-ридер) сверяется с номером,
+     * который стадия рассмотрения положила в ScenarioContext, и проверяется на непустоту.
+     * Флоу не трогаем — проверка живёт на маршрутном шве.
+     */
+    private void verifyReviewReached() {
+        String expected = ScenarioContextProvider.get().getApplicationNumber();
+        String actual   = FieldUtils.getValueByMarkerSafe("Number");
+        VerificationCollector.check("Номер заявки (контекст vs DOM)", expected, actual);
+        VerificationCollector.checkNonEmpty("Номер заявки не пустой", actual);
+        VerificationCollector.flush("Рассмотрение");
     }
 
 
@@ -177,6 +195,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
 
         new CashierFlow()
                 .completeCashOperations();
+
+        VerificationCollector.flush("Касса");
     }
 
     /** Завершение (ИКОК-ГО): прикрепление документа розничным менеджером. */
@@ -260,6 +280,9 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
         as(scenario.getManager(), Workspace.RETAIL_MANAGER, this::managerAttach);
         as(scenario.getIkokGo(),  Workspace.IKOK_GO,        this::ikokGoConfirm);
         as(scenario.getManager(), Workspace.RETAIL_MANAGER, this::finishViaConsultation);
+        // Стандартный финал не содержит проверок состояния ордера: ордера ИКОК-ГО
+        // в системе не настроены (checkConfirmed*Order закомментированы в
+        // ApplicationFinishFlow — R1 blocked). Верификация терминала — задача V8.
     }
 
     // ══════════════════════════════════════
@@ -275,7 +298,6 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
         ikokGoIssuance();
         cashierOperations();
         finishApplication();
-
 
 
     }
@@ -319,6 +341,9 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
     public void simplifiedFinish() {
         as(scenario.getIkok(), Workspace.IKOK,
                 () -> new ApplicationFinishFlow().completeSimplifiedFinish());
+        // Упрощённый финал (ИКОК) проверяет состояние приходного и расходного
+        // ордеров (Подтвержден) — эти проверки записываются в completeSimplifiedFinish.
+        VerificationCollector.flush("Завершение");
     }
 
     // ══════════════════════════════════════
