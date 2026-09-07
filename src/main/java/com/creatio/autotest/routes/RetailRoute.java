@@ -57,14 +57,40 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
      * информация». Тип клиента резолвится по employmentType профиля
      * (OTHER_INCOME / EMPLOYEE / SELF_EMPLOYED).
      */
-    @Step("Стадия «Оформление»")
     public void registration() {
         log.info("Стадия «Оформление»");
+        verifyProductRoundTrip();
         new RegistrationStageFlow().completeRegistrationStage(
                 scenario.getRegistration(),
                 ClientFlowFactory.from(scenario.getRegistration().getClientProfile())
         );
     }
+
+    /**
+     * ROUND-TRIP продукта (V2): выбранный на подборе продукт должен сохраниться
+     * на карточке заявки. Читаем 4 поля из живого DOM карточки и сверяем с
+     * ProductData сценария. Локаторы подтверждены по live DOM (page source):
+     * «Продукт» — маркер FinAppProductName; Сумма/Срок мес./Валюта — по лейблу.
+     * «Цель кредита» (BnzCreditSubPurpose) на карточке под другим лейблом и,
+     * вероятно, под-цель — в round-trip пока не включена (требует отдельной сверки).
+     */
+    private void verifyProductRoundTrip() {
+        var product = scenario.getProduct();
+        VerificationCollector.check("Продукт (вид)",
+                product.getProductKind(),
+                FieldUtils.getValueByMarkerSafe("FinAppProductName"));
+        VerificationCollector.checkNumeric("Сумма",
+                product.getAmount(),
+                FieldUtils.getValueByLabelSafe("Сумма"));
+        VerificationCollector.check("Срок, мес.",
+                product.getTerm(),
+                FieldUtils.getValueByLabelSafe("Срок, мес."));
+        VerificationCollector.check("Валюта",
+                product.getCurrency(),
+                FieldUtils.getValueByLabelSafe("Валюта"));
+        VerificationCollector.flush("Оформление — продукт");
+    }
+
 
     /** Стадия «Предварительная проверка». */
     @Step("Стадия «Предварительная проверка»")

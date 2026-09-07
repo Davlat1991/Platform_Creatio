@@ -73,6 +73,25 @@ public final class VerificationCollector {
                 name, act, passed ? "PASS" : "FAIL");
     }
 
+    /**
+     * Числовая сверка. Нормализует пробелы (вкл. NBSP/narrow-NBSP) и
+     * запятую-десятичную, сравнивает как числа с допуском 0.01 (денежные поля
+     * Creatio отображаются как «5 000,00»). В отчёт пишет СЫРЫЕ значения.
+     */
+    public static void checkNumeric(String name, Object expected, Object actual) {
+        String expRaw = normalize(expected);
+        String actRaw = normalize(actual);
+        boolean passed;
+        try {
+            passed = Math.abs(parseNumber(expRaw) - parseNumber(actRaw)) < 0.01;
+        } catch (NumberFormatException e) {
+            passed = false;
+        }
+        holder.get().add(new Check(name, expRaw, actRaw, passed));
+        log.info("Verify [{}] numeric expected='{}' actual='{}' -> {}",
+                name, expRaw, actRaw, passed ? "PASS" : "FAIL");
+    }
+
     // ══════════════════════════════════════
     // FLUSH (вердикт по стадии)
     // ══════════════════════════════════════
@@ -127,4 +146,15 @@ public final class VerificationCollector {
     private static String normalize(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }
+
+    /** Чистит числовую строку Creatio («5 000,00») до parseable double. */
+    private static double parseNumber(String s) {
+        String cleaned = s
+                .replace("\u00A0", "")   // NBSP
+                .replace("\u202F", "")   // narrow NBSP
+                .replaceAll("\\s", "")   // прочие пробелы
+                .replace(",", ".");
+        return Double.parseDouble(cleaned);
+    }
+
 }
