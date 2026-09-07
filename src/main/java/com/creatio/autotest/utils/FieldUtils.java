@@ -171,4 +171,49 @@ public final class FieldUtils {
         log.info("Grid '{}' row count -> {}", gridWrapId, count);
         return count;
     }
+
+    /**
+     * Безопасно читает видимый ТЕКСТ control-wrap по data-item-marker его label.
+     * Для lookup-полей, отображающихся ссылкой &lt;a&gt; (input.value пустой) —
+     * напр. «Клиент» (ClientInProfile). Возвращает "" если не найдено. Не бросает.
+     */
+    public static String getTextByLabelMarkerSafe(String labelMarker) {
+        try {
+            String text = $x(
+                    "//label[@data-item-marker='" + labelMarker + "']" +
+                            "/ancestor::div[contains(@class,'label-wrap')]" +
+                            "/following-sibling::div[contains(@class,'control-wrap')]"
+            ).shouldBe(visible, PROBE).getText().trim();
+            log.info("Safe read text by label-marker='{}' -> '{}'", labelMarker, text);
+            return text;
+        } catch (Exception | AssertionError e) {
+            log.warn("Safe read text by label-marker='{}' not found in {}s -> ''",
+                    labelMarker, PROBE.toSeconds());
+            return "";
+        }
+    }
+
+    /**
+     * Безопасно читает текст сохранённой grid-ячейки по column-name, со скоупом
+     * к контейнеру детали. Для inline-деталей (доход/расход и т.п.), где после
+     * сохранения строки inputs исчезают, а значения лежат в &lt;span&gt; ячеек.
+     * Возвращает "" если не найдено. Не бросает.
+     */
+    public static String getGridCellTextSafe(String container, String columnName) {
+        try {
+            String text = $x(
+                    "//div[@data-item-marker='" + container + "']" +
+                            "//div[@column-name='" + columnName + "']//span"
+            ).shouldBe(visible, PROBE).getText().trim();
+            log.info("Safe read grid cell container='{}' column='{}' -> '{}'",
+                    container, columnName, text);
+            return text;
+        } catch (Exception | AssertionError e) {
+            log.warn("Safe read grid cell container='{}' column='{}' not found in {}s -> ''",
+                    container, columnName, PROBE.toSeconds());
+            return "";
+        }
+    }
+
+
 }

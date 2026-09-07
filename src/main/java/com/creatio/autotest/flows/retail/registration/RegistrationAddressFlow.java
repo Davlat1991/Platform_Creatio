@@ -7,7 +7,9 @@ import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.pages.DetailPage;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.testdata.models.registration.WorkAddressData;
 import com.creatio.autotest.testdata.models.registration.fields.AddressField;
 import io.qameta.allure.Step;
@@ -29,6 +31,13 @@ public class RegistrationAddressFlow {
     private final DetailPage          detailPage = new DetailPage();
     private final MessageBoxComponent msgBox     = new MessageBoxComponent();
 
+    // Литералы подшага «адрес (регистрация/проживание)» — единый источник для
+    // заполнения и round-trip (V3, вариант A). Даты рег./факт. лежат на
+    // выгружаемых под-вкладках и в round-trip не входят — техдолг C
+    // (сделать адрес data-driven и читать даты с их вкладок).
+    private static final String AFFILIATION = "Мобильный";
+    private static final String CLIENT_TYPE = "Такрори";
+
     @Step("Заполнение адресов")
     public void fillAddresses() {
         log.info("Fill addresses");
@@ -44,7 +53,7 @@ public class RegistrationAddressFlow {
         basePage.waitForPage();
 
         // Средства связи
-        lookup.selectByMarker("BnzAffiliation", "Мобильный");
+        lookup.selectByMarker("BnzAffiliation", AFFILIATION);
 
         // Фактический
         buttons.doubleClickByName("Фактический");
@@ -57,9 +66,18 @@ public class RegistrationAddressFlow {
         basePage.waitForPage();
 
         // Тип клиента
-        lookup.select("Тип клиента", "Такрори");
+        lookup.select("Тип клиента", CLIENT_TYPE);
 
+        // ROUND-TRIP (V3, вариант A — эхо литералов в пределах подшага):
+        // сверяем поля, читаемые в конце подшага. Даты — техдолг C (выгружены).
+        VerificationCollector.check("Адрес — средство связи",
+                AFFILIATION,
+                FieldUtils.getValueByMarkerSafe("BnzAffiliation"));
+        VerificationCollector.check("Адрес — тип клиента",
+                CLIENT_TYPE,
+                FieldUtils.getValueByLabelSafe("Тип клиента"));
     }
+
 
     @Step("Установка значения 'Связь с ПЗЛ': {expectedValue}")
     public void setPzlRelation(boolean expectedValue) {

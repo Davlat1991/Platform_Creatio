@@ -1,6 +1,7 @@
 package com.creatio.autotest.flows.retail.registration;
 
 import com.creatio.autotest.components.LookupComponent;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.testdata.models.BaseScoringData;
 import com.creatio.autotest.testdata.models.registration.ClientProfileData;
 import com.creatio.autotest.testdata.models.registration.EducationCareerData;
@@ -8,6 +9,7 @@ import com.creatio.autotest.testdata.models.registration.fields.EducationCareerF
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.creatio.autotest.utils.FieldUtils;
 
 public class RegistrationAdditionalInfoFlow {
 
@@ -49,6 +51,14 @@ public class RegistrationAdditionalInfoFlow {
         lookup.selectByMarkerWithSoftValidation(
                 EducationCareerField.REASON_FOR_NOT_WORKING.marker,
                 profile.getEducationCareer().getReasonForNotWorking());
+
+        // ROUND-TRIP (V3): тип занятости + причина отсутствия работы. Data-driven.
+        VerificationCollector.check("Карьера — тип занятости",
+                profile.getEmploymentType().getUiName(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.EMPLOYMENT_TYPE.marker));
+        VerificationCollector.check("Карьера — причина отсутствия работы",
+                profile.getEducationCareer().getReasonForNotWorking(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.REASON_FOR_NOT_WORKING.marker));
     }
 
     @Step("Выбор типа занятости (Работает в организации)")
@@ -79,7 +89,35 @@ public class RegistrationAdditionalInfoFlow {
                 EducationCareerField.POSITION_FULL_NAME.marker, ec.getPositionFullName());
         lookup.selectByMarkerWithSoftValidation(
                 EducationCareerField.BUSINESS_REPUTATION.marker, ec.getBusinessReputation());
+
+        // ROUND-TRIP (V3): карьера EMPLOYEE. Все поля читаются value по маркеру (live-подтверждено).
+        VerificationCollector.check("Карьера — тип занятости",
+                profile.getEmploymentType().getUiName(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.EMPLOYMENT_TYPE.marker));
+        VerificationCollector.check("Карьера — должность",
+                ec.getPosition(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.POSITION.marker));
+        VerificationCollector.check("Карьера — организация",
+                ec.getOrganizationName(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.ORGANIZATION_NAME.marker));
+        VerificationCollector.check("Карьера — роль",
+                ec.getRole(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.ROLE.marker));
+        VerificationCollector.check("Карьера — соц.статус",
+                ec.getSocialStatus(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.SOCIAL_STATUS.marker));
+        VerificationCollector.check("Карьера — образование",
+                ec.getEducation(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.EDUCATION.marker));
+        VerificationCollector.check("Карьера — должность (полн.)",
+                ec.getPositionFullName(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.POSITION_FULL_NAME.marker));
+        VerificationCollector.check("Карьера — деловая репутация",
+                ec.getBusinessReputation(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.BUSINESS_REPUTATION.marker));
     }
+
+
 
     @Step("Выбор типа занятости (Самозанятый)")
     public void selectEmploymentTypeSelfEmployed(ClientProfileData profile) {
@@ -107,5 +145,29 @@ public class RegistrationAdditionalInfoFlow {
                 EducationCareerField.LEGAL_FORM.marker, ec.getLegalForm());
         lookup.selectByMarkerWithSoftValidation(
                 EducationCareerField.BUSINESS_REPUTATION.marker, ec.getBusinessReputation());
+
+        // ROUND-TRIP (V3): карьера SELF_EMPLOYED. Тот же маркер-паттерн (LEGAL_FORM вместо соц.статуса).
+        VerificationCollector.check("Карьера — тип занятости",
+                profile.getEmploymentType().getUiName(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.EMPLOYMENT_TYPE.marker));
+        VerificationCollector.check("Карьера — должность",
+                ec.getPosition(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.POSITION.marker));
+        VerificationCollector.check("Карьера — организация",
+                ec.getOrganizationName(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.ORGANIZATION_NAME.marker));
+        VerificationCollector.check("Карьера — роль",
+                ec.getRole(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.ROLE.marker));
+        VerificationCollector.check("Карьера — образование",
+                ec.getEducation(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.EDUCATION.marker));
+        VerificationCollector.check("Карьера — юр.форма",
+                ec.getLegalForm(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.LEGAL_FORM.marker));
+        VerificationCollector.check("Карьера — деловая репутация",
+                ec.getBusinessReputation(),
+                FieldUtils.getValueByMarkerSafe(EducationCareerField.BUSINESS_REPUTATION.marker));
     }
+
 }

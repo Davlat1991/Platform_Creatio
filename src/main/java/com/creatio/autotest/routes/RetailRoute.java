@@ -59,11 +59,27 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
      */
     public void registration() {
         log.info("Стадия «Оформление»");
+        verifyClientRoundTrip();
         verifyProductRoundTrip();
         new RegistrationStageFlow().completeRegistrationStage(
                 scenario.getRegistration(),
                 ClientFlowFactory.from(scenario.getRegistration().getClientProfile())
         );
+        VerificationCollector.flush("Оформление — анкета");
+    }
+
+    /**
+     * ROUND-TRIP клиента (V3): на карточку заявки должен сесть клиент, выбранный
+     * при поиске по CFT. Читаем ФИО из поля «Клиент» (lookup-ссылка, маркер
+     * ClientInProfile) и сверяем с ContactData сценария. Expected из ScenarioFactory.
+     */
+    private void verifyClientRoundTrip() {
+        var c = scenario.getContact();
+        String expected = (c.getLastName() + " " + c.getFirstName() + " " + c.getMiddleName()).trim();
+        VerificationCollector.check("Клиент (ФИО)",
+                expected,
+                FieldUtils.getTextByLabelMarkerSafe("ClientInProfile"));
+        VerificationCollector.flush("Оформление — клиент");
     }
 
     /**

@@ -6,6 +6,8 @@ import com.creatio.autotest.components.ButtonsComponent;
 import com.creatio.autotest.components.CheckboxComponent;
 import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.core.base.BasePage;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.ExpenseData;
@@ -53,7 +55,41 @@ public class RegistrationIncomeExpensesFlow {
         setRiskAndAdditionalInfo();
         addIncome(data.getIncome());
         addExpense(data.getExpense());
+
+        verifyIncomeExpenseRoundTrip(data);
     }
+
+    /**
+     * ROUND-TRIP (V3): сохранённые строки доход/расход должны нести введённые
+     * значения. После saveInlineRow inputs исчезают — читаем grid-ячейки по
+     * column-name (TsiKind/TsiFrequencyType/TsiAmountBC), скоуп к контейнеру
+     * детали. Локаторы подтверждены по live DOM. Expected из моделей сценария.
+     * Флаш — на маршрутном шве в RetailRoute.registration().
+     */
+    private void verifyIncomeExpenseRoundTrip(RegistrationIncomeExpensesData data) {
+        IncomeData income = data.getIncome();
+        VerificationCollector.check("Доход — вид",
+                income.getType(),
+                FieldUtils.getGridCellTextSafe(INCOME_CONTAINER, "TsiKind"));
+        VerificationCollector.check("Доход — частота",
+                income.getFrequency(),
+                FieldUtils.getGridCellTextSafe(INCOME_CONTAINER, "TsiFrequencyType"));
+        VerificationCollector.checkNumeric("Доход — сумма",
+                income.getAmount(),
+                FieldUtils.getGridCellTextSafe(INCOME_CONTAINER, "TsiAmountBC"));
+
+        ExpenseData expense = data.getExpense();
+        VerificationCollector.check("Расход — вид",
+                expense.getType(),
+                FieldUtils.getGridCellTextSafe(EXPENSE_CONTAINER, "TsiKind"));
+        VerificationCollector.check("Расход — частота",
+                expense.getFrequency(),
+                FieldUtils.getGridCellTextSafe(EXPENSE_CONTAINER, "TsiFrequencyType"));
+        VerificationCollector.checkNumeric("Расход — сумма",
+                expense.getAmount(),
+                FieldUtils.getGridCellTextSafe(EXPENSE_CONTAINER, "TsiAmountBC"));
+    }
+
 
     // ══════════════════════════════════════
     // PRIVATE — STEPS
