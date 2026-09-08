@@ -7,6 +7,8 @@ import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.AddressBaseData;
 import com.creatio.autotest.testdata.models.registration.WorkAddressData;
@@ -62,6 +64,25 @@ public class AgroRegistrationAddressFlow {
 
         // Тип клиента
         lookup.select("Тип клиента", data.getClientType());
+
+        verifyAddressRoundTrip(data);
+    }
+
+    /**
+     * ROUND-TRIP адреса (V3-Агро). Средство связи (BnzAffiliation) и тип клиента
+     * читаемы, пока вкладка открыта — контейнер/лейбл/ридеры подтверждены по
+     * рознице (RegistrationAddressFlow). Даты регистрации/факт. (BnzRegistrationDate)
+     * на выгружаемых под-вкладках — НЕ читаются (техдолг C). flush — на уровне
+     * маршрута.
+     */
+    @Step("Round-trip адреса (Агро/Микро)")
+    private void verifyAddressRoundTrip(AddressBaseData data) {
+        VerificationCollector.check("Адрес — средство связи",
+                data.getCommunicationMeans(),
+                FieldUtils.getValueByMarkerSafe("BnzAffiliation"));
+        VerificationCollector.check("Адрес — тип клиента",
+                data.getClientType(),
+                FieldUtils.getValueByLabelSafe("Тип клиента"));
     }
 
     @Step("Установка значения 'Связь с ПЗЛ': {expectedValue}")

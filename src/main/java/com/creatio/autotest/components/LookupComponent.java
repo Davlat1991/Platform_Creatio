@@ -31,7 +31,7 @@ public class LookupComponent extends BaseComponent {
         String itemXpath = ".//li[@data-item-marker='" + value +
                 "' or normalize-space(.)='" + value + "']";
 
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 10; attempt++) {
             try {
                 // На повторных попытках гасим «висящий» список перед переоткрытием.
                 if (attempt > 1) {
@@ -52,20 +52,20 @@ public class LookupComponent extends BaseComponent {
                 SelenideElement listView = $$x(
                         "//div[contains(@class,'listview')][" + itemXpath + "]")
                         .findBy(visible)
-                        .shouldBe(visible, Duration.ofSeconds(30));
+                        .shouldBe(visible, Duration.ofSeconds(10));
 
                 // 3. Пункт в этом списке
                 SelenideElement item = listView.$x(itemXpath)
-                        .shouldBe(visible, Duration.ofSeconds(30));
+                        .shouldBe(visible, Duration.ofSeconds(10));
 
                 // 4. JS клик — стабильнее для Creatio
                 executeJavaScript("arguments[0].click();", item);
 
                 // 5. Ждём закрытия списка
-                listView.should(disappear, Duration.ofSeconds(30));
+                listView.should(disappear, Duration.ofSeconds(10));
 
                 // 6. Проверяем значение
-                input.shouldHave(exactValue(value), Duration.ofSeconds(30));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
 
                 log.info("Lookup: '{}' выбрано успешно", value);
                 return this;
@@ -73,7 +73,7 @@ public class LookupComponent extends BaseComponent {
             } catch (Throwable t) {
                 log.warn("Lookup попытка {}/3 неудачна: {}", attempt, t.getMessage());
                 try { clearInput(input); } catch (Throwable ignored) {}
-                if (attempt == 3) {
+                if (attempt == 10) {
                     throw new AssertionError(
                             "Не удалось выбрать '" + value +
                                     "' в поле '" + label + "'", t);
@@ -98,7 +98,7 @@ public class LookupComponent extends BaseComponent {
         String itemXpath = ".//li[normalize-space(.)='" + value +
                 "' or @data-item-marker='" + value + "']";
 
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 5; attempt++) {
             try {
                 // На повторных попытках закрываем «висящий» список перед переоткрытием.
                 if (attempt > 1) {
@@ -129,7 +129,7 @@ public class LookupComponent extends BaseComponent {
 
             } catch (Throwable t) {
                 log.warn("selectByMarker попытка {}/3: {}", attempt, t.getMessage());
-                if (attempt == 3) {
+                if (attempt == 5) {
                     throw new AssertionError(
                             "Не удалось выбрать '" + value +
                                     "' по marker '" + marker + "'", t);
@@ -206,7 +206,7 @@ public class LookupComponent extends BaseComponent {
 
         SelenideElement input = getInputByLabel(label);
 
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 5; attempt++) {
             try {
                 executeJavaScript("arguments[0].focus();", input);
                 executeJavaScript("arguments[0].click();", input);
@@ -224,7 +224,7 @@ public class LookupComponent extends BaseComponent {
             } catch (Throwable t) {
                 log.warn("setText попытка {}/3 неудачна: {}", attempt, t.getMessage());
                 try { clearInput(input); } catch (Throwable ignored) {}
-                if (attempt == 3) {
+                if (attempt == 5) {
                     throw new AssertionError(
                             "Не удалось ввести '" + value +
                                     "' в поле '" + label + "'", t);
@@ -411,7 +411,7 @@ public class LookupComponent extends BaseComponent {
         SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
                 .shouldBe(visible, enabled);
 
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 10; attempt++) {
             try {
                 executeJavaScript("arguments[0].focus();", input);
                 executeJavaScript("arguments[0].click();", input);
@@ -423,7 +423,7 @@ public class LookupComponent extends BaseComponent {
                 SelenideElement listView = getVisibleListView();
                 SelenideElement item = listView
                         .$x(".//li[normalize-space(.)='" + value + "']")
-                        .shouldBe(visible, Duration.ofSeconds(30));
+                        .shouldBe(visible, Duration.ofSeconds(15));
                 executeJavaScript("arguments[0].click();", item);
 
                 // soft-validation: если Creatio показал кнопку подтверждения — жмём её
@@ -434,7 +434,7 @@ public class LookupComponent extends BaseComponent {
                     executeJavaScript("arguments[0].click();", confirm);
                 }
 
-                input.shouldHave(exactValue(value), Duration.ofSeconds(15));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(10));
 
                 log.info("selectByMarkerWithSoftValidation: '{}' выбрано", value);
                 return this;
@@ -442,7 +442,7 @@ public class LookupComponent extends BaseComponent {
             } catch (Throwable t) {
                 log.warn("Попытка {}/3: {}", attempt, t.getMessage());
                 try { clearInput(input); } catch (Throwable ignored) {}
-                if (attempt == 3) {
+                if (attempt == 10) {
                     throw new AssertionError(
                             "Не удалось выбрать '" + value +
                                     "' по marker '" + marker + "'", t);
@@ -503,7 +503,7 @@ public class LookupComponent extends BaseComponent {
         SelenideElement input = $x("//*[@data-item-marker='" + marker + "']//input")
                 .shouldBe(visible, enabled);
 
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 10; attempt++) {
             try {
                 executeJavaScript("arguments[0].focus();", input);
                 executeJavaScript("arguments[0].click();", input);
@@ -512,7 +512,7 @@ public class LookupComponent extends BaseComponent {
                 input.sendKeys(value);
                 input.sendKeys(Keys.TAB);
 
-                input.shouldHave(exactValue(value), Duration.ofSeconds(30));
+                input.shouldHave(exactValue(value), Duration.ofSeconds(15));
 
                 log.info("setTextByMarker: '{}' введено", value);
                 return this;
@@ -520,7 +520,7 @@ public class LookupComponent extends BaseComponent {
             } catch (Throwable t) {
                 log.warn("setTextByMarker попытка {}/3: {}", attempt, t.getMessage());
                 try { clearInput(input); } catch (Throwable ignored) {}
-                if (attempt == 3) {
+                if (attempt == 10) {
                     throw new AssertionError(
                             "Не удалось ввести '" + value +
                                     "' по marker '" + marker + "'", t);

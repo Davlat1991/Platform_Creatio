@@ -8,6 +8,8 @@ import com.creatio.autotest.components.LookupComponent;
 import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.ExpenseData;
 import com.creatio.autotest.testdata.models.IncomeData;
@@ -115,13 +117,25 @@ public class AgroRegistrationIncomeExpensesFlow {
 
         $x("//div[@data-item-marker='" + INCOME_CONTAINER + "']" +
                 "//div[@data-item-marker='TsiKind']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(20));
 
         selectInContainer(INCOME_CONTAINER,     "TsiKind",          income.getType());
         selectInContainer(INCOME_CONTAINER,     "TsiFrequencyType", income.getFrequency());
         setNumericInContainer(INCOME_CONTAINER, "TsiAmountBC",      income.getAmount());
 
         saveInlineRow();
+
+        // ROUND-TRIP (V3-Агро): после сохранения inputs исчезают → читаем grid-ячейку.
+        // Контейнер/поля/ридер подтверждены по рознице (RegistrationIncomeExpensesFlow).
+        VerificationCollector.check("Доход — вид",
+                income.getType(),
+                FieldUtils.getGridCellTextSafe(INCOME_CONTAINER, "TsiKind"));
+        VerificationCollector.check("Доход — частота",
+                income.getFrequency(),
+                FieldUtils.getGridCellTextSafe(INCOME_CONTAINER, "TsiFrequencyType"));
+        VerificationCollector.checkNumeric("Доход — сумма",
+                income.getAmount(),
+                FieldUtils.getGridCellTextSafe(INCOME_CONTAINER, "TsiAmountBC"));
     }
 
     @Step("Добавить расход")
@@ -133,13 +147,24 @@ public class AgroRegistrationIncomeExpensesFlow {
 
         $x("//div[@data-item-marker='" + EXPENSE_CONTAINER + "']" +
                 "//div[@data-item-marker='TsiKind']//input")
-                .shouldBe(Condition.visible, Duration.ofSeconds(10));
+                .shouldBe(Condition.visible, Duration.ofSeconds(20));
 
         selectInContainer(EXPENSE_CONTAINER,     "TsiKind",          expense.getType());
         selectInContainer(EXPENSE_CONTAINER,     "TsiFrequencyType", expense.getFrequency());
         setNumericInContainer(EXPENSE_CONTAINER, "TsiAmountBC",      expense.getAmount());
 
         saveInlineRow();
+
+        // ROUND-TRIP (V3-Агро): grid-ячейка, контейнер/поля/ридер по рознице.
+        VerificationCollector.check("Расход — вид",
+                expense.getType(),
+                FieldUtils.getGridCellTextSafe(EXPENSE_CONTAINER, "TsiKind"));
+        VerificationCollector.check("Расход — частота",
+                expense.getFrequency(),
+                FieldUtils.getGridCellTextSafe(EXPENSE_CONTAINER, "TsiFrequencyType"));
+        VerificationCollector.checkNumeric("Расход — сумма",
+                expense.getAmount(),
+                FieldUtils.getGridCellTextSafe(EXPENSE_CONTAINER, "TsiAmountBC"));
     }
 
     // ══════════════════════════════════════

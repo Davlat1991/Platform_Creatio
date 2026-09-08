@@ -158,6 +158,7 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
     public void registration() {
         new AgroRegistrationStageFlow()
                 .completeRegistrationStage(scenario.getRegistration());
+        VerificationCollector.flush("Оформление (Агро)");
     }
 
     /** Стадия «Предварительная проверка». */
