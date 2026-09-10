@@ -2,6 +2,9 @@ package com.creatio.autotest.flows.retail.collateral;
 
 import com.creatio.autotest.components.DashboardComponent;
 import com.creatio.autotest.components.MenuComponent;
+import com.creatio.autotest.components.collateral.CollateralTabsComponent;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.testdata.models.CollateralData;
@@ -19,9 +22,14 @@ public class CollateralStageFlow {
     private static final Logger log =
             LoggerFactory.getLogger(CollateralStageFlow.class);
 
-    private final DashboardComponent dashboard = new DashboardComponent();
-    private final MenuComponent      menu      = new MenuComponent();
-    private final ClickService       click     = new ClickService();
+    /** Грид «Залоги» на вкладке «Обеспечение» (общесистемный, обе линейки). */
+    private static final String PLEDGE_GRID_WRAP =
+            "grid-FinAppPledgeDetailDataGridGrid-wrap";
+
+    private final DashboardComponent      dashboard = new DashboardComponent();
+    private final MenuComponent           menu      = new MenuComponent();
+    private final ClickService            click     = new ClickService();
+    private final CollateralTabsComponent tabs      = new CollateralTabsComponent();
 
     // ══════════════════════════════════════
     // MAIN — заполнение + завершение стадии
@@ -31,6 +39,11 @@ public class CollateralStageFlow {
     public void completeCollateralStage(List<CollateralData> collaterals) {
         log.info("Complete collateral stage: count={}", collaterals.size());
         fillCollaterals(collaterals);
+
+        // Верификация обеспечения (V5): грид «Залоги» на вкладке «Обеспечение».
+        // До завершения активности — грид ещё в DOM (нюанс ленивых вкладок).
+        verifyCollaterals(collaterals);
+
         // Двойной клик по подтипу нужен только при наличии залога
         // (открывает строку добавленного обеспечения перед закрытием активности).
         completeCollateralTask(!collaterals.isEmpty());
@@ -54,6 +67,46 @@ public class CollateralStageFlow {
             BaseCollateralFlow flow = resolveFlow(data.getType());
             flow.fill(data);
         }
+    }
+
+    // ══════════════════════════════════════
+    // VERIFY (V5) — round-trip залогов в гриде «Залоги»
+    // ══════════════════════════════════════
+
+    /**
+     * Верификация обеспечения (V5) по гриду «Залоги» вкладки «Обеспечение»:
+     * (A) число строк == числу залогов сценария;
+     * (B) каждый залог присутствует по колонке «Обеспечение» (= uiName).
+     * Пустой сценарий пропускается (упрощённый маршрут не трогаем).
+     */
+    @Step("Верификация обеспечения: количество + типы залогов")
+    private void verifyCollaterals(List<CollateralData> collaterals) {
+        if (collaterals == null || collaterals.isEmpty()) {
+            log.info("Нет залогов в сценарии — верификация обеспечения пропущена");
+            return;
+        }
+        log.info("Verify collaterals: expected count={}", collaterals.size());
+
+        // Приводим грид «Залоги» в DOM детерминированно.
+        tabs.openCollateralTab();
+
+        // (B) присутствие по типу — ждёт появления строки (робастно к дозагрузке).
+        for (CollateralData data : collaterals) {
+            String uiName = data.getType().getUiName();
+            boolean present =
+                    FieldUtils.gridHasRowContainingSafe(PLEDGE_GRID_WRAP, uiName);
+            VerificationCollector.checkTrue(
+                    "Обеспечение: залог «" + uiName + "» присутствует в гриде",
+                    present, "тип " + data.getType());
+        }
+
+        // (A) число строк — после подтверждения видимости ожидаемых строк.
+        int actualRows = FieldUtils.getGridRowCount(PLEDGE_GRID_WRAP);
+        VerificationCollector.check(
+                "Обеспечение: число залогов в гриде",
+                collaterals.size(), actualRows);
+
+        VerificationCollector.flush("Обеспечение");
     }
 
     // ══════════════════════════════════════
