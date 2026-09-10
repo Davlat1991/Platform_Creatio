@@ -215,5 +215,52 @@ public final class FieldUtils {
         }
     }
 
+    /**
+     * Безопасно проверяет наличие строки данных в гриде, текст которой содержит
+     * ВСЕ переданные фрагменты одновременно (например ФИО и роль участника).
+     * Строки грида несут класс 'grid-listed-row'; структурированных ячеек
+     * (column-name) в гриде участников нет — сверяем по тексту строки.
+     * Возвращает false если не найдено. Не бросает.
+     *
+     * @param gridWrapId id контейнера грида, напр. 'grid-...-wrap'
+     * @param fragments  фрагменты текста, все должны присутствовать в одной строке
+     */
+    public static boolean gridHasRowContainingSafe(String gridWrapId, String... fragments) {
+        StringBuilder xpath = new StringBuilder(
+                "//div[@id='" + gridWrapId + "']" +
+                        "//div[contains(@class,'grid-listed-row')]");
+        for (String f : fragments) {
+            xpath.append("[contains(., '").append(f).append("')]");
+        }
+        try {
+            boolean found = $x(xpath.toString()).shouldBe(visible, PROBE).exists();
+            log.info("Grid '{}' has row containing {} -> {}",
+                    gridWrapId, java.util.Arrays.toString(fragments), found);
+            return found;
+        } catch (Exception | AssertionError e) {
+            log.warn("Grid '{}' row containing {} not found in {}s -> false",
+                    gridWrapId, java.util.Arrays.toString(fragments), PROBE.toSeconds());
+            return false;
+        }
+    }
+
+    /**
+     * Число записей документов в контейнере вкладки роли (V4). Деталь документов
+     * рендерится НЕ как grid-listed-row, а как карточки; у каждой записи —
+     * счётчик «Файлы (N)» (live-подтверждено). Считаем эти счётчики в скоупе
+     * контейнера роли (DocBorrowerTab / DocGuarantorTab / DocPledgerTab).
+     * Не ждёт и не бросает — возвращает фактическое число (0, если нет).
+     *
+     * @param containerId id контейнера вкладки роли (ParticipantRole.containerId)
+     */
+    public static int getDocumentEntryCount(String containerId) {
+        int count = $$x(
+                "//div[@id='" + containerId + "']" +
+                        "//span[starts-with(normalize-space(.),'Файлы (')]"
+        ).size();
+        log.info("Document entries in container '{}' -> {}", containerId, count);
+        return count;
+    }
+
 
 }

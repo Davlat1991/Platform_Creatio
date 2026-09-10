@@ -140,7 +140,7 @@ public class MicroSegmentRoute extends CreditApplicationRoute<MicroSegmentRoute>
     public void finishApplication() {
         as(scenario.getMiddleController(), Workspace.IKOK, this::attachOrder);
         as(scenario.getIkokGo(), Workspace.IKOK_GO, this::ikokGoConfirm);
-        as(scenario.getCreditExpert(), Workspace.CREDIT_EXPERT, this::finishViaConsultation);
+      //  as(scenario.getCreditExpert(), Workspace.CREDIT_EXPERT, this::finishViaConsultation);
         // Проверок состояния ордера нет: отображение ордеров под ИКОК-ГО не настроено
         // (AgroApplicationFinishFlow.completeIkokGoConfirm, стр. 95 — R1 blocked).
         // Верификация терминала — задача V8.

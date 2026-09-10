@@ -4,10 +4,12 @@ import com.creatio.autotest.components.ActivityComponent;
 import com.creatio.autotest.core.api.files.DocumentUploadMap;
 import com.creatio.autotest.core.api.files.FileUploadApiHelper;
 import com.creatio.autotest.core.base.BasePage;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.models.documents.DocumentData;
 import com.creatio.autotest.testdata.models.ParticipantRole;
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +85,15 @@ public class DocumentCollectionStageFlow {
         upload("Income.pdf",   map.get("Income"));
         upload("INN.pdf",      map.get("INN"));
         upload("Passport.pdf", map.get("Passport"));
+
+        // ROUND-TRIP (V4): заёмщик грузит 3 фиксированных документа (Income/INN/
+        // Passport) — путь заёмщика хардкодный, expected=3. Детали раскрыты
+        // (prepareBorrowerDetails), контейнер DocBorrowerTab.
+        VerificationCollector.check(
+                "Документы — число записей [Заемщик]",
+                "3",
+                String.valueOf(FieldUtils.getDocumentEntryCount(
+                        ParticipantRole.BORROWER.containerId)));
     }
 
     // ══════════════════════════════════════
@@ -111,6 +122,14 @@ public class DocumentCollectionStageFlow {
                     owner, doc.getType(), doc.getFileName(), uuid);
             upload(doc.getFileName(), uuid);
         }
+
+        // ROUND-TRIP (V4): число записей документов в контейнере роли ==
+        // ожидаемому. Детали раскрыты (prepareDetails выше), контейнер —
+        // owner.containerId (live-подтверждено: записи считаются по «Файлы (N)»).
+        VerificationCollector.check(
+                "Документы — число записей [" + owner.getUiValue() + "]",
+                String.valueOf(ownerData.getDocuments().size()),
+                String.valueOf(FieldUtils.getDocumentEntryCount(owner.containerId)));
     }
 
     @Step("Загрузка документов всех участников")
@@ -147,6 +166,7 @@ public class DocumentCollectionStageFlow {
 
     @Step("Закрытие активности 'Вложить документы и отправить на рассмотрение'")
     public void completeDocumentsActivity() {
+        VerificationCollector.flush("Сбор документов");
         activity.completeActivity("Вложить документы и отправить на рассмотрение", "Выполнена");
     }
 

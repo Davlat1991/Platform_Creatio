@@ -3,12 +3,14 @@ package com.creatio.autotest.flows.micro;
 import com.creatio.autotest.core.api.files.DocumentUploadMap;
 import com.creatio.autotest.core.api.files.FileUploadApiHelper;
 import com.creatio.autotest.core.base.BasePage;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.pages.DetailPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.documents.DocumentData;
 import com.creatio.autotest.testdata.models.documents.DocumentOwnerData;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +83,17 @@ public class AgroMiddleControllerDocumentsFlow {
                     ownerData.getOwner(), doc.getType(), doc.getFileName(), uuid);
             FileUploadApiHelper.uploadFile(doc.getFileName(), uuid);
         }
+
+        // ROUND-TRIP (V4, Агро): число записей документов в контейнере заёмщика ==
+        // ожидаемому (1 док — Passport в «Досье клиента»). Деталь раскрыта выше
+        // (openDetailStable), контейнер owner.containerId (DocBorrowerTab).
+        // Ридер универсален с розницей — считает счётчики «Файлы (N)».
+        VerificationCollector.check(
+                "Документы — число записей [" + ownerData.getOwner().getUiValue() + "]",
+                String.valueOf(ownerData.getDocuments().size()),
+                String.valueOf(FieldUtils.getDocumentEntryCount(
+                        ownerData.getOwner().containerId)));
+        VerificationCollector.flush("Документы (Агро, мидл-контролер)");
 
         log.info("Agro: middle controller documents attached");
     }

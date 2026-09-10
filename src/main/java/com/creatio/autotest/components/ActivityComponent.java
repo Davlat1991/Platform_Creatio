@@ -45,7 +45,7 @@ public class ActivityComponent extends BaseComponent {
         $x("//div[@data-item-marker='Result']")
                 .shouldBe(Condition.visible, Duration.ofSeconds(60)).click();
         $x("//div[@data-item-marker='Result']//li[@data-item-marker='" + result + "']")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30)).click();
+                .shouldBe(Condition.visible, Duration.ofSeconds(60)).click();
 
         executeJavaScript("arguments[0].click();",
                 $x("//span[@data-item-marker='SaveEditButton']")

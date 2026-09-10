@@ -1,8 +1,10 @@
 package com.creatio.autotest.flows.micro.participants;
 
 import com.creatio.autotest.components.ButtonsComponent;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.testdata.AgroScenarioFactory;
 import com.creatio.autotest.testdata.models.ParticipantData;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +50,38 @@ public class AgroParticipantsStageFlow {
             addAndFill(participant);
         }
 
+        verifyParticipantsRoundTrip(participants);
+
         log.info("Agro: participants stage completed");
+    }
+
+    /**
+     * ROUND-TRIP участников (V4, Агро). Грид участников — общесистемная деталь
+     * Creatio (grid-BnzVwFinApplicationAllParticipantDetailDataGridGrid-wrap),
+     * от линейки не зависит; подтверждается живым прогоном Агро-регресса. Число
+     * строк = добавленные участники + 1 заёмщик (сидит в гриде с оформления).
+     * Роль/ФИО — по тексту строки (структурированных column-name в гриде нет).
+     */
+    @Step("Агро: round-trip участников заявки")
+    private void verifyParticipantsRoundTrip(List<ParticipantData> participants) {
+        final String gridWrap =
+                "grid-BnzVwFinApplicationAllParticipantDetailDataGridGrid-wrap";
+
+        int expectedRows = participants.size() + 1; // +1 заёмщик
+        VerificationCollector.check("Участники — число строк (+заёмщик)",
+                String.valueOf(expectedRows),
+                String.valueOf(FieldUtils.getGridRowCount(gridWrap)));
+
+        for (ParticipantData p : participants) {
+            String fio = (p.getLastName() + " " + p.getFirstName() + " " + p.getMiddleName()).trim();
+            String role = p.getRole().getUiValue();
+            VerificationCollector.checkTrue(
+                    "Участник в гриде: " + role + " — " + fio,
+                    FieldUtils.gridHasRowContainingSafe(gridWrap, fio, role),
+                    "строка с ФИО и ролью в гриде участников");
+        }
+
+        VerificationCollector.flush("Участники (Агро)");
     }
 
     /** Добавление одного участника и заполнение его анкеты по роли. */
