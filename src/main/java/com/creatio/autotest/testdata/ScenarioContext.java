@@ -64,6 +64,35 @@ public class ScenarioContext {
                 "SigningStageFlow (создание сберегательного счёта)");
     }
 
+
+
+    // ══════════════════════════════════════
+    // approvedTermMonths / approvedAmount (V6: expected для графика)
+    // ══════════════════════════════════════
+
+    private String approvedTermMonths;    // утверждённый срок, мес.
+    private String approvedAmount;        // утверждённая сумма кредита
+
+    public void setApprovedTermMonths(String value) {
+        log.info("Context: approvedTermMonths = '{}'", value);
+        this.approvedTermMonths = value;
+    }
+
+    public String getApprovedTermMonths() {
+        return require(approvedTermMonths, "approvedTermMonths",
+                "стадия «Рассмотрение» (чтение утверждённых параметров)");
+    }
+
+    public void setApprovedAmount(String value) {
+        log.info("Context: approvedAmount = '{}'", value);
+        this.approvedAmount = value;
+    }
+
+    public String getApprovedAmount() {
+        return require(approvedAmount, "approvedAmount",
+                "стадия «Рассмотрение» (чтение утверждённых параметров)");
+    }
+
     // ══════════════════════════════════════
     // INTERNAL
     // ══════════════════════════════════════

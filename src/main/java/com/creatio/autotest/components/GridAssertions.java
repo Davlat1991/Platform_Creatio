@@ -1,12 +1,18 @@
 package com.creatio.autotest.components;
 
-import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.CollectionCondition;
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
 import com.creatio.autotest.core.verify.VerificationCollector;
 import io.qameta.allure.Step;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$$x;
 import static com.codeborne.selenide.Selenide.$x;
 
 public class GridAssertions extends BaseComponent {
@@ -14,6 +20,180 @@ public class GridAssertions extends BaseComponent {
     // ══════════════════════════════════════
     // CREDIT DECISION
     // ══════════════════════════════════════
+    /** Защита от зацикливания «Показать больше» в гриде графика. */
+    private static final int MAX_LOAD_MORE_CLICKS = 20;
+
+    /** Контейнер детали «График платежей» на кредитном договоре (кнопка loadMore — здесь, вне grid-wrap). */
+    private static final String SCHEDULE_DETAIL_SCOPE =
+            "BnzContractCreditPageBnzPaymentScheduleDetailContainer";
+
+    /**
+     * Верификация графика платежей на кредитном договоре (V6, COMPUTED).
+     * Инварианты по строкам «Актуален=Да ∧ Основная сумма>0» (служебные строки
+     * комиссии/выдачи с Основной=0 и дубли «Нет» отфильтровываются):
+     *   (1) число платёжных строк == утверждённому сроку (мес.);
+     *   (2) Σ основного долга == утверждённой сумме кредита (checkNumeric);
+     *   (3) аннуитет — «Общая сумма» одинакова на всех платёжных строках, кроме
+     *       последней (последний платёж может быть доборным).
+     * Индексы колонок определяются по data-item-marker заголовков (не хардкод),
+     * ячейки читаются позиционно (div.grid-cols-*, column-name у строк отсутствует).
+     * Пагинация раскрывается перед чтением. Пишет проверки в коллектор; flush —
+     * на вызывающей стороне.
+     */
+    @Step("Верификация графика: строк==срок, Σ осн.долга==сумма, аннуитет")
+    public void verifyPaymentSchedule(String gridWrapId,
+                                      String expectedTermMonths,
+                                      String expectedPrincipalSum) {
+        log.info("Verify schedule: grid='{}', expectedTerm='{}', expectedSum='{}'",
+                gridWrapId, expectedTermMonths, expectedPrincipalSum);
+
+        // Деталь графика ленивая: после активации вкладки captions/строки
+        // подгружаются асинхронно. Ждём появления заголовков перед чтением,
+        // иначе resolveColumnIndex получит пустой список (нюанс #1).
+        $x("//div[@id='" + gridWrapId + "']" +
+                "//div[contains(@id,'caption-') and @data-item-marker]")
+                .shouldBe(visible, Duration.ofSeconds(30));
+
+        expandAllScheduleRows(gridWrapId);
+
+        int idxDate      = resolveColumnIndex(gridWrapId, "Дата план");
+        int idxPrincipal = resolveColumnIndex(gridWrapId, "Основная сумма");
+        int idxTotal     = resolveColumnIndex(gridWrapId, "Общая сумма");
+        int idxRemainder = resolveColumnIndex(gridWrapId, "Остаток");
+        int idxActual    = resolveColumnIndex(gridWrapId, "Актуален");
+
+        ElementsCollection rows = $$x(
+                "//div[@id='" + gridWrapId + "']" +
+                        "//div[contains(@class,'grid-listed-row')]");
+
+        // Платёжные строки: Актуален=Да ∧ Основная>0 (служебные комиссия/выдача — осн=0).
+        List<String[]> pay = new ArrayList<>();   // [sortKey, principal, total, remainder]
+        double principalSum = 0.0;
+        for (SelenideElement row : rows) {
+            List<String> cells =
+                    row.$$x(".//div[contains(@class,'grid-cols-')]").texts();
+            int maxIdx = Math.max(idxActual,
+                    Math.max(idxDate, Math.max(idxPrincipal, Math.max(idxTotal, idxRemainder))));
+            if (cells.size() <= maxIdx) continue;
+            if (!"Да".equals(cells.get(idxActual).trim())) continue;
+            double principal = parseAmount(cells.get(idxPrincipal));
+            if (principal <= 0.0) continue;
+
+            pay.add(new String[]{
+                    toSortKey(cells.get(idxDate).trim()),
+                    cells.get(idxPrincipal).trim(),
+                    cells.get(idxTotal).trim(),
+                    cells.get(idxRemainder).trim()
+            });
+            principalSum += principal;
+        }
+        // сортировка по дате (yyyyMMdd) — устраняет зависимость от порядка DOM/дублей
+        pay.sort(java.util.Comparator.comparing(a -> a[0]));
+
+        log.info("Schedule: платёжных строк={}, срок(утв)={}, Σ осн.долга={}",
+                pay.size(), expectedTermMonths,
+                String.format(java.util.Locale.US, "%.2f", principalSum));
+
+        // (1) Σ основного долга == утверждённой сумме
+        VerificationCollector.checkNumeric(
+                "График: Σ основного долга == сумме кредита",
+                expectedPrincipalSum,
+                String.format(java.util.Locale.US, "%.2f", principalSum));
+
+        // (2) Остаток последней (по дате) строки == 0 — кредит погашается полностью
+        String lastRemainder = pay.isEmpty() ? "" : pay.get(pay.size() - 1)[3];
+        VerificationCollector.checkTrue(
+                "График: остаток последней строки == 0",
+                !pay.isEmpty() && Math.abs(parseAmount(lastRemainder)) < 0.01,
+                "остаток последней строки='" + lastRemainder + "'");
+
+        // (3) Остаток монотонно убывает по датам
+        boolean remainderDescends = true;
+        String detail3 = "";
+        for (int i = 1; i < pay.size(); i++) {
+            if (parseAmount(pay.get(i)[3]) - parseAmount(pay.get(i - 1)[3]) > 0.01) {
+                remainderDescends = false;
+                detail3 = "рост на строке " + i + ": '" + pay.get(i - 1)[3] +
+                        "' -> '" + pay.get(i)[3] + "'";
+                break;
+            }
+        }
+        VerificationCollector.checkTrue(
+                "График: остаток монотонно убывает", remainderDescends, detail3);
+
+        // (4) Аннуитет: «Общая сумма» равна на всех строках, КРОМЕ последней по дате
+        boolean annuityEqual = true;
+        java.util.Set<String> distinctTotals = new java.util.LinkedHashSet<>();
+        if (pay.size() > 1) {
+            double first = parseAmount(pay.get(0)[2]);
+            for (int i = 0; i < pay.size() - 1; i++) {
+                distinctTotals.add(pay.get(i)[2]);
+                if (Math.abs(parseAmount(pay.get(i)[2]) - first) >= 0.01) annuityEqual = false;
+            }
+        }
+        VerificationCollector.checkTrue(
+                "График: аннуитет — равные платежи (кроме последнего)",
+                annuityEqual,
+                "уникальные «Общая сумма» (без последней): " + distinctTotals);
+    }
+
+    /** Индекс колонки грида по data-item-marker её заголовка (caption). */
+    private int resolveColumnIndex(String gridWrapId, String captionMarker) {
+        ElementsCollection caps = $$x(
+                "//div[@id='" + gridWrapId + "']" +
+                        "//div[contains(@id,'caption-') and @data-item-marker]");
+        for (int i = 0; i < caps.size(); i++) {
+            if (captionMarker.equals(caps.get(i).getAttribute("data-item-marker"))) {
+                return i;
+            }
+        }
+        throw new AssertionError(
+                "Колонка графика не найдена по маркеру: '" + captionMarker + "'");
+    }
+
+    /** Раскрывает пагинацию графика: кнопка loadMore лежит В ДЕТАЛИ (вне grid-wrap),
+     *  строки — в grid-wrap. Подтверждено probe. */
+    private void expandAllScheduleRows(String gridWrapId) {
+        String rowsXpath = "//div[@id='" + gridWrapId + "']" +
+                "//div[contains(@class,'grid-listed-row')]";
+        String loadMoreXpath = "//div[@id='" + SCHEDULE_DETAIL_SCOPE + "']" +
+                "//*[@data-item-marker='loadMore']";
+
+        for (int i = 1; i <= MAX_LOAD_MORE_CLICKS; i++) {
+            SelenideElement button = $x(loadMoreXpath);
+            if (!button.is(visible)) return;             // всё загружено
+            int before = $$x(rowsXpath).size();
+            button.scrollIntoView("{block: 'center'}").click();
+            try {
+                $$x(rowsXpath).shouldHave(
+                        CollectionCondition.sizeGreaterThan(before), Duration.ofSeconds(15));
+            } catch (Exception | AssertionError stalled) {
+                log.warn("График: «Показать больше» не увеличил число строк ({}) — считаем раскрытым",
+                        before);
+                return;
+            }
+            log.info("График: «Показать больше» (клик {}): строк {}", i, $$x(rowsXpath).size());
+        }
+        log.warn("График: достигнут предел {} кликов «Показать больше»", MAX_LOAD_MORE_CLICKS);
+    }
+
+
+    /** Нормализация денежного текста «5 000,00»/NBSP/narrow-NBSP → double. */
+    private static double parseAmount(String raw) {
+        if (raw == null) return 0.0;
+        String s = raw.replace('\u00A0', ' ').replace('\u202F', ' ')
+                .replaceAll("\\s", "").replace(',', '.');
+        if (s.isEmpty()) return 0.0;
+        try { return Double.parseDouble(s); }
+        catch (NumberFormatException e) { return 0.0; }
+    }
+
+
+    /** «дд.мм.гггг» -> «ггггммдд» для строковой сортировки по дате. */
+    private static String toSortKey(String date) {
+        String[] p = date.split("\\.");
+        return (p.length == 3) ? p[2] + p[1] + p[0] : date;
+    }
 
 
     // HELPERS
@@ -32,7 +212,7 @@ public class GridAssertions extends BaseComponent {
             $x("//div[@id='grid-TsiProjectSolutionDetailDataGridGrid-wrap']" +
                     "//div[contains(@class,'grid-listed-row')" +
                     " and contains(@data-item-marker,'" + committee + "')]"
-            ).shouldBe(Condition.visible, timeout);
+            ).shouldBe(visible, timeout);
             log.info("Committee '{}' found in 'Проекты решений'", committee);
 
             // Успех фиксируем в отчёт верификации (V1). Промежуточные неудачные

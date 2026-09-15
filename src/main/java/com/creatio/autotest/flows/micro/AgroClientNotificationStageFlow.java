@@ -10,6 +10,9 @@ import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.AgroClientNotificationData;
+import com.creatio.autotest.components.ButtonsComponent;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +63,11 @@ public class AgroClientNotificationStageFlow {
     private static final String MIDDLE_CONTROLLER_INPUT =
             "//input[@id='FinApplicationPageEshIdentifiedClientLookupEdit-el']";
 
+    /** Скоуп утверждённых параметров заявки (тот же, что в AgroReviewStageFlow.verifyRoute). */
+    private static final String APPROVED_SCOPE  = "TsiApprovedFinApplicationSpecDetailContainer";
+    /** Скоуп запрошенных параметров заявки. */
+    private static final String REQUESTED_SCOPE = "FinAppSpecificationFieldsDetailContainer";
+
     private final DashboardComponent    dashboard    = new DashboardComponent();
     private final LookupComponent       lookup       = new LookupComponent();
     private final MenuComponent         menu         = new MenuComponent();
@@ -67,6 +75,7 @@ public class AgroClientNotificationStageFlow {
     private final ClickService          click        = new ClickService();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
+    private final ButtonsComponent      buttons      = new ButtonsComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -88,6 +97,10 @@ public class AgroClientNotificationStageFlow {
 
         // Кредитный эксперт зашёл заново после верификатора — открываем заявку по номеру
         searchFlow.withApplicationNumber(applicationNumber).openByNumber();
+
+        // V6: утверждённые параметры окончательны в начале «Информирования» —
+        // читаем и кладём в контекст для проверки графика на «Подписании».
+        captureAndVerifyApprovedParams();
 
         setClientAgreement(data.getClientAgreement());
         fillIdentificationPage(data.getMiddleControllerName());
@@ -211,5 +224,28 @@ public class AgroClientNotificationStageFlow {
                 .first()
                 .shouldBe(Condition.visible, Duration.ofSeconds(30))
                 .click();
+    }
+
+    @Step("Агро V6: чтение утверждённых параметров + сверка запрошено/одобрено")
+    private void captureAndVerifyApprovedParams() {
+        buttons.clickTabByName("Выбранный продукт");
+
+        String approvedTerm    = FieldUtils.getDetailInputValueScopedSafe(APPROVED_SCOPE,  "Срок, мес.");
+        String approvedAmount  = FieldUtils.getDetailInputValueScopedSafe(APPROVED_SCOPE,  "Сумма");
+        String requestedTerm   = FieldUtils.getDetailInputValueScopedSafe(REQUESTED_SCOPE, "Срок, мес.");
+        String requestedAmount = FieldUtils.getDetailInputValueScopedSafe(REQUESTED_SCOPE, "Сумма");
+
+        ScenarioContextProvider.get().setApprovedTermMonths(approvedTerm);
+        ScenarioContextProvider.get().setApprovedAmount(approvedAmount);
+
+        boolean termSame   = !requestedTerm.isBlank()   && requestedTerm.equals(approvedTerm);
+        boolean amountSame = !requestedAmount.isBlank() && requestedAmount.equals(approvedAmount);
+        log.info("Agro параметры: запрошено срок='{}'/сумма='{}' | одобрено срок='{}'/сумма='{}' | " +
+                        "срок совпал={}, сумма совпала={}",
+                requestedTerm, requestedAmount, approvedTerm, approvedAmount, termSame, amountSame);
+
+        VerificationCollector.checkNonEmpty("Параметры (Агро): утверждённый срок непуст", approvedTerm);
+        VerificationCollector.checkNonEmpty("Параметры (Агро): утверждённая сумма непуста", approvedAmount);
+        VerificationCollector.flush("Параметры заявки (Агро)");
     }
 }

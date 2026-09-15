@@ -75,6 +75,30 @@ public final class FieldUtils {
         return value.trim();
     }
 
+
+    /**
+     * Safe-версия чтения value по data-item-marker в скоупе контейнера.
+     * В отличие от getDetailInputValueScoped НЕ бросает — возвращает "" за
+     * probe-таймаут (вердикт выносит VerificationCollector). Нужна для стэша
+     * утверждённых параметров на «Информировании»: промах не должен ронять
+     * рабочий флоу, только провалить проверку.
+     */
+    public static String getDetailInputValueScopedSafe(String scopeId, String marker) {
+        try {
+            String value = $x(
+                    "//*[@id='" + scopeId + "']" +
+                            "//*[@data-item-marker='" + marker + "']//input"
+            ).shouldBe(visible, PROBE).getValue();
+            String result = value == null ? "" : value.trim();
+            log.info("Safe read scope='{}' marker='{}' -> '{}'", scopeId, marker, result);
+            return result;
+        } catch (Exception | AssertionError e) {
+            log.warn("Safe read scope='{}' marker='{}' not found in {}s -> ''",
+                    scopeId, marker, PROBE.toSeconds());
+            return "";
+        }
+    }
+
     // ══════════════════════════════════════
     // SAFE READ-BACK (для soft-assert: возвращают "" вместо throw)
     // ══════════════════════════════════════

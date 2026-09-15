@@ -5,6 +5,7 @@ import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.flows.common.CollateralContractsFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
@@ -25,17 +26,17 @@ public class SigningStageFlow {
     private static final Logger log =
             LoggerFactory.getLogger(SigningStageFlow.class);
 
-    private static final String CONTRACT_PAGE_MARKER =
-            "BnzContractCreditPageContainer";
+    private static final String CONTRACT_PAGE_MARKER = "BnzContractCreditPageContainer";
 
-    private static final String CONTRACT_OPEN_ACTIVITY =
-            "Создание договора в АБС (печать договоров для встречи)";
+    private static final String CONTRACT_OPEN_ACTIVITY = "Создание договора в АБС (печать договоров для встречи)";
 
     /** Вид планирования — значение продуктовой линейки розницы. */
-    private static final String PLANNING_TYPE       = "Аннуитетный_005";
+    private static final String PLANNING_TYPE = "Аннуитетный_005";
 
     /** Тип получения кредита (combobox marker=LoadCreditType). */
     private static final String CREDIT_RECEIPT_TYPE = "Получает сегодня";
+
+    private static final String SCHEDULE_GRID_WRAP = "grid-BnzPaymentScheduleDetailDataGridGrid-wrap";
 
     private final BasePage                         basePage     = new BasePage();
     private final ButtonsComponent                 buttons      = new ButtonsComponent();
@@ -48,6 +49,7 @@ public class SigningStageFlow {
     private final ConsultationPanelPage            consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow            searchFlow   = new ApplicationSearchFlow();
     private final CollateralContractsFlow   collateralContracts = new CollateralContractsFlow();
+    private final GridAssertions                 gridAssertions = new GridAssertions();
 
 
     // ══════════════════════════════════════
@@ -87,6 +89,12 @@ public class SigningStageFlow {
         }
 
         signAndCreateOrders();
+
+        // V6: график проверяем ПОСЛЕ создания ордеров — при выдаче он
+        // пересчитывается заново («График платежей успешно получен»);
+        // читаем финальный, а не промежуточный (после bindAccountsAndSchedule).
+        verifyPaymentSchedule();
+
         verifyOrdersAndPrint(verifyOrders);
     }
 
@@ -358,6 +366,18 @@ public class SigningStageFlow {
         collateralContracts.processAllCollateralContracts();
 
         log.info("DEBUG: дорегистрация договоров обеспечения завершена");
+    }
+
+    @Step("V6: верификация графика платежей")
+    private void verifyPaymentSchedule() {
+        buttons.clickTabByName("Операции по договору");
+
+        gridAssertions.verifyPaymentSchedule(
+                SCHEDULE_GRID_WRAP,
+                ScenarioContextProvider.get().getApprovedTermMonths(),
+                ScenarioContextProvider.get().getApprovedAmount());
+
+        VerificationCollector.flush("График");
     }
 
 }

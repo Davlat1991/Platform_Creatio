@@ -11,6 +11,7 @@ import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.utils.FieldUtils;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +80,9 @@ public class AgroSigningStageFlow {
 
     private static final String ORDER_PAGE_MARKER = "BnzOrderPageContainer";
 
+    private static final String SCHEDULE_GRID_WRAP =
+            "grid-BnzPaymentScheduleDetailDataGridGrid-wrap";
+
     private final BasePage                basePage            = new BasePage();
     private final LookupComponent         lookup              = new LookupComponent();
     private final MenuComponent           menu                = new MenuComponent();
@@ -89,6 +93,7 @@ public class AgroSigningStageFlow {
     private final CollateralContractsFlow collateralContracts = new CollateralContractsFlow();
     private final ButtonsComponent        buttons             = new ButtonsComponent();
     private final PrintComponent          print               = new PrintComponent();
+    private final GridAssertions          gridAssertions      = new GridAssertions();
 
     // ══════════════════════════════════════
     // MAIN — стадия целиком
@@ -362,6 +367,10 @@ public class AgroSigningStageFlow {
     public void signAndIssueCredit() {
         signContract();
         issueCashCredit();
+
+        // V6: график проверяем ПОСЛЕ создания ордеров (при выдаче пересчитывается).
+        verifyPaymentSchedule();
+
         verifyOrdersAndPrint();
 
         log.info("Agro: sign and issue completed");
@@ -458,6 +467,18 @@ public class AgroSigningStageFlow {
         buttons.clickTabByName("Операции по договору");
         openAndCloseOrder("Приходный");
         openAndCloseOrder("Расходный");
+    }
+
+    @Step("Агро V6: верификация графика платежей")
+    private void verifyPaymentSchedule() {
+        buttons.clickTabByName("Операции по договору");
+
+        gridAssertions.verifyPaymentSchedule(
+                SCHEDULE_GRID_WRAP,
+                ScenarioContextProvider.get().getApprovedTermMonths(),
+                ScenarioContextProvider.get().getApprovedAmount());
+
+        VerificationCollector.flush("График (Агро)");
     }
 
 

@@ -7,6 +7,9 @@ import com.creatio.autotest.core.services.ClickService;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.components.ButtonsComponent;
+import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +21,20 @@ public class ClientNotificationStageFlow {
     private static final Logger log =
             LoggerFactory.getLogger(ClientNotificationStageFlow.class);
 
+    /** Скоуп утверждённых параметров заявки (подтверждён probe; тот же, что в verifyRoute). */
+    private static final String APPROVED_SCOPE  = "TsiApprovedFinApplicationSpecDetailContainer";
+
+    /** Скоуп запрошенных параметров заявки. */
+    private static final String REQUESTED_SCOPE = "FinAppSpecificationFieldsDetailContainer";
+
+
     private final DashboardComponent    dashboard    = new DashboardComponent();
     private final LookupComponent       lookup       = new LookupComponent();
     private final MenuComponent         menu         = new MenuComponent();
     private final ClickService          click        = new ClickService();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
-    private final ApplicationSearchFlow searchFlow = new ApplicationSearchFlow();
+    private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
+    private final ButtonsComponent      buttons      = new ButtonsComponent();
 
     // ══════════════════════════════════════
     // MAIN — без поиска (SIMPLIFIED: менеджер уже на заявке)
@@ -34,6 +45,10 @@ public class ClientNotificationStageFlow {
         log.info("Complete client notification (no search)");
 
         consultation.closeIfOpened();
+
+        // V6: утверждённые параметры окончательны в начале «Информирования» —
+        // читаем и кладём в контекст для проверки графика на «Подписании».
+        captureAndVerifyApprovedParams();
 
         openNotificationMiniPage();
         setClientAgreement();
@@ -91,5 +106,33 @@ public class ClientNotificationStageFlow {
     @Step("Подтвердить информирование")
     private void confirmNotification() {
         click.clickByName("Подтвердить");
+    }
+
+    @Step("V6: чтение утверждённых параметров + сверка запрошено/одобрено")
+    private void captureAndVerifyApprovedParams() {
+        // Вкладка «Выбранный продукт» — там обе детали (запрошенные/утверждённые).
+        buttons.clickTabByName("Выбранный продукт");
+
+        String approvedTerm   = FieldUtils.getDetailInputValueScopedSafe(APPROVED_SCOPE,  "Срок, мес.");
+        String approvedAmount = FieldUtils.getDetailInputValueScopedSafe(APPROVED_SCOPE,  "Сумма");
+        String requestedTerm  = FieldUtils.getDetailInputValueScopedSafe(REQUESTED_SCOPE, "Срок, мес.");
+        String requestedAmount= FieldUtils.getDetailInputValueScopedSafe(REQUESTED_SCOPE, "Сумма");
+
+        // Стэш утверждённых — expected для графика на «Подписании».
+        ScenarioContextProvider.get().setApprovedTermMonths(approvedTerm);
+        ScenarioContextProvider.get().setApprovedAmount(approvedAmount);
+
+        // Пункт B: запрошено vs одобрено. НЕ equals-падение (расхождение легально
+        // при «Предложить сумму»/правке верификатора) — только лог + флаг.
+        boolean termSame   = !requestedTerm.isBlank()   && requestedTerm.equals(approvedTerm);
+        boolean amountSame = !requestedAmount.isBlank() && requestedAmount.equals(approvedAmount);
+        log.info("Параметры: запрошено срок='{}'/сумма='{}' | одобрено срок='{}'/сумма='{}' | " +
+                        "срок совпал={}, сумма совпала={}",
+                requestedTerm, requestedAmount, approvedTerm, approvedAmount, termSame, amountSame);
+
+        // Честный лёгкий чек: утверждённые сформированы и читаемы.
+        VerificationCollector.checkNonEmpty("Параметры: утверждённый срок непуст", approvedTerm);
+        VerificationCollector.checkNonEmpty("Параметры: утверждённая сумма непуста", approvedAmount);
+        VerificationCollector.flush("Параметры заявки");
     }
 }
