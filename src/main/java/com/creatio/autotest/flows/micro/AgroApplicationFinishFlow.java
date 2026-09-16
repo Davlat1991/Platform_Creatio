@@ -10,6 +10,8 @@ import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.ActivityResult;
+import com.creatio.autotest.components.GridAssertions;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +57,20 @@ public class AgroApplicationFinishFlow {
     private static final String CONFIRM_ACTIVITY = "Подтвердить получение документа";
     private static final String CONFIRM_RESULT   = "Подтвердить получение документа";
 
+    private static final String ACTIVITIES_GRID_WRAP   = "grid-ActivityDetailV2DataGridGrid-wrap";
+    private static final String ACTIVITIES_DETAIL_SCOPE = "ActivityDetailV2DetailControlGroup-wrap";
+
+    /** Ссылка «Заявка» на странице кредитного договора (переход на карточку заявки). */
+    private static final String APPLICATION_LINK_ID =
+            "BnzContractCreditPageFinApplicationLookupEdit-link-el";
+
     private final BasePage              basePage     = new BasePage();
     private final ButtonsComponent      buttons      = new ButtonsComponent();
     private final PrintComponent        print        = new PrintComponent();
     private final ConsultationPanelPage consultation = new ConsultationPanelPage();
     private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
     private final ActivityComponent     activity     = new ActivityComponent();
+    private final GridAssertions      gridAssertions = new GridAssertions();
 
     // ══════════════════════════════════════
     // MAIN
@@ -105,6 +115,9 @@ public class AgroApplicationFinishFlow {
     @Step("Агро: завершение заявки через консультационную панель")
     public void completeApplicationViaConsultation() {
         openContract();
+
+        // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
+        verifyActivitiesCompleted();
 
         consultation.ensureOpened();
         consultation.completeConsultation();
@@ -190,6 +203,24 @@ public class AgroApplicationFinishFlow {
                         "  window.__tsiUploadPatched = true;" +
                         "}"
         );
+    }
+
+    @Step("Агро финал: проверка, что все активности заявки завершены")
+    private void verifyActivitiesCompleted() {
+        openApplicationFromContract();
+        buttons.clickTabByName("История");
+        gridAssertions.verifyActivitiesCompleted(ACTIVITIES_GRID_WRAP, ACTIVITIES_DETAIL_SCOPE);
+        VerificationCollector.flush("Активности (Агро)");
+    }
+
+    /** Переход со страницы кредитного договора на карточку заявки по ссылке «Заявка». */
+    @Step("Открыть заявку по ссылке «Заявка» с договора")
+    private void openApplicationFromContract() {
+        log.info("Open application via contract link");
+        $("#" + APPLICATION_LINK_ID)
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .click();
+        basePage.waitForPage();
     }
 
 }

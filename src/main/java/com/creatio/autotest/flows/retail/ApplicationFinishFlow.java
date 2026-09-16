@@ -13,6 +13,9 @@ import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.ActivityResult;
+import com.creatio.autotest.components.GridAssertions;
+import com.creatio.autotest.core.verify.VerificationCollector;
+
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +31,11 @@ public class ApplicationFinishFlow {
     private static final Logger log = LoggerFactory.getLogger(ApplicationFinishFlow.class);
     private static final String CONTRACT_PAGE_MARKER ="BnzContractCreditPageContainer";
     private static final String FILES_DIR = "src/test/resources/files/";
-    private final ActivityComponent activity = new ActivityComponent();
+    private static final String ACTIVITIES_GRID_WRAP   = "grid-ActivityDetailV2DataGridGrid-wrap";
+    private static final String ACTIVITIES_DETAIL_SCOPE = "ActivityDetailV2DetailControlGroup-wrap";
+    /** Ссылка «Заявка» на странице кредитного договора (переход на карточку заявки). */
+    private static final String APPLICATION_LINK_ID =
+            "BnzContractCreditPageFinApplicationLookupEdit-link-el";
 
 
 
@@ -40,6 +47,8 @@ public class ApplicationFinishFlow {
     private final ClickService                click         = new ClickService();
     private final ApplicationSearchFlow       searchFlow    = new ApplicationSearchFlow();
     private final PrintComponent              print         = new PrintComponent();
+    private final GridAssertions             gridAssertions = new GridAssertions();
+    private final ActivityComponent                activity = new ActivityComponent();
 
     // ══════════════════════════════════════
     // MAIN
@@ -67,6 +76,9 @@ public class ApplicationFinishFlow {
         buttons.clickTabByName("Операции по договору");
         checkConfirmedIncomingOrder();
         checkConfirmedOutgoingOrder();
+
+        // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
+        verifyActivitiesCompleted();
 
         // 3. Завершить заявку через консультационную панель
         finishViaConsultation();
@@ -142,6 +154,9 @@ public class ApplicationFinishFlow {
         searchFlow.withApplicationNumber(contractNumber).openContractByNumber();
         $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
                 .shouldBe(Condition.visible);
+
+        // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
+        verifyActivitiesCompleted();
 
         // 2. Завершить заявку через консультационную панель (как у ИКОК)
         finishViaConsultation();
@@ -231,6 +246,25 @@ public class ApplicationFinishFlow {
 
         print.waitForNewDownload(before, fileName);
         log.info("File downloaded: '{}'", fileName);
+    }
+
+
+    @Step("Финал: проверка, что все активности заявки завершены")
+    private void verifyActivitiesCompleted() {
+        openApplicationFromContract();
+        buttons.clickTabByName("История");
+        gridAssertions.verifyActivitiesCompleted(ACTIVITIES_GRID_WRAP, ACTIVITIES_DETAIL_SCOPE);
+        VerificationCollector.flush("Активности");
+    }
+
+    /** Переход со страницы кредитного договора на карточку заявки по ссылке «Заявка». */
+    @Step("Открыть заявку по ссылке «Заявка» с договора")
+    private void openApplicationFromContract() {
+        log.info("Open application via contract link");
+        $("#" + APPLICATION_LINK_ID)
+                .shouldBe(Condition.visible, Duration.ofSeconds(15))
+                .click();
+        basePage.waitForPage();
     }
 
 

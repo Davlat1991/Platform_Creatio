@@ -1,10 +1,12 @@
 package com.creatio.autotest.components;
 
 import com.codeborne.selenide.CollectionCondition;
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.creatio.autotest.core.base.BaseComponent;
 import com.creatio.autotest.core.verify.VerificationCollector;
+
 import io.qameta.allure.Step;
 
 import java.time.Duration;
@@ -12,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$$x;
-import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.*;
 
 public class GridAssertions extends BaseComponent {
 
@@ -26,6 +27,10 @@ public class GridAssertions extends BaseComponent {
     /** Контейнер детали «График платежей» на кредитном договоре (кнопка loadMore — здесь, вне grid-wrap). */
     private static final String SCHEDULE_DETAIL_SCOPE =
             "BnzContractCreditPageBnzPaymentScheduleDetailContainer";
+
+    /** Стрелка-маркер сворачивания детали «Активности» — клик разворачивает деталь. */
+    private static final String ACTIVITIES_COLLAPSE_MARKER_ID =
+            "ActivityDetailV2DetailControlGroup-marker";
 
     /**
      * Верификация графика платежей на кредитном договоре (V6, COMPUTED).
@@ -54,7 +59,7 @@ public class GridAssertions extends BaseComponent {
                 "//div[contains(@id,'caption-') and @data-item-marker]")
                 .shouldBe(visible, Duration.ofSeconds(30));
 
-        expandAllScheduleRows(gridWrapId);
+        expandDetailRows(gridWrapId, SCHEDULE_DETAIL_SCOPE);
 
         int idxDate      = resolveColumnIndex(gridWrapId, "Дата план");
         int idxPrincipal = resolveColumnIndex(gridWrapId, "Основная сумма");
@@ -151,31 +156,33 @@ public class GridAssertions extends BaseComponent {
                 "Колонка графика не найдена по маркеру: '" + captionMarker + "'");
     }
 
-    /** Раскрывает пагинацию графика: кнопка loadMore лежит В ДЕТАЛИ (вне grid-wrap),
-     *  строки — в grid-wrap. Подтверждено probe. */
-    private void expandAllScheduleRows(String gridWrapId) {
+    /** Раскрывает пагинацию «Показать больше»: кнопка loadMore лежит В ДЕТАЛИ
+     *  (вне grid-wrap), строки — в grid-wrap. Подтверждено probe (график, активности). */
+    private void expandDetailRows(String gridWrapId, String detailScopeId) {
         String rowsXpath = "//div[@id='" + gridWrapId + "']" +
                 "//div[contains(@class,'grid-listed-row')]";
-        String loadMoreXpath = "//div[@id='" + SCHEDULE_DETAIL_SCOPE + "']" +
+        String loadMoreXpath = "//div[@id='" + detailScopeId + "']" +
                 "//*[@data-item-marker='loadMore']";
 
         for (int i = 1; i <= MAX_LOAD_MORE_CLICKS; i++) {
             SelenideElement button = $x(loadMoreXpath);
-            if (!button.is(visible)) return;             // всё загружено
+            if (!button.is(Condition.visible)) return;
             int before = $$x(rowsXpath).size();
             button.scrollIntoView("{block: 'center'}").click();
             try {
                 $$x(rowsXpath).shouldHave(
                         CollectionCondition.sizeGreaterThan(before), Duration.ofSeconds(15));
             } catch (Exception | AssertionError stalled) {
-                log.warn("График: «Показать больше» не увеличил число строк ({}) — считаем раскрытым",
+                log.warn("Пагинация: «Показать больше» не увеличил число строк ({}) — считаем раскрытым",
                         before);
                 return;
             }
-            log.info("График: «Показать больше» (клик {}): строк {}", i, $$x(rowsXpath).size());
+            log.info("Пагинация [{}]: «Показать больше» (клик {}): строк {}",
+                    gridWrapId, i, $$x(rowsXpath).size());
         }
-        log.warn("График: достигнут предел {} кликов «Показать больше»", MAX_LOAD_MORE_CLICKS);
+        log.warn("Пагинация [{}]: достигнут предел {} кликов", gridWrapId, MAX_LOAD_MORE_CLICKS);
     }
+
 
 
     /** Нормализация денежного текста «5 000,00»/NBSP/narrow-NBSP → double. */
@@ -227,5 +234,98 @@ public class GridAssertions extends BaseComponent {
                     committee, timeout.toSeconds());
             return false;
         }
+    }
+
+
+    /**
+     * Финальная проверка (стадия «Договор подписан», вкладка «История», деталь
+     * «Активности»): все активности завершены. Инвариант A: строк>0; колонка
+     * «Состояние» у каждой строки непуста И == «Завершена». Условные ИКОК-ГО-
+     * активности покрываются тем же инвариантом.
+     */
+    @Step("Верификация активностей: все завершены")
+    public void verifyActivitiesCompleted(String gridWrapId, String detailScopeId) {
+        log.info("Verify activities completed: grid='{}'", gridWrapId);
+
+        expandActivitiesIfCollapsed(gridWrapId);
+        expandDetailRows(gridWrapId, detailScopeId);
+
+        int idxTitle = resolveColumnIndex(gridWrapId, "Заголовок");
+
+        // Раскладка колонок детали «Активности» плавает по сессии пользователя:
+        // бывает колонка «Состояние» (значение «Завершена»), бывает «Завершение»
+        // (дата завершения). Оба означают «завершено» — читаем ту, что присутствует.
+        int idxStatus = columnIndexOrMinus(gridWrapId, "Состояние");
+        int idxFinish = columnIndexOrMinus(gridWrapId, "Завершение");
+        boolean byStatus = idxStatus >= 0;
+        log.info("Активности: источник завершённости = {}",
+                byStatus ? "колонка «Состояние»" : "колонка «Завершение» (дата)");
+
+        if (idxStatus < 0 && idxFinish < 0) {
+            VerificationCollector.checkTrue(
+                    "Активности: есть колонка статуса (Состояние/Завершение)",
+                    false, "ни «Состояние», ни «Завершение» не найдены в раскладке грида");
+            return;
+        }
+        int idxRead = byStatus ? idxStatus : idxFinish;
+
+        ElementsCollection rows = $$x(
+                "//div[@id='" + gridWrapId + "']" +
+                        "//div[contains(@class,'grid-listed-row')]");
+
+        int total = 0;
+        List<String> notCompleted = new ArrayList<>();
+        for (SelenideElement row : rows) {
+            List<String> cells =
+                    row.$$x(".//div[contains(@class,'grid-cols-')]").texts();
+            if (cells.size() <= Math.max(idxTitle, idxRead)) continue;
+            total++;
+            String title = cells.get(idxTitle).trim();
+            String val   = cells.get(idxRead).trim();
+            boolean done = byStatus ? "Завершена".equals(val) : !val.isBlank();
+            if (!done) notCompleted.add("«" + title + "» -> '" + val + "'");
+        }
+
+        log.info("Активности: всего={}, незавершённых={}", total, notCompleted.size());
+
+        VerificationCollector.checkTrue(
+                "Активности: список непуст", total > 0, "строк в детали: " + total);
+        VerificationCollector.checkTrue(
+                "Активности: все завершены",
+                notCompleted.isEmpty(),
+                notCompleted.isEmpty() ? "" : "незавершённые: " + notCompleted);
+    }
+
+    /** Разворачивает деталь «Активности», если она свёрнута (строк/заголовков нет в DOM).
+     *  Клик по стрелке-маркеру сворачивания. Идемпотентно: если уже раскрыта — выходим. */
+    /** Разворачивает деталь «Активности», если колонка «Состояние» ещё не видна.
+     *  Клик по стрелке-маркеру сворачивания (с ожиданием — не мгновенной проверкой). */
+    private void expandActivitiesIfCollapsed(String gridWrapId) {
+        String anyCaptionXpath = "//div[@id='" + gridWrapId + "']" +
+                "//div[contains(@id,'caption-') and @data-item-marker]";
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            if ($x(anyCaptionXpath).is(visible)) return;
+            log.info("Активности свёрнуты — клик по маркеру (попытка {}/3)", attempt);
+            SelenideElement marker = $("#" + ACTIVITIES_COLLAPSE_MARKER_ID);
+            if (marker.is(visible)) marker.scrollIntoView("{block: 'center'}").click();
+            try {
+                $x(anyCaptionXpath).shouldBe(visible, Duration.ofSeconds(8));
+                return;
+            } catch (Exception | AssertionError notYet) {
+                log.warn("Активности: после попытки {} заголовки не видны", attempt);
+            }
+        }
+        $x(anyCaptionXpath).shouldBe(visible, Duration.ofSeconds(10));
+    }
+
+    /** Индекс колонки по data-item-marker, или -1 если колонки нет в текущей раскладке. */
+    private int columnIndexOrMinus(String gridWrapId, String captionMarker) {
+        ElementsCollection caps = $$x(
+                "//div[@id='" + gridWrapId + "']" +
+                        "//div[contains(@id,'caption-') and @data-item-marker]");
+        for (int i = 0; i < caps.size(); i++) {
+            if (captionMarker.equals(caps.get(i).getAttribute("data-item-marker"))) return i;
+        }
+        return -1;
     }
 }
