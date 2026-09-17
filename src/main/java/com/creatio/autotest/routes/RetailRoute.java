@@ -383,9 +383,8 @@ public class RetailRoute extends CreditApplicationRoute<RetailRoute> {
     public void simplifiedFinish() {
         as(scenario.getIkok(), Workspace.IKOK,
                 () -> new ApplicationFinishFlow().completeSimplifiedFinish());
-        // Упрощённый финал (ИКОК) проверяет состояние приходного и расходного
-        // ордеров (Подтвержден) — эти проверки записываются в completeSimplifiedFinish.
-        VerificationCollector.flush("Завершение");
+        // Ордера проверяются и флашатся внутри completeSimplifiedFinish
+        // (шов «Завершение»), активности — в шве «Активности».
     }
 
     // ══════════════════════════════════════

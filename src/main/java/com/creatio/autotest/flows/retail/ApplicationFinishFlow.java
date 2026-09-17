@@ -76,6 +76,7 @@ public class ApplicationFinishFlow {
         buttons.clickTabByName("Операции по договору");
         checkConfirmedIncomingOrder();
         checkConfirmedOutgoingOrder();
+        VerificationCollector.flush("Завершение");   // ордера — свой шов, до активностей
 
         // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
         verifyActivitiesCompleted();

@@ -149,10 +149,12 @@ enabled=false с @Description-причиной.
 Матрица покрытия в Confluence/Notion; Allure categories (ассерт vs инфра); README/overview.
 
 ## 5. Техдолг верификации (замечено при прогонах; чинить отдельно)
-- **Швы flush упрощённого маршрута.** Упрощённый: flush «Активности» показывает 4/4 при 2 наших
-  чеках + `Stage 'Завершение' verification: 0/0`. Значит перед «Активностями» есть шов с пустым/
-  незакрытым flush, и 2 проверки утекают в «Активности». На стандартном/Агро — чисто (2/2).
-  Найти недосчитанный/пустой шов, почистить, чтобы отчёт по стадии не врал про состав.
+- **Швы flush упрощённого маршрута.** [ЗАКРЫТО 2026-09-17] Причина: в completeSimplifiedFinish
+  два чека ордеров копились до flush('Активности'), который сливал их вместе с активностями (4/4),
+  а внешний flush('Завершение') в RetailRoute находил пусто (0/0). Фикс: flush('Завершение')
+  перенесён внутрь completeSimplifiedFinish сразу после проверок ордеров, до verifyActivitiesCompleted;
+  пустой внешний flush в RetailRoute.simplifiedFinish удалён. Прогон simplifiedRouteHappyPath — PASS,
+  «Завершение» 2/2 + «Активности» 2/2. Правка simplified-only; стандартный/Агро не затронуты.
 - **WebDriver quit timeout.** `Error quitting WebDriver: Timed out waiting for driver server to
   shutdown` в teardown (тесты PASS). Вероятный рассинхрон версий Chrome/chromedriver (наблюдались
   151/153). Проверить пиннинг версий драйвера.
