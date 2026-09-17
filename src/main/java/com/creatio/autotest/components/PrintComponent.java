@@ -6,6 +6,7 @@ import com.creatio.autotest.core.base.BaseComponent;
 import com.creatio.autotest.utils.AllureAttachments;
 import io.qameta.allure.Step;
 import org.openqa.selenium.support.ui.FluentWait;
+import com.creatio.autotest.core.verify.VerificationCollector;
 
 import java.io.File;
 import java.time.Duration;
@@ -217,5 +218,21 @@ public class PrintComponent extends BaseComponent {
     public File printFormAndDownload(String formName) {
         Set<String> before = openPrintForm(formName);
         return waitForNewDownload(before, formName);
+    }
+
+    /**
+     * V7.1 ARTIFACT: строгое ожидание скачивания + проверка непустоты в коллектор.
+     * Файл, вернувшийся из waitForNewDownload, гарантированно существует (иначе throw);
+     * добавочный инвариант — size>0 (форма не пустая). Пишем именованный чек, который
+     * флашится швом вызывающей стадии (нового flush тут НЕ делаем — во избежание утечки).
+     */
+    @Step("Проверка скачанной печатной формы: {formName}")
+    public File verifyDownloaded(Set<String> before, String formName) {
+        File f = waitForNewDownload(before, formName);
+        VerificationCollector.checkTrue(
+                "Печатная форма скачана (size>0): " + formName,
+                f.exists() && f.length() > 0,
+                "file=" + f.getName() + " bytes=" + (f.exists() ? f.length() : -1));
+        return f;
     }
 }

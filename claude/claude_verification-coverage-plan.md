@@ -129,10 +129,12 @@ Round-trip: (A) число строк грида «Залоги» == collaterals
 - **Прогоны (кросс-раскладочная устойчивость одним кодом):** simplifiedRouteHappyPath — PASS,
   источник «Состояние», 8 активностей; agroMicroFullRoute — PASS, источник «Завершение», 10 активностей.
 
-### V7 — ARTIFACT: документы / печать / скачивание  [СЛЕДУЮЩАЯ]
-Печатные формы — запись в «Файлы и ссылки»; скачивание — файл есть, size>0, без .crdownload/.tmp.
-Побочно: чиним DEF-DOWNLOAD и DEF-LOGOUT.
-Нужно от Davlat: id детали «Файлы и ссылки»; папка загрузок (уже изолирована по потокам).
+### V7 — ARTIFACT [В РАБОТЕ]
+- **V7.1 [ЗАКРЫТО 2026-09-17]** ARTIFACT-скачивание в коллектор: PrintComponent.verifyDownloaded
+  (строгий waitForNewDownload + checkTrue size>0), обе retail-перегрузки печати анкеты. Чек
+  флашится швом «Оформление — анкета» (нового flush нет → утечки нет). Прогон simplified —
+  PASS, «Оформление — анкета» 13/13. PrintComponent — аддитивно (новый метод); RegistrationPrintFlow
+  retail-only; Агро не затронут.
 
 ### V8 — Терминал + сквозной инвариант (ОДОБРЕНО-ЦЕНТРИЧНЫЙ)
 Заявка в терминальном «Выдан/Завершён»; сквозной инвариант сумм.
@@ -155,9 +157,17 @@ enabled=false с @Description-причиной.
   перенесён внутрь completeSimplifiedFinish сразу после проверок ордеров, до verifyActivitiesCompleted;
   пустой внешний flush в RetailRoute.simplifiedFinish удалён. Прогон simplifiedRouteHappyPath — PASS,
   «Завершение» 2/2 + «Активности» 2/2. Правка simplified-only; стандартный/Агро не затронуты.
-- **WebDriver quit timeout.** `Error quitting WebDriver: Timed out waiting for driver server to
-  shutdown` в teardown (тесты PASS). Вероятный рассинхрон версий Chrome/chromedriver (наблюдались
-  151/153). Проверить пиннинг версий драйвера.
+- **WebDriver quit timeout (teardown).** [ДИАГНОСТИРОВАНО 2026-09-17, отложено в V7]
+  Симптом: driver.quit() висит ~20 с (10:01:02→10:01:22) → иногда «Timed out waiting for
+  driver server to shutdown». Тесты PASS (исключение ловится). Причина НЕ в пиннинге
+  chromedriver (Selenium Manager резолвит корректный драйвер, браузер стартует). Корень:
+  клиент Selenium 4.18.1 (тянет Selenide 7.2.1) старше Chrome 153 → нет CDP-реализации под
+  153 («Unable to find CDP implementation matching 153»); несовместимый DevTools-websocket
+  висит на quit. Проверено: se:cdpEnabled=false на локальном ChromeDriver 4.18.1 НЕ действует
+  (Grid-only capability — warning и зависание остались). Артефакта selenium-devtools-v153 для
+  4.18.1 не существует. Фикс: апгрейд Selenide (Selenium ≥4.2x, где CDP-подключение ленивое/
+  неблокирующее на quit) — bump зависимости, требует сквозного регресса обеих линеек, поэтому
+  сведён в V7 (один регресс-цикл с DEF-DOWNLOAD/DEF-LOGOUT и артефактами/скачиванием).
 - **StaleElement на клике вкладки «История»** (attempt 1/4, дальше успех) — ретрай ButtonsComponent
   вытягивает; косметика, приоритет низкий.
 - **Техдолг C (адрес data-driven), «Цель кредита» (BnzCreditSubPurpose)** — из ранних фаз, остаются.

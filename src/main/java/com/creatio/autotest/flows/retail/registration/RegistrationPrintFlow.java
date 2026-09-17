@@ -10,6 +10,8 @@ import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public class RegistrationPrintFlow {
 
     private static final Logger log =
@@ -37,11 +39,15 @@ public class RegistrationPrintFlow {
         click.clickByName("Заемщик");
 
         detailPage.openDetailMenu("Участники заявки");
-        menu.clickByName("Печать Анкеты-заявки");
 
-        // Ждём завершения скачивания (общий метод PrintComponent)
-        print.waitForDownload();
+        // V7.1: снимок ДО печати → строгая проверка скачивания + чек size>0 в коллектор.
+        // Чек флашится швом «Оформление — анкета» в RetailRoute.registration() (нового flush нет).
+        Set<String> before = print.snapshotDownloads();
+        menu.clickByName("Печать Анкеты-заявки");
+        print.verifyDownloaded(before, "Анкета-заявка");
+
     }
+
 
 
 }

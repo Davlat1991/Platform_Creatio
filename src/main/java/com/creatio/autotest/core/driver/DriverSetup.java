@@ -115,6 +115,7 @@ public final class DriverSetup {
 
         options.setExperimentalOption("prefs", prefs);
 
+
         log.info("Download path: {}", downloadPath);
 
         return new ChromeDriver(options);
