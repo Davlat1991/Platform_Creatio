@@ -136,12 +136,23 @@ Round-trip: (A) число строк грида «Залоги» == collaterals
   источник «Состояние», 8 активностей; agroMicroFullRoute — PASS, источник «Завершение», 10 активностей.
 
 ### V7 — ARTIFACT [В РАБОТЕ]
+- **V7.1 [ЗАКРЫТО 2026-09-17]** ARTIFACT-скачивание в коллектор: PrintComponent.verifyDownloaded
+  (строгий waitForNewDownload + checkTrue size>0), обе retail-перегрузки печати анкеты. Чек
+  флашится швом «Оформление — анкета» (нового flush нет → утечки нет). Прогон simplified —
+  PASS, «Оформление — анкета» 13/13. PrintComponent — аддитивно (новый метод); RegistrationPrintFlow
+  retail-only; Агро не затронут.
 - **V7.2 [ЗАКРЫТО 2026-09-18]** ARTIFACT presence в «Файлы и ссылки» (FileDetailV2,
-  grid-FileDetailV2DataGridGrid-wrap, data-item-marker=имя файла — probe обе линейки).
-  Общий soft-чек CreditApplicationAssertions.assertFileInFilesDetail (ждёт строку ≤15с, не
-  бросает). Розница: completeManagerAttach, шов «Артефакт — Файлы и ссылки». Агро:
-  completeAttachOrder, шов «Артефакт — Файлы и ссылки (Агро)» (у Агро presence не было).
-  Прогоны: стандартный 1/1, agroMicroFull 1/1.
+    grid-FileDetailV2DataGridGrid-wrap, data-item-marker=имя файла — probe обе линейки).
+    Общий soft-чек CreditApplicationAssertions.assertFileInFilesDetail (ждёт строку ≤15с, не
+    бросает). Розница: completeManagerAttach, шов «Артефакт — Файлы и ссылки». Агро:
+    completeAttachOrder, шов «Артефакт — Файлы и ссылки (Агро)» (у Агро presence не было).
+    Прогоны: стандартный 1/1, agroMicroFull 1/1.
+- **V7.3 [ЗАКРЫТО 2026-09-18]** DEF-DOWNLOAD: клик по ссылке файла на финале иногда до
+    готовности детали → скачивание не стартует. Фикс: PrintComponent.downloadViaRowLink —
+    ретрай клика (бюджет 3, окна 40/40/60с) + waitForNewDownload с таймаутом (overload);
+    обе downloadFile (розница/Агро) делегируют. Клик идемпотентен (ловим любой новый файл
+    vs снимок). Прогоны: стандартный — happy-path чисто; agroMicroFull — флак ВОСПРОИЗВЁЛСЯ
+    (попытка 1/3) и ретрай ВОССТАНОВИЛ → PASS. Эмпирическое подтверждение ретрая.
 
 ### V8 — Терминал + сквозной инвариант (ОДОБРЕНО-ЦЕНТРИЧНЫЙ)
 Заявка в терминальном «Выдан/Завершён»; сквозной инвариант сумм.

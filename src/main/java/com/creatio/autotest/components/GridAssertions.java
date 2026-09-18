@@ -310,7 +310,7 @@ public class GridAssertions extends BaseComponent {
                 "//div[contains(@id,'caption-') and @data-item-marker]";
         for (int attempt = 1; attempt <= 10; attempt++) {
             if ($x(anyCaptionXpath).is(visible)) return;
-            log.info("Активности свёрнуты — клик по маркеру (попытка {}/3)", attempt);
+            log.info("Активности свёрнуты — клик по маркеру (попытка {}/10)", attempt);
             SelenideElement marker = $("#" + ACTIVITIES_COLLAPSE_MARKER_ID);
             if (marker.is(visible)) marker.scrollIntoView("{block: 'center'}").click();
             try {

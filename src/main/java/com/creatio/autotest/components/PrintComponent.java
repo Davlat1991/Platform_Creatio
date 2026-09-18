@@ -150,20 +150,23 @@ public class PrintComponent extends BaseComponent {
      *
      * @return файл, появившийся после клика
      */
-    @Step("Ожидание скачивания файла: {description}")
     public File waitForNewDownload(Set<String> before, String description) {
-        log.info("Ожидание скачивания: '{}'", description);
+        return waitForNewDownload(before, description, Duration.ofSeconds(90));
+    }
 
+    @Step("Ожидание скачивания файла: {description}")
+    public File waitForNewDownload(Set<String> before, String description, Duration timeout) {
+        log.info("Ожидание скачивания: '{}' (таймаут {}с)", description, timeout.toSeconds());
         try {
             File downloaded = new FluentWait<>(downloadDir())
-                    .withTimeout(Duration.ofSeconds(90))
+                    .withTimeout(timeout)
                     .pollingEvery(Duration.ofMillis(500))
                     .until(dir -> {
                         File[] inProgress = dir.listFiles(
                                 f -> f.getName().endsWith(".crdownload")
                                         || f.getName().endsWith(".tmp"));
                         if (inProgress != null && inProgress.length > 0) {
-                            return null;    // докачка не завершена
+                            return null;
                         }
                         File[] files = dir.listFiles(this::isReady);
                         if (files == null) {
@@ -174,15 +177,12 @@ public class PrintComponent extends BaseComponent {
                                 .findFirst()
                                 .orElse(null);
                     });
-
-            log.info("Скачано: '{}' ({} байт)",
-                    downloaded.getName(), downloaded.length());
+            log.info("Скачано: '{}' ({} байт)", downloaded.getName(), downloaded.length());
             return downloaded;
-
         } catch (org.openqa.selenium.TimeoutException e) {
             AllureAttachments.attachScreenshot("Download failure");
             throw new AssertionError(
-                    "Файл не скачался за 90 с: '" + description + "'", e);
+                    "Файл не скачался за " + timeout.toSeconds() + " с: '" + description + "'", e);
         }
     }
 
@@ -234,5 +234,31 @@ public class PrintComponent extends BaseComponent {
                 f.exists() && f.length() > 0,
                 "file=" + f.getName() + " bytes=" + (f.exists() ? f.length() : -1));
         return f;
+    }
+
+    /**
+     * V7.3 DEF-DOWNLOAD: скачивание по ссылке файла в строке грида с ретраем.
+     * Иногда клик приходится до полной загрузки детали и скачивание не стартует
+     * (раньше спасал только перезапуск теста). Тот же «перезапуск» встроен: если за
+     * окно скачивание не началось — повтор клика (идемпотентен, ловим любой новый файл).
+     */
+    @Step("Скачать по ссылке строки (ретрай DEF-DOWNLOAD): {fileName}")
+    public File downloadViaRowLink(String fileName) {
+        String linkXpath = "//div[@data-item-marker='" + fileName + "']//a";
+        for (int attempt = 1; attempt <= 2; attempt++) {
+            Set<String> before = snapshotDownloads();
+            $x(linkXpath).shouldBe(Condition.visible, Duration.ofSeconds(30))
+                    .scrollIntoView(false).click();
+            try {
+                return waitForNewDownload(before, fileName, Duration.ofSeconds(40));
+            } catch (AssertionError notYet) {
+                log.warn("DEF-DOWNLOAD: '{}' не стартовало за 40с (попытка {}/3) — повтор клика",
+                        fileName, attempt);
+            }
+        }
+        Set<String> before = snapshotDownloads();
+        $x(linkXpath).shouldBe(Condition.visible, Duration.ofSeconds(30))
+                .scrollIntoView(false).click();
+        return waitForNewDownload(before, fileName, Duration.ofSeconds(60));
     }
 }

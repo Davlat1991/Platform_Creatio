@@ -237,20 +237,9 @@ public class ApplicationFinishFlow {
     @Step("Скачать файл '{fileName}' (клик по ссылке файла)")
     private void downloadFile(String fileName) {
         log.info("Download file via row link: '{}'", fileName);
-
-        Set<String> before = print.snapshotDownloads();
-
-        // Клик по ССЫЛКЕ файла в строке грида — инициирует скачивание в downloads.
-        // (SaveToDiscButton — это upload-input, он открывает OS-диалог, поэтому не он.)
-        $x("//div[@data-item-marker='" + fileName + "']//a")
-                .shouldBe(Condition.visible, Duration.ofSeconds(15))
-                .scrollIntoView(false)
-                .click();
-
-        print.waitForNewDownload(before, fileName);
+        print.downloadViaRowLink(fileName);
         log.info("File downloaded: '{}'", fileName);
     }
-
 
     @Step("Финал: проверка, что все активности заявки завершены")
     private void verifyActivitiesCompleted() {

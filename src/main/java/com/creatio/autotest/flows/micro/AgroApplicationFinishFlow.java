@@ -171,17 +171,7 @@ public class AgroApplicationFinishFlow {
     @Step("Скачать файл: {fileName}")
     private void downloadFile(String fileName) {
         log.info("Download file via row link: '{}'", fileName);
-
-        Set<String> before = print.snapshotDownloads();
-
-        // Клик по ССЫЛКЕ файла в строке грида инициирует скачивание.
-        // (SaveToDiscButton — это upload-input, он открывает OS-диалог.)
-        $x("//div[@data-item-marker='" + fileName + "']//a")
-                .shouldBe(Condition.visible, Duration.ofSeconds(30))
-                .scrollIntoView(false)
-                .click();
-
-        print.waitForNewDownload(before, fileName);
+        print.downloadViaRowLink(fileName);
     }
 
     /**
