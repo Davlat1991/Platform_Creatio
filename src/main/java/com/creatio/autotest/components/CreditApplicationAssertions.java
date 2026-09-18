@@ -42,4 +42,24 @@ public class CreditApplicationAssertions extends BaseComponent {
                 .getValue()
                 .trim();
     }
+
+    /**
+     * V7.2 ARTIFACT: наличие файла в детали «Файлы и ссылки» (FileDetailV2).
+     * Локатор — проверенный live-DOM data-item-marker = имя файла (probe, обе линейки).
+     * Soft-чек в коллектор (не бросает): ждём строку до 15с (покрывает рендер после
+     * загрузки), пишем факт наличия. Общая на обе линейки.
+     */
+    @Step("Проверка наличия файла в «Файлы и ссылки»: {fileName}")
+    public void assertFileInFilesDetail(String fileName) {
+        boolean present;
+        try {
+            $x("//div[@data-item-marker='" + fileName + "']")
+                    .shouldBe(Condition.visible, Duration.ofSeconds(30));
+            present = true;
+        } catch (Throwable t) {
+            present = false;
+        }
+        VerificationCollector.checkTrue(
+                "Файл в «Файлы и ссылки»: " + fileName, present, "detail=FileDetailV2");
+    }
 }

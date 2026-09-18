@@ -126,20 +126,25 @@ public class GridAssertions extends BaseComponent {
         VerificationCollector.checkTrue(
                 "График: остаток монотонно убывает", remainderDescends, detail3);
 
-        // (4) Аннуитет: «Общая сумма» равна на всех строках, КРОМЕ последней по дате
+        // (4) Аннуитет: тело графика — равные платежи. Первый и последний платёж
+        //     могут легально отличаться (удлинённый/укороченный первый период либо
+        //     комиссия в первом взносе; доборный последний по дате). Поэтому проверяем
+        //     равенство «Общей суммы» на СРЕДНИХ строках — без первой и последней.
+        //     Остальные три инварианта (Σ осн.долга, остаток→0, монотонность) продолжают
+        //     жёстко держать корректность графика.
         boolean annuityEqual = true;
-        java.util.Set<String> distinctTotals = new java.util.LinkedHashSet<>();
-        if (pay.size() > 1) {
-            double first = parseAmount(pay.get(0)[2]);
-            for (int i = 0; i < pay.size() - 1; i++) {
-                distinctTotals.add(pay.get(i)[2]);
-                if (Math.abs(parseAmount(pay.get(i)[2]) - first) >= 0.01) annuityEqual = false;
+        java.util.Set<String> bodyTotals = new java.util.LinkedHashSet<>();
+        if (pay.size() > 3) {   // тело (без краёв) для сравнения существует только при >3 строках
+            double bodyRef = parseAmount(pay.get(1)[2]);
+            for (int i = 1; i < pay.size() - 1; i++) {
+                bodyTotals.add(pay.get(i)[2]);
+                if (Math.abs(parseAmount(pay.get(i)[2]) - bodyRef) >= 0.01) annuityEqual = false;
             }
         }
         VerificationCollector.checkTrue(
-                "График: аннуитет — равные платежи (кроме последнего)",
+                "График: аннуитет — равные платежи тела (без первого/последнего)",
                 annuityEqual,
-                "уникальные «Общая сумма» (без последней): " + distinctTotals);
+                "«Общая сумма» тела: " + bodyTotals);
     }
 
     /** Индекс колонки грида по data-item-marker её заголовка (caption). */
@@ -303,7 +308,7 @@ public class GridAssertions extends BaseComponent {
     private void expandActivitiesIfCollapsed(String gridWrapId) {
         String anyCaptionXpath = "//div[@id='" + gridWrapId + "']" +
                 "//div[contains(@id,'caption-') and @data-item-marker]";
-        for (int attempt = 1; attempt <= 3; attempt++) {
+        for (int attempt = 1; attempt <= 10; attempt++) {
             if ($x(anyCaptionXpath).is(visible)) return;
             log.info("Активности свёрнуты — клик по маркеру (попытка {}/3)", attempt);
             SelenideElement marker = $("#" + ACTIVITIES_COLLAPSE_MARKER_ID);

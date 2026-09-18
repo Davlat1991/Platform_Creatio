@@ -107,6 +107,8 @@ public class ApplicationFinishFlow {
 
         buttons.clickTabByName("Файлы и примечания");
         attachFile("Расходный кассовый ордер.docx");
+        assertions.assertFileInFilesDetail("Расходный кассовый ордер.docx");   // V7.2
+        VerificationCollector.flush("Артефакт — Файлы и ссылки");              // V7.2
 
         activity.completeActivityWaitingOverlay("Прикрепите документы для завершения заявки", ActivityResult.COMPLETED.getUiText());
 

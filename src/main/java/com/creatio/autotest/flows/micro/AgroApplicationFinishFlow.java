@@ -2,15 +2,12 @@ package com.creatio.autotest.flows.micro;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import com.creatio.autotest.components.ActivityComponent;
-import com.creatio.autotest.components.ButtonsComponent;
-import com.creatio.autotest.components.PrintComponent;
+import com.creatio.autotest.components.*;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.ActivityResult;
-import com.creatio.autotest.components.GridAssertions;
 import com.creatio.autotest.core.verify.VerificationCollector;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
@@ -64,13 +61,14 @@ public class AgroApplicationFinishFlow {
     private static final String APPLICATION_LINK_ID =
             "BnzContractCreditPageFinApplicationLookupEdit-link-el";
 
-    private final BasePage              basePage     = new BasePage();
-    private final ButtonsComponent      buttons      = new ButtonsComponent();
-    private final PrintComponent        print        = new PrintComponent();
-    private final ConsultationPanelPage consultation = new ConsultationPanelPage();
-    private final ApplicationSearchFlow searchFlow   = new ApplicationSearchFlow();
-    private final ActivityComponent     activity     = new ActivityComponent();
-    private final GridAssertions      gridAssertions = new GridAssertions();
+    private final BasePage                      basePage     = new BasePage();
+    private final ButtonsComponent              buttons      = new ButtonsComponent();
+    private final PrintComponent                print        = new PrintComponent();
+    private final ConsultationPanelPage         consultation = new ConsultationPanelPage();
+    private final ApplicationSearchFlow         searchFlow   = new ApplicationSearchFlow();
+    private final ActivityComponent             activity     = new ActivityComponent();
+    private final GridAssertions              gridAssertions = new GridAssertions();
+    private final CreditApplicationAssertions     assertions = new CreditApplicationAssertions();
 
     // ══════════════════════════════════════
     // MAIN
@@ -87,6 +85,8 @@ public class AgroApplicationFinishFlow {
 
         buttons.clickTabByName(FILES_TAB);
         attachFile(ORDER_FILE);
+        assertions.assertFileInFilesDetail(ORDER_FILE);                              // V7.2
+        VerificationCollector.flush("Артефакт — Файлы и ссылки (Агро)");       // V7.2
 
         activity.completeActivityAwaitingMiniPageClose(ATTACH_ACTIVITY, ATTACH_RESULT);
 
