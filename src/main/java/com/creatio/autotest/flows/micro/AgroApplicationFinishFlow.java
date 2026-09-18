@@ -210,6 +210,11 @@ public class AgroApplicationFinishFlow {
         $("#" + APPLICATION_LINK_ID)
                 .shouldBe(Condition.visible, Duration.ofSeconds(15))
                 .click();
+        // Ждём ухода со страницы договора: пока её контейнер в DOM, виден и её
+        // собственный таб-бар со своей вкладкой «История» — clickTabByName
+        // активировал бы ЕЁ (ложный успех), а деталь «Активности» заявки не нашлась бы.
+        $x("//*[@data-item-marker='" + CONTRACT_PAGE_MARKER + "']")
+                .shouldBe(Condition.hidden, Duration.ofSeconds(30));
         basePage.waitForPage();
     }
 

@@ -53,6 +53,13 @@ public class RealEstateCollateralFlow extends BaseCollateralFlow {
                 realEstate.getTotalArea()
         );
 
+        // DEF-COLLATERAL-NAME: характеристики (большой посимвольный ввод) асинхронно
+        // перерисовывают карточку и сбрасывают «Название». Закрепляем его СРАЗУ перед
+        // адресом — иначе клик «+» (EshPropertyDataAddressDetailAddRecordButtonButton)
+        // валидирует карточку: «Поле "Название": Необходимо указать значение» → адрес
+        // не открывается, «Тип адреса» не находится.
+        form.setName(type.getUiName());
+
         address.fillPropertyAddress();
 
         valuation.fillValuation(
