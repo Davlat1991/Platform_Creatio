@@ -15,7 +15,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <selenide.version>7.2.1</selenide.version>
+        <selenide.version>7.18.1</selenide.version>
         <testng.version>7.11.0</testng.version>
         <allure.version>2.27.0</allure.version>
         <aspectj.version>1.9.21</aspectj.version>
