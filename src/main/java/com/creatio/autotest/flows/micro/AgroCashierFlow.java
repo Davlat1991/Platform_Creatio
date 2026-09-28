@@ -7,9 +7,11 @@ import com.creatio.autotest.components.MessageBoxComponent;
 import com.creatio.autotest.components.PrintComponent;
 import com.creatio.autotest.core.base.BasePage;
 import com.creatio.autotest.core.services.ClickService;
+import com.creatio.autotest.core.verify.VerificationCollector;
 import com.creatio.autotest.flows.common.ApplicationSearchFlow;
 import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +88,12 @@ public class AgroCashierFlow {
         openOrder("Приходный");
         assertions.assertOrderState(STATE_NEW);
 
+        // V8.1c: сумма приходного ордера (комиссия) == сумме комиссии за выдачу.
+        VerificationCollector.checkNumeric(
+                "Приходный ордер == сумме комиссии",
+                ScenarioContextProvider.get().getIssuedCommission(),
+                FieldUtils.getValueByMarkerSafe("BnzAmount"));
+
         click.clickByName("Подтвердить");
         msgBox.shouldSeeModal("Кассовый ордер успешно подтвержден");
         click.clickByMarker("ОК");
@@ -104,7 +112,14 @@ public class AgroCashierFlow {
         openOrder("Расходный");
         assertions.assertOrderState(STATE_NEW);
 
+        // V8.1b: сумма расходного ордера (выдача) == одобренной сумме.
+        VerificationCollector.checkNumeric(
+                "Расходный ордер == одобренной сумме",
+                ScenarioContextProvider.get().getApprovedAmount(),
+                FieldUtils.getValueByMarkerSafe("BnzAmount"));
+
         click.clickByName("Подтвердить");
+
         msgBox.shouldSeeModal("Кассовый ордер успешно подтвержден");
         click.clickByMarker("ОК");
 

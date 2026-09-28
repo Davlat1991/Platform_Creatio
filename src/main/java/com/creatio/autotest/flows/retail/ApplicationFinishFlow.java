@@ -16,6 +16,7 @@ import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.components.GridAssertions;
 import com.creatio.autotest.core.verify.VerificationCollector;
 
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +82,12 @@ public class ApplicationFinishFlow {
         // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
         verifyActivitiesCompleted();
 
+        verifyTerminalStatus();   // V8.2
+
         // 3. Завершить заявку через консультационную панель
         finishViaConsultation();
+
+
     }
 
     @Step("Завершить заявку через консультационную панель")
@@ -161,8 +166,12 @@ public class ApplicationFinishFlow {
         // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
         verifyActivitiesCompleted();
 
+        verifyTerminalStatus();   // V8.2
+
         // 2. Завершить заявку через консультационную панель (как у ИКОК)
         finishViaConsultation();
+
+
     }
 
     // ══════════════════════════════════════
@@ -248,6 +257,19 @@ public class ApplicationFinishFlow {
         gridAssertions.verifyActivitiesCompleted(ACTIVITIES_GRID_WRAP, ACTIVITIES_DETAIL_SCOPE);
         VerificationCollector.flush("Активности");
     }
+
+
+
+    @Step("Финал: проверка терминального состояния заявки (до завершения)")
+    private void verifyTerminalStatus() {
+        log.info("Verify terminal status: состояние «Закрыта» на вкладке «История»");
+        VerificationCollector.check("Состояние заявки (терминал)",
+                "Закрыта",
+                FieldUtils.getValueByMarkerSafe("Status"));
+        VerificationCollector.flush("Терминал");
+    }
+
+
 
     /** Переход со страницы кредитного договора на карточку заявки по ссылке «Заявка». */
     @Step("Открыть заявку по ссылке «Заявка» с договора")

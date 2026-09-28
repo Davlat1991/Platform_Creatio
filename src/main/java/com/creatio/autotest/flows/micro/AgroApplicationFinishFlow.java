@@ -9,6 +9,7 @@ import com.creatio.autotest.pages.ConsultationPanelPage;
 import com.creatio.autotest.testdata.ScenarioContextProvider;
 import com.creatio.autotest.testdata.models.ActivityResult;
 import com.creatio.autotest.core.verify.VerificationCollector;
+import com.creatio.autotest.utils.FieldUtils;
 import io.qameta.allure.Step;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,8 +120,12 @@ public class AgroApplicationFinishFlow {
         // V-финал: проверка активностей на заявке (переход по ссылке), затем завершение.
         verifyActivitiesCompleted();
 
+        verifyTerminalStatus();   // V8.2
+
         consultation.ensureOpened();
         consultation.completeConsultation();
+
+
 
         log.info("Agro: application finished");
     }
@@ -202,6 +207,16 @@ public class AgroApplicationFinishFlow {
         gridAssertions.verifyActivitiesCompleted(ACTIVITIES_GRID_WRAP, ACTIVITIES_DETAIL_SCOPE);
         VerificationCollector.flush("Активности (Агро)");
     }
+
+    @Step("Агро финал: проверка терминального состояния заявки (до завершения)")
+    private void verifyTerminalStatus() {
+        log.info("Verify terminal status: состояние «Закрыта» на вкладке «История»");
+        VerificationCollector.check("Состояние заявки (терминал)",
+                "Закрыта",
+                FieldUtils.getValueByMarkerSafe("Status"));
+        VerificationCollector.flush("Терминал (Агро)");
+    }
+
 
     /** Переход со страницы кредитного договора на карточку заявки по ссылке «Заявка». */
     @Step("Открыть заявку по ссылке «Заявка» с договора")

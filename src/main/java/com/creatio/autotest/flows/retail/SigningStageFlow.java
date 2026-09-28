@@ -267,6 +267,14 @@ public class SigningStageFlow {
         String issueAmount = FieldUtils.getValueByMarker("Amount");
         log.info("Сумма к выдаче: '{}'", issueAmount);
 
+        // V8.1a: выдача == одобренной сумме (одобрено-центричный инвариант).
+        // approvedAmount застэширован на «Информировании» (V6).
+        VerificationCollector.checkNumeric(
+                "Выдача == одобренной сумме",
+                ScenarioContextProvider.get().getApprovedAmount(),
+                issueAmount);
+        VerificationCollector.flush("Выдача");
+
         click.clickByName("Подтвердить");
 
         // ── Модалка "Комиссия за выдачу кредита" ──
@@ -279,6 +287,9 @@ public class SigningStageFlow {
         String commissionAmount  = FieldUtils.getValueByMarker("CommissionAmount");
         log.info("Комиссия: сумма выдачи='{}', процент='{}', сумма комиссии='{}'",
                 commissionBase, commissionPercent, commissionAmount);
+
+        // V8.1c: стэш комиссии для сверки приходного ордера в кассе.
+        ScenarioContextProvider.get().setIssuedCommission(commissionAmount);
 
         click.clickByName("Подтвердить");
 

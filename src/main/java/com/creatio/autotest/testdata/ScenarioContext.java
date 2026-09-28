@@ -93,6 +93,23 @@ public class ScenarioContext {
                 "стадия «Рассмотрение» (чтение утверждённых параметров)");
     }
 
+
+    // ══════════════════════════════════════
+    // issuedCommission (V8.1c: expected для приходного ордера)
+    // ══════════════════════════════════════
+
+    private String issuedCommission;   // сумма комиссии за выдачу
+
+    public void setIssuedCommission(String value) {
+        log.info("Context: issuedCommission = '{}'", value);
+        this.issuedCommission = value;
+    }
+
+    public String getIssuedCommission() {
+        return require(issuedCommission, "issuedCommission",
+                "стадия «Подписание» (issueCashCredit, чтение комиссии)");
+    }
+
     // ══════════════════════════════════════
     // INTERNAL
     // ══════════════════════════════════════

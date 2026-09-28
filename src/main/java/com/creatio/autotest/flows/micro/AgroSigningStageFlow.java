@@ -395,18 +395,30 @@ public class AgroSigningStageFlow {
         click.clickByName("Действия");
         menu.hoverAndClickSubmenu("Выдача кредита", "Наличными");
 
-        // Модальная страница «Выдача кредита»: сумма readonly, зависит от кредита —
-        // на конкретное число не завязываемся, только фиксируем в логе.
-        log.info("Сумма к выдаче: '{}'", FieldUtils.getValueByMarker("Amount"));
+        // Модальная страница «Выдача кредита»: сумма readonly, зависит от кредита.
+        String issueAmount = FieldUtils.getValueByMarker("Amount");
+        log.info("Сумма к выдаче: '{}'", issueAmount);
+
+        // V8.1a: выдача == одобренной сумме (одобрено-центричный инвариант).
+        VerificationCollector.checkNumeric(
+                "Выдача == одобренной сумме",
+                ScenarioContextProvider.get().getApprovedAmount(),
+                issueAmount);
+        VerificationCollector.flush("Выдача (Агро)");
+
         click.clickByName("Подтвердить");
 
         // Модальная страница «Комиссия за выдачу кредита» (ts-modalbox, не messagebox).
         // Якорь появления — само чтение полей: getValueByMarker ждёт поле и падает,
         // если значение пустое.
+        String commissionAmount = FieldUtils.getValueByMarker("CommissionAmount");
         log.info("Комиссия: выдача='{}', процент='{}', сумма='{}'",
                 FieldUtils.getValueByMarker("IssuanceAmount"),
                 FieldUtils.getValueByMarker("CommissionPercentage"),
-                FieldUtils.getValueByMarker("CommissionAmount"));
+                commissionAmount);
+
+        // V8.1c: стэш комиссии для сверки приходного ордера в кассе.
+        ScenarioContextProvider.get().setIssuedCommission(commissionAmount);
         click.clickByName("Подтвердить");
 
         msgBox.shouldSeeModal(
